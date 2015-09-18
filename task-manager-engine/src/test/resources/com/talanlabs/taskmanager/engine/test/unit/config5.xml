@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<task-manager-configuration>
+    <graph-definitions instance-to-class="com.talanlabs.taskmanager.engine.test.data.NoneInstanceToClass">
+        <graph-definition object-class="com.talanlabs.taskmanager.engine.test.data.BusinessObject">
+            <init-state>
+                <state status="A" task-id="A_TASK"/>
+            </init-state>
+        </graph-definition>
+    </graph-definitions>
+</task-manager-configuration>

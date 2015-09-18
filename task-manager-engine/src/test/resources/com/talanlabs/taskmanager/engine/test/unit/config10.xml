@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<task-manager-configuration>
+    <task-definitions>
+        <task-definition task-id="A_TASK" task-class="com.talanlabs.taskmanager.engine.test.data.MultiUpdateStatusTaskService">
+            <parameter>A</parameter>
+        </task-definition>
+    </task-definitions>
+</task-manager-configuration>

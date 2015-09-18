@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<task-manager-configuration>
+    <graph-definitions>
+        <graph-definition object-class="com.talanlabs.taskmanager.engine.test.data.BusinessObject">
+            <init-state>
+                <state status="A" task-id="A_TASK">
+                    <state status="B" task-id="B_TASK"/>
+                    <state status="E" task-id="E_TASK">
+                        <state status="F" task-id="F_TASK"/>
+                    </state>
+                </state>
+                <state status="C" task-id="C_TASK"/>
+            </init-state>
+        </graph-definition>
+    </graph-definitions>
+</task-manager-configuration>

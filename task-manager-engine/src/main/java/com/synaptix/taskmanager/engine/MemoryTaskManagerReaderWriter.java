@@ -34,6 +34,7 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 
 	@Override
 	public List<ITask> saveNewTaskObjectInTaskCluster(ITaskCluster taskCluster, ITaskObject<?> taskObject, TaskNode taskNode) {
+		LOG.info("saveNewTaskObjectInTaskCluster " + taskCluster);
 		taskClusterMap.get(taskCluster).add(taskObject);
 		return new ArrayList<ITask>();
 	}

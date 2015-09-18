@@ -20,17 +20,17 @@ public class MainExample {
 		ComponentTaskObjectManagerRegistry taskObjectManagerRegistry = new ComponentTaskObjectManagerRegistry();
 		taskObjectManagerRegistry.addTaskObjectManager(new CustomerOrderObjectTypeTaskFactory());
 
-		DefaultTaskDefinitionRegistry taskServiceRegistry = new DefaultTaskDefinitionRegistry();
-		taskServiceRegistry.addTaskDefinition(new TaskDefinitionBuilder("TCO", new TCOTaskService()).build());
-		taskServiceRegistry.addTaskDefinition(new TaskDefinitionBuilder("CLO", new CLOTaskService()).build());
-		taskServiceRegistry.addTaskDefinition(new TaskDefinitionBuilder("CAN", new CANTaskService()).build());
-		taskServiceRegistry.addTaskDefinition(new TaskDefinitionBuilder("INC", new INCTaskService()).build());
+		DefaultTaskDefinitionRegistry taskDefinitionRegistry = new DefaultTaskDefinitionRegistry();
+		taskDefinitionRegistry.addTaskDefinition(new TaskDefinitionBuilder("TCO", new TCOTaskService()).build());
+		taskDefinitionRegistry.addTaskDefinition(new TaskDefinitionBuilder("CLO", new CLOTaskService()).build());
+		taskDefinitionRegistry.addTaskDefinition(new TaskDefinitionBuilder("CAN", new CANTaskService()).build());
+		taskDefinitionRegistry.addTaskDefinition(new TaskDefinitionBuilder("INC", new INCTaskService()).build());
 
 		MemoryTaskManagerReaderWriter memoryTaskReaderWriter = new MemoryTaskManagerReaderWriter();
 
 		TaskManagerEngine engine = new TaskManagerEngine(
 				new DefaultTaskManagerConfiguration.Builder().addStatusGraphs(ICustomerOrder.class, builder.build()).taskObjectManagerRegistry(taskObjectManagerRegistry)
-						.taskServiceRegistry(taskServiceRegistry).taskManagerReader(memoryTaskReaderWriter).taskManagerWriter(memoryTaskReaderWriter).build());
+						.taskServiceRegistry(taskDefinitionRegistry).taskManagerReader(memoryTaskReaderWriter).taskManagerWriter(memoryTaskReaderWriter).build());
 
 		ICustomerOrder customerOrder = new CustomerOrderBuilder().customerOrderNo("123456").build();
 		engine.startEngine(customerOrder);

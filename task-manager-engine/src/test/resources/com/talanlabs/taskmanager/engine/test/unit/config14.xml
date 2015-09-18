@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<task-manager-configuration>
+    <type-handlers>
+        <type-handler type="com.talanlabs.taskmanager.engine.test.data.MyStatusObject" handler-class="com.talanlabs.taskmanager.engine.test.data.MyStatusObjectTypeHandler"/>
+    </type-handlers>
+    <graph-definitions>
+        <graph-definition status-class="com.talanlabs.taskmanager.engine.test.data.MyStatusObject" object-class="com.talanlabs.taskmanager.engine.test.data.BusinessObject">
+            <init-state>
+                <state status="A" task-id="A_TASK"/>
+            </init-state>
+        </graph-definition>
+    </graph-definitions>
+    <task-definitions>
+        <task-definition task-id="A_TASK" task-class="com.talanlabs.taskmanager.engine.test.data.MultiUpdateMyStatusObjectTaskService">
+            <parameter>A</parameter>
+        </task-definition>
+        <task-definition task-id="B_TASK" task-class="com.talanlabs.taskmanager.engine.test.data.MultiUpdateMyStatusObjectTaskService">
+            <parameter>B</parameter>
+        </task-definition>
+    </task-definitions>
+</task-manager-configuration>

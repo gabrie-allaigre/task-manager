@@ -2,6 +2,8 @@ package com.synaptix.taskmanager.engine;
 
 import java.util.List;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import com.synaptix.taskmanager.model.ITask;
 import com.synaptix.taskmanager.model.ITaskCluster;
 import com.synaptix.taskmanager.model.ITaskObject;
@@ -16,19 +18,86 @@ public interface ITaskManagerWriter {
 	 */
 	public ITaskCluster saveNewTaskCluster(ITaskCluster taskCluster);
 
-	public List<ITask> saveNewTaskObjectInTaskCluster(ITaskCluster taskCluster, ITaskObject<?> taskObject, TaskNode taskNode);
+	/**
+	 * Save taskCluster, add taskNode for each taskObject
+	 * 
+	 * @param taskCluster
+	 * @param taskObjectNodes
+	 * @return
+	 */
+	public NewTaskObjectsInTaskClusterResult saveNewTaskObjectsInTaskCluster(ITaskCluster taskCluster, List<Pair<ITaskObject<?>, TaskNode>> taskObjectNodes);
 
-	public void archiveCluster(ITaskCluster taskCluster);
+	public class NewTaskObjectsInTaskClusterResult {
 
-	public void saveTask(ITask task);
+		private final ITaskCluster taskCluster;
 
-	public void deleteTasksTodo(ITask task);
+		private final List<ITask> tasks;
+
+		public NewTaskObjectsInTaskClusterResult(ITaskCluster taskCluster, List<ITask> tasks) {
+			super();
+			this.taskCluster = taskCluster;
+			this.tasks = tasks;
+		}
+
+		public ITaskCluster getTaskCluster() {
+			return this.taskCluster;
+		}
+
+		public List<ITask> getTasks() {
+			return this.tasks;
+		}
+	}
+
+	/**
+	 * When taskCluster is finish (no task current)
+	 * 
+	 * @param taskCluster
+	 */
+	public ITaskCluster archiveTaskCluster(ITaskCluster taskCluster);
+
+	/**
+	 * 
+	 * @param taskCluster
+	 * @param replaceTasks
+	 * @param toDoneTasks
+	 * @param toCurrentTasks
+	 * @return
+	 */
+	public NextTasksInTaskClusterResult saveNextTasksInTaskCluster(ITaskCluster taskCluster, List<Pair<ITask, List<TaskNode>>> replaceTasks, List<ITask> toDoneTasks, List<ITask> toCurrentTasks);
+
+	public class NextTasksInTaskClusterResult {
+
+		private final ITaskCluster taskCluster;
+
+		private final List<ITask> tasks;
+
+		private final List<ITask> deleteTasks;
+
+		public NextTasksInTaskClusterResult(ITaskCluster taskCluster, List<ITask> tasks, List<ITask> deleteTasks) {
+			super();
+			this.taskCluster = taskCluster;
+			this.tasks = tasks;
+			this.deleteTasks = deleteTasks;
+		}
+
+		public ITaskCluster getTaskCluster() {
+			return taskCluster;
+		}
+
+		public List<ITask> getTasks() {
+			return tasks;
+		}
+
+		public List<ITask> getDeleteTasks() {
+			return deleteTasks;
+		}
+	}
 
 	public class TaskNode {
 
 		private final ITask task;
 
-		private List<TaskNode> childTaskNodes;
+		private final List<TaskNode> childTaskNodes;
 
 		public TaskNode(ITask task, List<TaskNode> childTaskNodes) {
 			super();

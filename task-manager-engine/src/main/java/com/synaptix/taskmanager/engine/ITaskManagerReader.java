@@ -17,13 +17,23 @@ public interface ITaskManagerReader {
 	public ITaskCluster findTaskClusterByTaskObject(ITaskObject<?> taskObject);
 
 	/**
-	 * Find current tasks for cluster
+	 * Find all taskObjects by task cluster
+	 * 
+	 * note : used when taskCluster is not checkGraphCreated
 	 * 
 	 * @param taskCluster
 	 * @return
 	 */
-	public List<ITask> findCurrentTasksForCluster(ITaskCluster taskCluster);
+	public List<ITaskObject<?>> findTaskObjectsByTaskCluster(ITaskCluster taskCluster);
 
-	public List<ITask> selectNextTodoToCurrentTasks(ITask task);
+	/**
+	 * Find all currents tasks for task cluster
+	 * 
+	 * @param taskCluster
+	 * @return
+	 */
+	public List<ITask> findCurrentTasksByTaskCluster(ITaskCluster taskCluster);
+
+	public List<ITask> findNextTodoTasksByTaskClusterTask(ITaskCluster taskCluster, ITask task);
 
 }

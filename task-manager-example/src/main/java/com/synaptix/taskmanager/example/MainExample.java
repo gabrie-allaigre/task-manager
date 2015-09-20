@@ -1,11 +1,13 @@
 package com.synaptix.taskmanager.example;
 
+import java.util.UUID;
+
 import com.synaptix.taskmanager.engine.MemoryTaskManagerReaderWriter;
 import com.synaptix.taskmanager.engine.TaskManagerEngine;
 import com.synaptix.taskmanager.engine.configuration.DefaultTaskManagerConfiguration;
 import com.synaptix.taskmanager.engine.configuration.DefaultTaskManagerConfiguration.StatusGraphsBuilder;
 import com.synaptix.taskmanager.engine.configuration.registry.DefaultTaskDefinitionRegistry;
-import com.synaptix.taskmanager.example.tasks.enrichment.INCTaskService;
+import com.synaptix.taskmanager.example.tasks.enrichment.DateTaskService;
 import com.synaptix.taskmanager.example.tasks.updatestatus.CANTaskService;
 import com.synaptix.taskmanager.example.tasks.updatestatus.CLOTaskService;
 import com.synaptix.taskmanager.example.tasks.updatestatus.TCOTaskService;
@@ -24,7 +26,7 @@ public class MainExample {
 		taskDefinitionRegistry.addTaskDefinition(new TaskDefinitionBuilder("TCO", new TCOTaskService()).build());
 		taskDefinitionRegistry.addTaskDefinition(new TaskDefinitionBuilder("CLO", new CLOTaskService()).build());
 		taskDefinitionRegistry.addTaskDefinition(new TaskDefinitionBuilder("CAN", new CANTaskService()).build());
-		taskDefinitionRegistry.addTaskDefinition(new TaskDefinitionBuilder("INC", new INCTaskService()).build());
+		taskDefinitionRegistry.addTaskDefinition(new TaskDefinitionBuilder("DATE", new DateTaskService()).build());
 
 		MemoryTaskManagerReaderWriter memoryTaskReaderWriter = new MemoryTaskManagerReaderWriter();
 
@@ -32,8 +34,10 @@ public class MainExample {
 				new DefaultTaskManagerConfiguration.Builder().addStatusGraphs(ICustomerOrder.class, builder.build()).taskObjectManagerRegistry(taskObjectManagerRegistry)
 						.taskServiceRegistry(taskDefinitionRegistry).taskManagerReader(memoryTaskReaderWriter).taskManagerWriter(memoryTaskReaderWriter).build());
 
-		ICustomerOrder customerOrder = new CustomerOrderBuilder().customerOrderNo("123456").build();
+		ICustomerOrder customerOrder = new CustomerOrderBuilder().id(UUID.randomUUID()).version(0).customerOrderNo("123456").confirmed(false).build();
 		engine.startEngine(customerOrder);
+
+		System.out.println(customerOrder);
 
 		engine.startEngine(customerOrder);
 	}

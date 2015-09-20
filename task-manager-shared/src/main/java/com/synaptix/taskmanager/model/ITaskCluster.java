@@ -2,8 +2,18 @@ package com.synaptix.taskmanager.model;
 
 public interface ITaskCluster {
 
+	/**
+	 * If Graph contains tasks with taskObject
+	 * 
+	 * @return
+	 */
 	public boolean isCheckGraphCreated();
 
-	public void setCheckGraphCreated(boolean checkGraphCreated);
+	/**
+	 * If archived cluster, is finish
+	 * 
+	 * @return
+	 */
+	public boolean isCheckArchived();
 
 }

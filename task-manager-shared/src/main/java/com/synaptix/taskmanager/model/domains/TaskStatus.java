@@ -12,13 +12,5 @@ public enum TaskStatus {
 	/**
 	 * Fait
 	 */
-	DONE,
-	/**
-	 * Ignoré
-	 */
-	SKIPPED,
-	/**
-	 * Annulée
-	 */
-	CANCELED
+	DONE
 }

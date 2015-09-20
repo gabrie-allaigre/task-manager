@@ -11,12 +11,15 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.joda.time.LocalDateTime;
 
 import com.synaptix.component.model.IServiceResult;
 import com.synaptix.component.model.IStackResult;
+import com.synaptix.taskmanager.engine.ITaskManagerWriter.NewTaskObjectsInTaskClusterResult;
+import com.synaptix.taskmanager.engine.ITaskManagerWriter.NextTasksInTaskClusterResult;
 import com.synaptix.taskmanager.engine.ITaskManagerWriter.TaskNode;
 import com.synaptix.taskmanager.engine.configuration.ITaskManagerConfiguration;
 import com.synaptix.taskmanager.engine.configuration.result.ServiceResultBuilder;
@@ -75,29 +78,32 @@ public class TaskManagerEngine {
 	 * @return
 	 */
 	public IServiceResult<Void> startEngine(ITaskCluster taskCluster) {
-		if (taskCluster == null) {
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("TM - StartEngine");
+		}
+
+		if (taskCluster == null || taskCluster.isCheckArchived()) {
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("TM - Nothing");
+			}
 			return new ServiceResultBuilder<TaskManagerErrorEnum>().compileResult(null);
 		}
 
 		ServiceResultBuilder<TaskManagerErrorEnum> serviceResultBuilder = new ServiceResultBuilder<TaskManagerErrorEnum>();
-
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("TM - StartEngine");
-		}
 
 		boolean restart = false;
 
 		Set<ITaskCluster> restartClusters = new HashSet<ITaskCluster>();
 
 		// Find all current task for cluster
-		List<ITask> tasks = getTaskManagerConfiguration().getTaskManagerReader().findCurrentTasksForCluster(taskCluster);
+		List<ITask> tasks = getTaskManagerConfiguration().getTaskManagerReader().findCurrentTasksByTaskCluster(taskCluster);
 
 		if (tasks == null || tasks.isEmpty()) {
 			if (taskCluster != null && !taskCluster.isCheckGraphCreated()) {
 				createTaskGraphs(taskCluster);
 				restartClusters.add(taskCluster);
 			} else {
-				getTaskManagerConfiguration().getTaskManagerWriter().archiveCluster(taskCluster);
+				getTaskManagerConfiguration().getTaskManagerWriter().archiveTaskCluster(taskCluster);
 			}
 		} else {
 			LinkedList<ITask> tasksQueue = new LinkedList<ITask>(tasks);
@@ -112,19 +118,30 @@ public class TaskManagerEngine {
 					ITaskDefinition taskDefinition = getTaskManagerConfiguration().getTaskDefinitionRegistry().getTaskDefinition(task.getServiceCode());
 					ITaskService taskService = taskDefinition.getTaskService();
 					if (taskService == null) {
+						if (LOG.isDebugEnabled()) {
+							LOG.debug("taskService does not exist");
+						}
 						errorMessage = "Service code does not exist";
 					} else {
-						TaskExecutionResult taskExecutionResult = executeTask(taskService, task, serviceResultBuilder);
-						if (taskExecutionResult.stopAndRestart) {
-							restart = true;
+						if (LOG.isDebugEnabled()) {
+							LOG.debug("taskService is " + task.getServiceCode());
 						}
-						done = taskExecutionResult.done;
-						errorMessage = taskExecutionResult.errorMessage;
+						// TaskExecutionResult taskExecutionResult = executeTask(taskService, task, serviceResultBuilder);
+						// if (taskExecutionResult.stopAndRestart) {
+						// restart = true;
+						// }
+						// done = taskExecutionResult.done;
+						// errorMessage = taskExecutionResult.errorMessage;
+
+					}
+				} else {
+					if (LOG.isDebugEnabled()) {
+						LOG.debug("taskService is null");
 					}
 				}
 
 				if (done) {
-					TasksLists tasksLists = setTaskDone(task);
+					TasksLists tasksLists = setTaskDone(taskCluster, task);
 					// Add new tasks to top of deque
 					for (ITask iTask : tasksLists.newTasksToDos) {
 						tasksQueue.addFirst(iTask);
@@ -163,7 +180,7 @@ public class TaskManagerEngine {
 				}
 			}
 			if (!restart && recycleList.isEmpty()) {
-				getTaskManagerConfiguration().getTaskManagerWriter().archiveCluster(taskCluster);
+				getTaskManagerConfiguration().getTaskManagerWriter().archiveTaskCluster(taskCluster);
 			}
 		}
 
@@ -204,7 +221,7 @@ public class TaskManagerEngine {
 			task.setCheckTodoManagerCreated(false);
 		}
 
-		getTaskManagerConfiguration().getTaskManagerWriter().saveTask(task);
+		// getTaskManagerConfiguration().getTaskManagerWriter().saveTask(task);
 	}
 
 	private TaskExecutionResult executeTask(ITaskService taskService, ITask task, ServiceResultBuilder<TaskManagerErrorEnum> serviceResultBuilder) {
@@ -263,19 +280,15 @@ public class TaskManagerEngine {
 			}
 		}
 
-		getTaskManagerConfiguration().getTaskManagerWriter().saveTask(task);
+		// getTaskManagerConfiguration().getTaskManagerWriter().saveTask(task);
 	}
 
-	private TasksLists setTaskDone(ITask task) {
-		return nextTasks(task, false);
+	private TasksLists setTaskDone(ITaskCluster taskCluster, ITask task) {
+		return nextTasks(taskCluster, task, false);
 	}
 
-	public TasksLists nextTasks(ITask task, boolean skip) {
-		TasksLists tasksLists = new TasksLists();
-		tasksLists.newTasksToDos = new ArrayList<ITask>();
-		tasksLists.tasksToRemoves = new ArrayList<ITask>();
-
-		// List<ITask> todoTasks = getTaskManagerReader().selectNextTodoToCurrentTasks(task);
+	public TasksLists nextTasks(ITaskCluster taskCluster, ITask toDoneTask, boolean skip) {
+		List<ITask> todoTasks = getTaskManagerConfiguration().getTaskManagerReader().findNextTodoTasksByTaskClusterTask(taskCluster, toDoneTask);
 		//
 		// List<ITask> changedStatusTasks = new ArrayList<ITask>();
 		// List<ITask> toCurrentTasks = new ArrayList<ITask>();
@@ -292,60 +305,71 @@ public class TaskManagerEngine {
 		// }
 		// changedStatusTasks.add(task);
 		//
-		// if (todoTasks != null && !todoTasks.isEmpty()) {
-		// for (ITask todoTask : todoTasks) {
-		// if (todoTask.isCheckGroup()) {
-		// // Replace group with actual tasks.
-		// ITaskObjectManager<?> objectTypeTaskFactory = getTaskObjectManagerDictionnary().getTaskObjectManager(todoTask.getObjectType());
-		// ITaskChainCriteria<? extends Enum<?>> taskChainCriteria = null;
-		// if (objectTypeTaskFactory != null) {
-		// taskChainCriteria = objectTypeTaskFactory.getTaskChainCriteria(todoTask);
-		// }
-		//
-		// CreateTasksResult ctr = _createTasks(todoTask, taskChainCriteria);
-		// if (ctr != null) {
-		// if (ctr.allTasks != null) {
-		// changedStatusTasks.addAll(ctr.allTasks);
-		// }
-		//
-		// if (ctr.firstTasks != null) {
-		// toCurrentTasks.addAll(ctr.firstTasks);
-		// tasksLists.getNewTasksToDo().addAll(ctr.firstTasks);
-		//
-		// for (ITask iTask : ctr.firstTasks) {
-		// List<Serializable> previousTasks = getTaskMapper().findPreviousTasks(todoTask.getId());
-		// for (Serializable idPreviousTask : previousTasks) {
-		// linkTwoTasks(idPreviousTask, iTask.getId());
-		// }
-		// }
-		// }
-		//
-		// for (ITask iTask : ctr.lastTasks) {
-		// List<Serializable> nextTasks = getTaskMapper().findNextTasks(todoTask.getId());
-		// for (Serializable idNextTask : nextTasks) {
-		// linkTwoTasks(iTask.getId(), idNextTask);
-		// }
-		// }
-		// } else {
-		// List<Serializable> previousTasks = getTaskMapper().findPreviousTasks(todoTask.getId());
-		// List<ITask> nextTasks = getTaskMapper().selectNextTasks(todoTask.getId(), null);
-		// if (previousTasks != null && !previousTasks.isEmpty() && nextTasks != null && !nextTasks.isEmpty()) {
-		// linkTwoTasks(previousTasks.get(0), nextTasks.get(0).getId());
-		// }
-		// if (nextTasks != null) {
-		// toCurrentTasks.addAll(nextTasks);
-		// tasksLists.getNewTasksToDo().addAll(nextTasks);
-		// }
-		// }
-		// deleteTask(todoTask.getId());
-		// tasksLists.getIdTasksToRemove().add(todoTask.getId());
-		// } else {
-		// saveTaskCurrent(todoTask);
-		// changedStatusTasks.add(todoTask);
-		// tasksLists.getNewTasksToDo().add(todoTask);
-		// }
-		// }
-		// }
+
+		List<Pair<ITask, List<TaskNode>>> replaceTasks = new ArrayList<Pair<ITask, List<TaskNode>>>();
+		List<ITask> toDoneTasks = new ArrayList<ITask>();
+		List<ITask> toCurrentTasks = new ArrayList<ITask>();
+
+		// Done current task
+		toDoneTasks.add(toDoneTask);
+
+		// Step current next todo task
+		if (todoTasks != null && !todoTasks.isEmpty()) {
+			for (ITask todoTask : todoTasks) {
+				if (todoTask.isCheckGroup()) {
+					if (LOG.isDebugEnabled()) {
+						LOG.debug("Task is group : explain");
+					}
+
+					// Replace group with actual tasks.
+					ITaskObjectManager<?> objectTypeTaskFactory = getTaskManagerConfiguration().getTaskObjectManagerRegistry().getTaskObjectManager(todoTask.getTaskObjectClass());
+					String taskChainCriteria = objectTypeTaskFactory.getTaskChainCriteria(todoTask);
+
+					// CreateTasksResult ctr = _createTasks(todoTask, taskChainCriteria);
+					// if (ctr != null) {
+					// if (ctr.allTasks != null) {
+					// changedStatusTasks.addAll(ctr.allTasks);
+					// }
+					//
+					// if (ctr.firstTasks != null) {
+					// toCurrentTasks.addAll(ctr.firstTasks);
+					// tasksLists.getNewTasksToDo().addAll(ctr.firstTasks);
+					//
+					// for (ITask iTask : ctr.firstTasks) {
+					// List<Serializable> previousTasks = getTaskMapper().findPreviousTasks(todoTask.getId());
+					// for (Serializable idPreviousTask : previousTasks) {
+					// linkTwoTasks(idPreviousTask, iTask.getId());
+					// }
+					// }
+					// }
+					//
+					// for (ITask iTask : ctr.lastTasks) {
+					// List<Serializable> nextTasks = getTaskMapper().findNextTasks(todoTask.getId());
+					// for (Serializable idNextTask : nextTasks) {
+					// linkTwoTasks(iTask.getId(), idNextTask);
+					// }
+					// }
+					// } else {
+					// List<Serializable> previousTasks = getTaskMapper().findPreviousTasks(todoTask.getId());
+					// List<ITask> nextTasks = getTaskMapper().selectNextTasks(todoTask.getId(), null);
+					// if (previousTasks != null && !previousTasks.isEmpty() && nextTasks != null && !nextTasks.isEmpty()) {
+					// linkTwoTasks(previousTasks.get(0), nextTasks.get(0).getId());
+					// }
+					// if (nextTasks != null) {
+					// toCurrentTasks.addAll(nextTasks);
+					// tasksLists.getNewTasksToDo().addAll(nextTasks);
+					// }
+					// }
+					// deleteTask(todoTask.getId());
+					// tasksLists.getIdTasksToRemove().add(todoTask.getId());
+				} else {
+					toCurrentTasks.add(todoTask);
+					// saveTaskCurrent(todoTask);
+					// changedStatusTasks.add(todoTask);
+					// tasksLists.getNewTasksToDo().add(todoTask);
+				}
+			}
+		}
 		//
 		// onTaskStatusChanged(changedStatusTasks);
 		//
@@ -357,46 +381,45 @@ public class TaskManagerEngine {
 		//
 		// onTaskStatusChanged(toCurrentTasks);
 
+		NextTasksInTaskClusterResult nextTasksInTaskClusterResult = getTaskManagerConfiguration().getTaskManagerWriter().saveNextTasksInTaskCluster(taskCluster, replaceTasks, toDoneTasks,
+				toCurrentTasks);
+
+		// onTaskStatusChanged(nextTasksInTaskClusterResult.getTasks());
+
+		TasksLists tasksLists = new TasksLists();
+		tasksLists.newTasksToDos = new ArrayList<ITask>();
+		if (nextTasksInTaskClusterResult.getTasks() != null && !nextTasksInTaskClusterResult.getTasks().isEmpty()) {
+			for (ITask task : nextTasksInTaskClusterResult.getTasks()) {
+				if (TaskStatus.CURRENT.equals(task.getTaskStatus())) {
+					tasksLists.newTasksToDos.add(task);
+				}
+			}
+		}
+
+		tasksLists.tasksToRemoves = new ArrayList<ITask>();
+		if (nextTasksInTaskClusterResult.getDeleteTasks() != null && !nextTasksInTaskClusterResult.getDeleteTasks().isEmpty()) {
+			tasksLists.tasksToRemoves.addAll(nextTasksInTaskClusterResult.getDeleteTasks());
+		}
+
 		return tasksLists;
-	}
-
-	/*
-	 * Set task current, save history
-	 */
-	private void saveTaskCurrent(ITask task) {
-		task.setTaskStatus(TaskStatus.CURRENT);
-		task.setStartDate(new Date());
-		getTaskManagerConfiguration().getTaskManagerWriter().saveTask(task);
-	}
-
-	/*
-	 * Set task skipped, save history, delete todos and errors
-	 */
-	private void saveTaskSkipped(ITask task) {
-		task.setTaskStatus(TaskStatus.SKIPPED);
-		task.setEndDate(new Date());
-		getTaskManagerConfiguration().getTaskManagerWriter().saveTask(task);
-
-		deleteTodos(task);
 	}
 
 	// Task creation
 
+	@SuppressWarnings("unchecked")
 	private <E extends Enum<E>, F extends ITaskObject<E>> ITaskCluster createTaskCluster(F taskObject) {
-		List<ITask> changedStatusTasks = new ArrayList<ITask>();
-
 		ITaskCluster taskCluster = getTaskManagerConfiguration().getTaskFactory().newTaskCluster();
-		taskCluster.setCheckGraphCreated(true);
 
 		taskCluster = getTaskManagerConfiguration().getTaskManagerWriter().saveNewTaskCluster(taskCluster);
 
 		TaskNode taskNode = createTasks(taskCluster, taskObject);
 
-		changedStatusTasks.addAll(getTaskManagerConfiguration().getTaskManagerWriter().saveNewTaskObjectInTaskCluster(taskCluster, taskObject, taskNode));
+		NewTaskObjectsInTaskClusterResult newTaskObjectsInTaskClusterResult = getTaskManagerConfiguration().getTaskManagerWriter().saveNewTaskObjectsInTaskCluster(taskCluster,
+				Arrays.asList(Pair.<ITaskObject<?>, TaskNode> of(taskObject, taskNode)));
 
-		onTaskStatusChanged(changedStatusTasks);
+		onTaskStatusChanged(newTaskObjectsInTaskClusterResult.getTasks());
 
-		return taskCluster;
+		return newTaskObjectsInTaskClusterResult.getTaskCluster();
 	}
 
 	/*
@@ -418,7 +441,7 @@ public class TaskManagerEngine {
 		}
 
 		// Create a first task, it does nothing
-		ITask initTask = getTaskManagerConfiguration().getTaskFactory().newTask();
+		ITask initTask = getTaskManagerConfiguration().getTaskFactory().newTask(taskCluster, taskObject);
 		initTask.setCheckError(false);
 		initTask.setCheckSkippable(false);
 		initTask.setErrorMessage(null);
@@ -447,7 +470,7 @@ public class TaskManagerEngine {
 		if (sgs != null && !sgs.isEmpty()) {
 			for (IStatusGraph<E> sg : sgs) {
 				// Create group task
-				ITask groupTask = getTaskManagerConfiguration().getTaskFactory().newTask();
+				ITask groupTask = getTaskManagerConfiguration().getTaskFactory().newTask(taskCluster, taskObject);
 				groupTask.setCheckError(false);
 				groupTask.setCheckSkippable(false);
 				groupTask.setErrorMessage(null);
@@ -468,7 +491,7 @@ public class TaskManagerEngine {
 				ITaskDefinition updateStatusTaskType = getTaskManagerConfiguration().getTaskDefinitionRegistry().getTaskDefinition(sg.getCodeTaskType());
 				ITaskService taskService = updateStatusTaskType.getTaskService();
 
-				ITask updateStatusTask = getTaskManagerConfiguration().getTaskFactory().newTask();
+				ITask updateStatusTask = getTaskManagerConfiguration().getTaskFactory().newTask(taskCluster, taskObject);
 				updateStatusTask.setCheckError(false);
 				updateStatusTask.setCheckSkippable(updateStatusTaskType.isCheckSkippable());
 				updateStatusTask.setErrorMessage(null);
@@ -512,21 +535,26 @@ public class TaskManagerEngine {
 		return res;
 	}
 
-	private void createTaskGraphs(ITaskCluster taskCluster) {
-		List<ITask> changedStatusTasks = new ArrayList<ITask>();
+	/**
+	 * Create Task graphs for task cluster
+	 * 
+	 * @param taskCluster
+	 */
+	private ITaskCluster createTaskGraphs(ITaskCluster taskCluster) {
+		List<ITaskObject<?>> taskObjects = getTaskManagerConfiguration().getTaskManagerReader().findTaskObjectsByTaskCluster(taskCluster);
 
-		// List<ITaskClusterDependency> taskClusterDependencies = getTaskClusterDependencyMapper().selectTaskClusterDependenciesByIdTaskCluster(taskCluster.getId());
-		// if (taskClusterDependencies != null && !taskClusterDependencies.isEmpty()) {
-		// for (ITaskClusterDependency taskClusterDependency : taskClusterDependencies) {
-		// ITaskObject<?> taskObject = entityServiceDelegate.findEntityById(taskClusterDependency.getObjectType(), taskClusterDependency.getIdObject());
-		// changedStatusTasks.addAll(createTasks(taskCluster.getId(), taskObject));
-		// }
-		// }
-		//
-		// taskCluster.setCheckGraphCreated(true);
-		// saveOrUpdateEntity(taskCluster);
+		List<Pair<ITaskObject<?>, TaskNode>> taskObjectNodes = new ArrayList<Pair<ITaskObject<?>, TaskNode>>();
+		if (taskObjects != null && !taskObjects.isEmpty()) {
+			for (ITaskObject<?> taskObject : taskObjects) {
+				taskObjectNodes.add(Pair.<ITaskObject<?>, TaskNode> of(taskObject, createTasks(taskCluster, taskObject)));
+			}
+		}
 
-		onTaskStatusChanged(changedStatusTasks);
+		NewTaskObjectsInTaskClusterResult newTaskObjectsInTaskClusterResult = getTaskManagerConfiguration().getTaskManagerWriter().saveNewTaskObjectsInTaskCluster(taskCluster, taskObjectNodes);
+
+		onTaskStatusChanged(newTaskObjectsInTaskClusterResult.getTasks());
+
+		return newTaskObjectsInTaskClusterResult.getTaskCluster();
 	}
 
 	private void onTaskStatusChanged(List<ITask> tasks) {
@@ -586,7 +614,7 @@ public class TaskManagerEngine {
 	 */
 	private void deleteTodos(ITask task) {
 		if (task.isCheckTodoExecutantCreated() || task.isCheckTodoManagerCreated()) {
-			getTaskManagerConfiguration().getTaskManagerWriter().deleteTasksTodo(task);
+			// getTaskManagerConfiguration().getTaskManagerWriter().deleteTasksTodo(task);
 		}
 	}
 

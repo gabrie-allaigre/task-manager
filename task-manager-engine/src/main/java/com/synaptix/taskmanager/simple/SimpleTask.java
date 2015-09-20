@@ -2,6 +2,7 @@ package com.synaptix.taskmanager.simple;
 
 import java.util.Date;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.joda.time.Duration;
 import org.joda.time.LocalDateTime;
 
@@ -12,40 +13,52 @@ import com.synaptix.taskmanager.model.domains.TaskStatus;
 
 public class SimpleTask implements ITask {
 
+	private ITaskObject<?> taskObject;
+
+	private TaskStatus taskStatus;
+
+	private ServiceNature nature;
+
+	private String serviceCode;
+
+	private boolean checkGroup;
+
+	public <F extends ITaskObject<?>> F getTaskObject() {
+		return (F) taskObject;
+	}
+
+	public <F extends ITaskObject<?>> void setTaskObject(F taskObject) {
+		this.taskObject = taskObject;
+	}
+
 	@Override
 	public TaskStatus getTaskStatus() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.taskStatus;
 	}
 
 	@Override
 	public void setTaskStatus(TaskStatus taskStatus) {
-		// TODO Auto-generated method stub
-
+		this.taskStatus = taskStatus;
 	}
 
 	@Override
 	public ServiceNature getNature() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.nature;
 	}
 
 	@Override
 	public void setNature(ServiceNature nature) {
-		// TODO Auto-generated method stub
-
+		this.nature = nature;
 	}
 
 	@Override
 	public String getServiceCode() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.serviceCode;
 	}
 
 	@Override
 	public void setServiceCode(String serviceCode) {
-		// TODO Auto-generated method stub
-
+		this.serviceCode = serviceCode;
 	}
 
 	@Override
@@ -122,14 +135,12 @@ public class SimpleTask implements ITask {
 
 	@Override
 	public boolean isCheckGroup() {
-		// TODO Auto-generated method stub
-		return false;
+		return this.checkGroup;
 	}
 
 	@Override
 	public void setCheckGroup(boolean checkGroup) {
-		// TODO Auto-generated method stub
-
+		this.checkGroup = checkGroup;
 	}
 
 	@Override
@@ -264,4 +275,8 @@ public class SimpleTask implements ITask {
 
 	}
 
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
+	}
 }

@@ -65,18 +65,20 @@ public interface ITaskManagerWriter {
 	 */
 	public NextTasksInTaskClusterResult saveNextTasksInTaskCluster(ITaskCluster taskCluster, List<Pair<ITask, List<TaskNode>>> replaceTasks, List<ITask> toDoneTasks, List<ITask> toCurrentTasks);
 
+	public ITask saveNothingTask(ITaskCluster taskCluster, ITask task);
+
 	public class NextTasksInTaskClusterResult {
 
 		private final ITaskCluster taskCluster;
 
-		private final List<ITask> tasks;
+		private final List<ITask> currentTasks;
 
 		private final List<ITask> deleteTasks;
 
-		public NextTasksInTaskClusterResult(ITaskCluster taskCluster, List<ITask> tasks, List<ITask> deleteTasks) {
+		public NextTasksInTaskClusterResult(ITaskCluster taskCluster, List<ITask> currentTasks, List<ITask> deleteTasks) {
 			super();
 			this.taskCluster = taskCluster;
-			this.tasks = tasks;
+			this.currentTasks = currentTasks;
 			this.deleteTasks = deleteTasks;
 		}
 
@@ -84,8 +86,8 @@ public interface ITaskManagerWriter {
 			return taskCluster;
 		}
 
-		public List<ITask> getTasks() {
-			return tasks;
+		public List<ITask> getCurrentTasks() {
+			return currentTasks;
 		}
 
 		public List<ITask> getDeleteTasks() {

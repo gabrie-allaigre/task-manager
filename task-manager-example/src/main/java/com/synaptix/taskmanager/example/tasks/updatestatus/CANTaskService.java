@@ -11,12 +11,17 @@ import com.synaptix.taskmanager.simple.SimpleTask;
 public class CANTaskService extends AbstractTaskService {
 
 	public CANTaskService() {
-		super(ServiceNature.UPDATE_STATUS, ICustomerOrder.class);
+		super(ServiceNature.UPDATE_STATUS);
 	}
 
 	@Override
 	public IExecutionResult execute(ITask task) {
-		((SimpleTask) task).<ICustomerOrder> getTaskObject().setStatus(CustomerOrderStatus.CAN);
-		return new ExecutionResultBuilder().finished();
+		ICustomerOrder customerOrder = ((SimpleTask) task).<ICustomerOrder> getTaskObject();
+		if (customerOrder.isCancelled()) {
+			((SimpleTask) task).<ICustomerOrder> getTaskObject().setStatus(CustomerOrderStatus.CAN);
+			return new ExecutionResultBuilder().finished();
+		} else {
+			return new ExecutionResultBuilder().notFinished();
+		}
 	}
 }

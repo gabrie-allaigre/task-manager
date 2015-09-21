@@ -8,15 +8,20 @@ import com.synaptix.taskmanager.model.ITask;
 import com.synaptix.taskmanager.model.domains.ServiceNature;
 import com.synaptix.taskmanager.simple.SimpleTask;
 
-public class TCOTaskService extends AbstractTaskService {
+public class VALTaskService extends AbstractTaskService {
 
-	public TCOTaskService() {
+	public VALTaskService() {
 		super(ServiceNature.UPDATE_STATUS);
 	}
 
 	@Override
 	public IExecutionResult execute(ITask task) {
-		((SimpleTask) task).<ICustomerOrder> getTaskObject().setStatus(CustomerOrderStatus.TCO);
-		return new ExecutionResultBuilder().finished();
+		ICustomerOrder customerOrder = ((SimpleTask) task).<ICustomerOrder> getTaskObject();
+		if (customerOrder.isConfirmed()) {
+			((SimpleTask) task).<ICustomerOrder> getTaskObject().setStatus(CustomerOrderStatus.VAL);
+			return new ExecutionResultBuilder().finished();
+		} else {
+			return new ExecutionResultBuilder().notFinished();
+		}
 	}
 }

@@ -1,7 +1,5 @@
 package com.synaptix.taskmanager.manager.taskdefinition;
 
-import org.joda.time.Duration;
-
 import com.synaptix.taskmanager.manager.taskservice.ITaskService;
 
 public class TaskDefinitionBuilder {
@@ -12,26 +10,6 @@ public class TaskDefinitionBuilder {
 		super();
 
 		this.taskDefinition = new MyTaskDefinition(code, taskService);
-	}
-
-	public TaskDefinitionBuilder checkSkippable(boolean checkSkippable) {
-		this.taskDefinition.checkSkippable = checkSkippable;
-		return this;
-	}
-
-	public TaskDefinitionBuilder checkSkippable(String executantRole) {
-		this.taskDefinition.executantRole = executantRole;
-		return this;
-	}
-
-	public TaskDefinitionBuilder managerRole(String managerRole) {
-		this.taskDefinition.managerRole = managerRole;
-		return this;
-	}
-
-	public TaskDefinitionBuilder todoManagerDuration(Duration todoManagerDuration) {
-		this.taskDefinition.todoManagerDuration = todoManagerDuration;
-		return this;
 	}
 
 	public TaskDefinitionBuilder resultDepth(int resultDepth) {
@@ -49,14 +27,6 @@ public class TaskDefinitionBuilder {
 
 		final ITaskService taskService;
 
-		boolean checkSkippable;
-
-		String executantRole;
-
-		String managerRole;
-
-		Duration todoManagerDuration;
-
 		int resultDepth;
 
 		public MyTaskDefinition(String code, ITaskService taskService) {
@@ -65,10 +35,6 @@ public class TaskDefinitionBuilder {
 			this.code = code;
 			this.taskService = taskService;
 
-			this.checkSkippable = true;
-			this.executantRole = null;
-			this.managerRole = null;
-			this.todoManagerDuration = null;
 			this.resultDepth = -1;
 		}
 
@@ -80,26 +46,6 @@ public class TaskDefinitionBuilder {
 		@Override
 		public ITaskService getTaskService() {
 			return this.taskService;
-		}
-
-		@Override
-		public boolean isCheckSkippable() {
-			return this.checkSkippable;
-		}
-
-		@Override
-		public String getExecutantRole() {
-			return this.executantRole;
-		}
-
-		@Override
-		public String getManagerRole() {
-			return this.managerRole;
-		}
-
-		@Override
-		public Duration getTodoManagerDuration() {
-			return this.todoManagerDuration;
 		}
 
 		@Override

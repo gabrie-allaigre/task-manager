@@ -13,12 +13,20 @@ public interface ICustomerOrder extends IEntity, ITaskObject<CustomerOrderStatus
 
 	public void setCustomerOrderNo(String customerOrderNo);
 
+	public String getReference();
+
+	public void setReference(String reference);
+
 	public boolean isConfirmed();
 
 	public void setConfirmed(boolean confirmed);
 
-	public Date getDate();
+	public boolean isCancelled();
 
-	public void setDate(Date date);
+	public void setCancelled(boolean cancelled);
+
+	public Date getDateClosed();
+
+	public void setDateClosed(Date dateClosed);
 
 }

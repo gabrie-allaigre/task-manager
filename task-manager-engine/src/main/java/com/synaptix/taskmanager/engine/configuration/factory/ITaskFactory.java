@@ -2,7 +2,6 @@ package com.synaptix.taskmanager.engine.configuration.factory;
 
 import com.synaptix.taskmanager.model.ITask;
 import com.synaptix.taskmanager.model.ITaskCluster;
-import com.synaptix.taskmanager.model.ITaskObject;
 
 public interface ITaskFactory {
 
@@ -16,10 +15,8 @@ public interface ITaskFactory {
 	/**
 	 * Create a new task
 	 * 
-	 * @param taskCluster
-	 * @param taskObject
 	 * @return
 	 */
-	public ITask newTask(ITaskCluster taskCluster, ITaskObject<?> taskObject);
+	public ITask newTask();
 
 }

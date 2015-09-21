@@ -1,7 +1,6 @@
 package com.synaptix.taskmanager.manager.taskservice;
 
 import com.synaptix.taskmanager.model.ITask;
-import com.synaptix.taskmanager.model.ITaskObject;
 import com.synaptix.taskmanager.model.domains.ServiceNature;
 
 import de.jkeylockmanager.manager.KeyLockManager;
@@ -12,8 +11,8 @@ public abstract class AbstractLockTaskService<F> extends AbstractTaskService {
 
 	private final KeyLockManager keyLockManager;
 
-	public AbstractLockTaskService(ServiceNature nature, Class<? extends ITaskObject<?>> objectType) {
-		super(nature, objectType);
+	public AbstractLockTaskService(ServiceNature nature) {
+		super(nature);
 
 		this.keyLockManager = KeyLockManagers.newLock();
 	}

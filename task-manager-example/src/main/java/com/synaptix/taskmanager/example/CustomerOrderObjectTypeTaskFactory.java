@@ -11,17 +11,11 @@ public class CustomerOrderObjectTypeTaskFactory extends AbstractTaskObjectManage
 
 	@Override
 	public String getTaskChainCriteria(ITask task) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object getExecutant(ITask task) {
-		return new UserBuilder().name("Gabriel").build();
-	}
-
-	@Override
-	public Object getManager(ITask task) {
-		return new UserBuilder().name("Sandra").build();
+		if (CustomerOrderStatus.TCO.name().equals(task.getPreviousStatus()) && CustomerOrderStatus.VAL.name().equals(task.getNextStatus())) {
+			return "REF";
+		} else if (CustomerOrderStatus.VAL.name().equals(task.getPreviousStatus()) && CustomerOrderStatus.CLO.name().equals(task.getNextStatus())) {
+			return "DATE";
+		}
+		return "";
 	}
 }

@@ -54,7 +54,7 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 			TaskNode taskNode = taskObjectNode.getRight();
 			taskNodeMap.put(taskObject, taskNode);
 
-			tasks.addAll(convertAllTaskNodesToTasks(Arrays.asList(taskNode)));
+			tasks.addAll(convertAllTaskNodesToTasks(taskObject, Arrays.asList(taskNode)));
 		}
 		((SimpleTaskCluster) taskCluster).setCheckGraphCreated(true);
 
@@ -72,30 +72,74 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 	public NextTasksInTaskClusterResult saveNextTasksInTaskCluster(ITaskCluster taskCluster, List<Pair<ITask, List<TaskNode>>> replaceTasks, List<ITask> toDoneTasks, List<ITask> toCurrentTasks) {
 		LOG.info("saveNextTasksInTaskCluster " + taskCluster);
 
-		List<ITask> tasks = new ArrayList<ITask>();
+		List<ITask> currentTasks = new ArrayList<ITask>();
 		List<ITask> deleteTasks = new ArrayList<ITask>();
 
 		if (replaceTasks != null && !replaceTasks.isEmpty()) {
 			for (Pair<ITask, List<TaskNode>> replaceTask : replaceTasks) {
+				ITask task = replaceTask.getLeft();
+				List<TaskNode> newChilds = replaceTask.getRight();
 
+				TaskNode taskNode = taskNodeMap.get(((SimpleTask) task).getTaskObject());
+
+				TaskNode groupTaskNode = findTaskNodeWithTask(taskNode, replaceTask.getLeft());
+
+				List<TaskNode> parents = findParentTaskNodesWithTaskNode(taskNode, groupTaskNode);
+
+				// Si le groupe a remplacer par des nouveaux noeuds
+				if (newChilds != null && !newChilds.isEmpty()) {
+					convertAllTaskNodesToTasks(((SimpleTask) task).getTaskObject(), newChilds);
+
+					for (TaskNode parent : parents) {
+						parent.getChildTaskNodes().remove(groupTaskNode);
+						parent.getChildTaskNodes().addAll(replaceTask.getRight());
+					}
+
+					for (TaskNode newChild : newChilds) {
+						List<TaskNode> leafs = findLastTaskNodesWithTaskNode(newChild);
+						for (TaskNode leaf : leafs) {
+							leaf.getChildTaskNodes().addAll(groupTaskNode.getChildTaskNodes());
+						}
+					}
+				} else {
+					// Les parents du group associé au fils du groupe
+					for (TaskNode parent : parents) {
+						parent.getChildTaskNodes().remove(groupTaskNode);
+						parent.getChildTaskNodes().addAll(groupTaskNode.getChildTaskNodes());
+					}
+				}
+
+				// On passe les noeux à current
+				for (TaskNode parent : parents) {
+					for (TaskNode child : parent.getChildTaskNodes()) {
+						((SimpleTask) child.getTask()).setTaskStatus(TaskStatus.CURRENT);
+						currentTasks.add(child.getTask());
+					}
+				}
+
+				deleteTasks.add(groupTaskNode.getTask());
 			}
 		}
 
 		if (toDoneTasks != null && !toDoneTasks.isEmpty()) {
 			for (ITask task : toDoneTasks) {
 				((SimpleTask) task).setTaskStatus(TaskStatus.DONE);
-				tasks.add(task);
 			}
 		}
 
 		if (toCurrentTasks != null && !toCurrentTasks.isEmpty()) {
 			for (ITask task : toCurrentTasks) {
 				((SimpleTask) task).setTaskStatus(TaskStatus.CURRENT);
-				tasks.add(task);
+				currentTasks.add(task);
 			}
 		}
 
-		return new NextTasksInTaskClusterResult(taskCluster, tasks, deleteTasks);
+		return new NextTasksInTaskClusterResult(taskCluster, currentTasks, deleteTasks);
+	}
+
+	@Override
+	public ITask saveNothingTask(ITaskCluster taskCluster, ITask task) {
+		return task;
 	}
 
 	// READER
@@ -173,6 +217,31 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 		return null;
 	}
 
+	private List<TaskNode> findParentTaskNodesWithTaskNode(TaskNode taskNode, TaskNode childTaskNode) {
+		List<TaskNode> res = new ArrayList<TaskNode>();
+		if (taskNode.getChildTaskNodes() != null && !taskNode.getChildTaskNodes().isEmpty()) {
+			for (TaskNode child : taskNode.getChildTaskNodes()) {
+				if (child.equals(childTaskNode)) {
+					res.add(taskNode);
+				}
+				res.addAll(findParentTaskNodesWithTaskNode(child, childTaskNode));
+			}
+		}
+		return res;
+	}
+
+	private List<TaskNode> findLastTaskNodesWithTaskNode(TaskNode taskNode) {
+		List<TaskNode> res = new ArrayList<TaskNode>();
+		if (taskNode.getChildTaskNodes() != null && !taskNode.getChildTaskNodes().isEmpty()) {
+			for (TaskNode child : taskNode.getChildTaskNodes()) {
+				res.addAll(findLastTaskNodesWithTaskNode(child));
+			}
+		} else {
+			res.add(taskNode);
+		}
+		return res;
+	}
+
 	private List<ITask> convertTaskNodesToTasks(List<TaskNode> taskNodes) {
 		List<ITask> res = new ArrayList<ITask>();
 		if (taskNodes != null && !taskNodes.isEmpty()) {
@@ -183,12 +252,13 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 		return res;
 	}
 
-	private List<ITask> convertAllTaskNodesToTasks(List<TaskNode> taskNodes) {
+	private List<ITask> convertAllTaskNodesToTasks(ITaskObject<?> taskObject, List<TaskNode> taskNodes) {
 		List<ITask> res = new ArrayList<ITask>();
 		if (taskNodes != null && !taskNodes.isEmpty()) {
 			for (TaskNode taskNode : taskNodes) {
+				((SimpleTask) taskNode.getTask()).setTaskObject(taskObject);
 				res.add(taskNode.getTask());
-				res.addAll(convertAllTaskNodesToTasks(taskNode.getChildTaskNodes()));
+				res.addAll(convertAllTaskNodesToTasks(taskObject, taskNode.getChildTaskNodes()));
 			}
 		}
 		return res;

@@ -1,11 +1,6 @@
 package com.synaptix.taskmanager.manager.taskservice;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import com.synaptix.component.model.IError;
 import com.synaptix.component.model.IStackResult;
-import com.synaptix.taskmanager.model.domains.EnumErrorMessages;
 
 public class ExecutionResultBuilder {
 
@@ -17,11 +12,6 @@ public class ExecutionResultBuilder {
 		this.executionResultImpl = new ExecutionResultImpl();
 	}
 
-	public ExecutionResultBuilder errorMessage(String errorMessage) {
-		executionResultImpl.errorMessage = errorMessage;
-		return this;
-	}
-
 	public ITaskService.IExecutionResult finished() {
 		executionResultImpl.finished = true;
 		return executionResultImpl;
@@ -30,11 +20,6 @@ public class ExecutionResultBuilder {
 	public ITaskService.IExecutionResult notFinished() {
 		executionResultImpl.finished = false;
 		return executionResultImpl;
-	}
-
-	public ExecutionResultBuilder errors(Set<IError> errors) {
-		executionResultImpl.errors = errors;
-		return this;
 	}
 
 	public ExecutionResultBuilder stackResult(IStackResult stackResult) {
@@ -63,17 +48,9 @@ public class ExecutionResultBuilder {
 		return this;
 	}
 
-	public ITaskService.IExecutionResult waiting() {
-		return errorMessage(EnumErrorMessages.ERROR_MESSAGE_WAITING.getMessage()).notFinished();
-	}
-
 	public static final class ExecutionResultImpl implements ITaskService.IExecutionResult {
 
-		private String errorMessage;
-
 		private boolean finished;
-
-		private Set<IError> errors;
 
 		private IStackResult stackResult;
 
@@ -85,27 +62,11 @@ public class ExecutionResultBuilder {
 
 		public ExecutionResultImpl() {
 			super();
-			errors = new HashSet<IError>();
-		}
-
-		@Override
-		public String getErrorMessage() {
-			return errorMessage;
 		}
 
 		@Override
 		public boolean isFinished() {
 			return finished;
-		}
-
-		@Override
-		public Set<IError> getErrors() {
-			return errors;
-		}
-
-		@Override
-		public boolean hasErrors() {
-			return !errors.isEmpty();
 		}
 
 		@Override

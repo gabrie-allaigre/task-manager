@@ -5,6 +5,7 @@ import com.synaptix.taskmanager.manager.UpdateStatusTask;
 import com.synaptix.taskmanager.manager.taskdefinition.INormalTaskDefinition;
 import com.synaptix.taskmanager.manager.taskdefinition.IUpdateStatusTaskDefinition;
 import com.synaptix.taskmanager.model.ITaskCluster;
+import com.synaptix.taskmanager.model.ITaskObject;
 
 public interface ITaskFactory {
 
@@ -27,6 +28,7 @@ public interface ITaskFactory {
 	 * 
 	 * @return
 	 */
-	public UpdateStatusTask newUpdateStatusTask(IUpdateStatusTaskDefinition updateStatusTaskDefinition, Class<?> taskObjectClass, Object currentStatus, UpdateStatusTask previousUpdateStatusTask);
+	public UpdateStatusTask newUpdateStatusTask(IUpdateStatusTaskDefinition updateStatusTaskDefinition, Class<? extends ITaskObject<?>> taskObjectClass, Object currentStatus,
+			UpdateStatusTask previousUpdateStatusTask);
 
 }

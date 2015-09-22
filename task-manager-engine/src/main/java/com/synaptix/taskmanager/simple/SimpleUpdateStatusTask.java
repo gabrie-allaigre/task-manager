@@ -8,7 +8,8 @@ public class SimpleUpdateStatusTask extends UpdateStatusTask {
 
 	private ITaskObject<?> taskObject;
 
-	public SimpleUpdateStatusTask(IUpdateStatusTaskDefinition updateStatusTaskDefinition, Class<?> taskObjectClass, Object currentStatus, UpdateStatusTask previousUpdateStatusTask) {
+	public SimpleUpdateStatusTask(IUpdateStatusTaskDefinition updateStatusTaskDefinition, Class<? extends ITaskObject<?>> taskObjectClass, Object currentStatus,
+			UpdateStatusTask previousUpdateStatusTask) {
 		super(updateStatusTaskDefinition, taskObjectClass, currentStatus, previousUpdateStatusTask);
 	}
 
@@ -18,5 +19,10 @@ public class SimpleUpdateStatusTask extends UpdateStatusTask {
 
 	public <G extends ITaskObject<?>> G getTaskObject() {
 		return (G) taskObject;
+	}
+
+	@Override
+	public String toString() {
+		return "SimpleUpdateStatusTask -> " + getCurrentStatus();
 	}
 }

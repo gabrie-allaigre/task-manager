@@ -20,4 +20,9 @@ public class SimpleNormalTask extends NormalTask {
 	public <E extends ITaskObject<?>> E getTaskObject() {
 		return (E) taskObject;
 	}
+
+	@Override
+	public String toString() {
+		return "SimpleNormalTask -> " + getNormalTaskDefinition().getCode();
+	}
 }

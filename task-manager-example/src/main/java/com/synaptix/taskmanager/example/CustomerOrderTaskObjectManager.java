@@ -1,7 +1,7 @@
 package com.synaptix.taskmanager.example;
 
 import com.synaptix.taskmanager.manager.AbstractTaskObjectManager;
-import com.synaptix.taskmanager.model.ITask;
+import com.synaptix.taskmanager.manager.UpdateStatusTask;
 
 public class CustomerOrderTaskObjectManager extends AbstractTaskObjectManager<ICustomerOrder> {
 
@@ -10,12 +10,12 @@ public class CustomerOrderTaskObjectManager extends AbstractTaskObjectManager<IC
 	}
 
 	@Override
-	public String getTaskChainCriteria(ITask task) {
-		// if (CustomerOrderStatus.TCO.name().equals(task.getPreviousStatus()) && CustomerOrderStatus.VAL.name().equals(task.getNextStatus())) {
-		// return "REF";
-		// } else if (CustomerOrderStatus.VAL.name().equals(task.getPreviousStatus()) && CustomerOrderStatus.CLO.name().equals(task.getNextStatus())) {
-		// return "DATE";
-		// }
+	public String getTaskChainCriteria(UpdateStatusTask updateStatusTask, Object currentStatus, Object nextStatus) {
+		if (currentStatus == null && CustomerOrderStatus.TCO.equals(nextStatus)) {
+			return "REF";
+		} else if (CustomerOrderStatus.VAL.equals(currentStatus) && CustomerOrderStatus.CLO.equals(nextStatus)) {
+			return "DATE";
+		}
 		return "";
 	}
 }

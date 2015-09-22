@@ -26,15 +26,13 @@ import com.synaptix.taskmanager.manager.ITaskObjectManager;
 import com.synaptix.taskmanager.manager.NormalTask;
 import com.synaptix.taskmanager.manager.UpdateStatusTask;
 import com.synaptix.taskmanager.manager.graph.IStatusGraph;
+import com.synaptix.taskmanager.manager.taskdefinition.INormalTaskDefinition;
 import com.synaptix.taskmanager.manager.taskdefinition.ITaskDefinition;
+import com.synaptix.taskmanager.manager.taskdefinition.IUpdateStatusTaskDefinition;
 import com.synaptix.taskmanager.manager.taskservice.ITaskService;
-import com.synaptix.taskmanager.model.ITask;
 import com.synaptix.taskmanager.model.ITaskCluster;
 import com.synaptix.taskmanager.model.ITaskObject;
-import com.synaptix.taskmanager.model.IUpdateStatusTask;
 import com.synaptix.taskmanager.model.domains.ServiceNature;
-import com.synaptix.taskmanager.model.domains.TaskStatus;
-import com.synaptix.taskmanager.simple.MemoryTaskManagerReaderWriter.TaskNode;
 
 public class TaskManagerEngine {
 
@@ -235,16 +233,33 @@ public class TaskManagerEngine {
 		if (toDoneTask instanceof UpdateStatusTask) {
 			UpdateStatusTask updateStatusTask = (UpdateStatusTask) toDoneTask;
 
+			Class<? extends ITaskObject<?>> taskObjectClass = updateStatusTask.getTaskObjectClass();
 			// if (task.getIdPreviousUpdateStatusTask() != null) {
 			// // Cancel tasks of other branches
 			// tasksLists.tasksToRemoves.addAll(deleteOtherChildPreviousUpdateStatusTasks(task));
 			// }
 
-			List<IStatusGraph> statusGraphs = getTaskManagerConfiguration().getStatusGraphsRegistry().getNextStatusGraphsByTaskObjectType(updateStatusTask.getTaskObjectClass(),
-					updateStatusTask.getCurrentStatus());
+			List<IStatusGraph> statusGraphs = getTaskManagerConfiguration().getStatusGraphsRegistry().getNextStatusGraphsByTaskObjectType(taskObjectClass, updateStatusTask.getCurrentStatus());
 			if (statusGraphs != null && !statusGraphs.isEmpty()) {
+				ITaskObjectManager<?> taskObjectManager = getTaskManagerConfiguration().getTaskObjectManagerRegistry().getTaskObjectManager(taskObjectClass);
+
 				for (IStatusGraph statusGraph : statusGraphs) {
 					System.out.println(statusGraph);
+
+					String taskChainCriteria = taskObjectManager.getTaskChainCriteria(updateStatusTask, statusGraph.getPreviousStatus(), statusGraph.getCurrentStatus());
+					List<NormalTask> nextNormalTasks = _createTasks(taskChainCriteria);
+
+					IUpdateStatusTaskDefinition updateStatusTaskDefinition = getTaskManagerConfiguration().getTaskDefinitionRegistry()
+							.getUpdateStatusTaskDefinition(statusGraph.getUpdateStatusTaskServiceCode());
+					UpdateStatusTask nextUpdateStatusTask = getTaskManagerConfiguration().getTaskFactory().newUpdateStatusTask(updateStatusTaskDefinition, taskObjectClass,
+							statusGraph.getCurrentStatus(), updateStatusTask);
+
+					tasksLists.newCurrentTasks = new ArrayList<AbstractTask>();
+					if (nextNormalTasks != null && !nextNormalTasks.isEmpty()) {
+
+					} else {
+						tasksLists.newCurrentTasks.add(nextUpdateStatusTask);
+					}
 				}
 			}
 
@@ -288,46 +303,6 @@ public class TaskManagerEngine {
 		return initTask;
 	}
 
-	private <E extends Enum<E>, F extends ITaskObject<E>> List<TaskNode> createTasks(ITaskCluster taskCluster, Class<F> taskObjectClass, F taskObject, List<IStatusGraph> statusGraphs, E currentStatus,
-			TaskNode previousUpdateStatusTaskNode) {
-		List<TaskNode> taskNodes = new ArrayList<TaskNode>();
-
-		List<IStatusGraph> sgs = findStatusGraphs(statusGraphs, currentStatus);
-		if (sgs != null && !sgs.isEmpty()) {
-			for (IStatusGraph sg : sgs) {
-				// Create update status task
-				IUpdateStatusTask updateStatusTask = null;// getTaskManagerConfiguration().getTaskFactory().newUpdateStatusTask(null,null);
-				updateStatusTask.setServiceCode(sg.getUpdateStatusTaskServiceCode());
-				updateStatusTask.setTaskStatus(TaskStatus.TODO);
-				updateStatusTask.setTaskObjectClass(taskObjectClass);
-				updateStatusTask.setPreviousUpdateStatusTask((IUpdateStatusTask) previousUpdateStatusTaskNode.getTask());
-
-				// Create Nodes
-				TaskNode updateStatusTaskNode = new TaskNode(updateStatusTask, new ArrayList<TaskNode>());
-				// updateStatusTaskNode.getChildTaskNodes().addAll(createTasks(taskCluster, taskObjectClass, taskObject, statusGraphs, sg.getPreviousStatus(), updateStatusTaskNode));
-
-				taskNodes.add(updateStatusTaskNode);
-			}
-		}
-
-		return taskNodes;
-	}
-
-	private <E extends Enum<E>> List<IStatusGraph> findStatusGraphs(List<IStatusGraph> statusGraphs, E currentStatus) {
-		List<IStatusGraph> res = new ArrayList<IStatusGraph>();
-
-		if (statusGraphs != null && !statusGraphs.isEmpty()) {
-			for (IStatusGraph statusGraph : statusGraphs) {
-				if ((currentStatus == null && statusGraph.getPreviousStatus() == null)
-						|| (currentStatus != null && statusGraph.getPreviousStatus() != null && statusGraph.getPreviousStatus().equals(currentStatus))) {
-					res.add(statusGraph);
-				}
-			}
-		}
-
-		return res;
-	}
-
 	/*
 	 * Create Task graphs for task cluster
 	 */
@@ -349,49 +324,44 @@ public class TaskManagerEngine {
 	/*
 	 * Create a tasks for parent and task chain criteria
 	 */
-	private List<TaskNode> _createTasks(ITask parentTask, String taskChainCriteria) {
+	private List<NormalTask> _createTasks(String taskChainCriteria) {
 		if (taskChainCriteria != null && !taskChainCriteria.isEmpty()) {
 			AbstractGraphNode graphNode = GraphCalcHelper.buildGraphRule(taskChainCriteria);
-			return _createTasks(parentTask, graphNode);
+			return _createTasks(graphNode);
 		}
 		return null;
 	}
 
-	private List<TaskNode> _createTasks(ITask parentTask, AbstractGraphNode node) {
-		if (node != null) {
-			if (node instanceof IdGraphNode) {
-				IdGraphNode ign = (IdGraphNode) node;
-				ITask task = null;// getTaskManagerConfiguration().getTaskFactory().newNormalTask(null);
-				task.setTaskObjectClass(parentTask.getTaskObjectClass());
-				task.setServiceCode(ign.getId());
-				task.setTaskStatus(TaskStatus.TODO);
+	private List<NormalTask> _createTasks(AbstractGraphNode node) {
+		if (node instanceof IdGraphNode) {
+			IdGraphNode ign = (IdGraphNode) node;
+			INormalTaskDefinition normalTaskDefinition = getTaskManagerConfiguration().getTaskDefinitionRegistry().getNormalTaskDefinition(ign.getId());
+			NormalTask task = getTaskManagerConfiguration().getTaskFactory().newNormalTask(normalTaskDefinition);
+			return Arrays.asList(task);
+		} else if (node instanceof ParallelGraphNode) {
+			ParallelGraphNode pgn = (ParallelGraphNode) node;
 
-				return Arrays.asList(new TaskNode(task, new ArrayList<TaskNode>()));
-			} else if (node instanceof ParallelGraphNode) {
-				ParallelGraphNode pgn = (ParallelGraphNode) node;
+			List<NormalTask> taskNodes = new ArrayList<NormalTask>();
+			for (AbstractGraphNode subNode : pgn.getNodes()) {
+				taskNodes.addAll(_createTasks(subNode));
+			}
 
-				List<TaskNode> taskNodes = new ArrayList<TaskNode>();
-				for (AbstractGraphNode subNode : pgn.getNodes()) {
-					taskNodes.addAll(_createTasks(parentTask, subNode));
-				}
+			return taskNodes;
+		} else if (node instanceof NextGraphNode) {
+			NextGraphNode ngn = (NextGraphNode) node;
 
-				return taskNodes;
-			} else if (node instanceof NextGraphNode) {
-				NextGraphNode ngn = (NextGraphNode) node;
+			List<NormalTask> firstCr = _createTasks(ngn.getFirstNode());
+			List<NormalTask> nextCr = _createTasks(ngn.getNextNode());
 
-				List<TaskNode> firstCr = _createTasks(parentTask, ngn.getFirstNode());
-				List<TaskNode> nextCr = _createTasks(parentTask, ngn.getNextNode());
-
-				if (firstCr != null && nextCr != null) {
-					for (TaskNode firstTask : firstCr) {
-						for (TaskNode nextTask : nextCr) {
-							firstTask.getChildTaskNodes().add(nextTask);
-						}
+			if (firstCr != null && nextCr != null) {
+				for (NormalTask firstTask : firstCr) {
+					for (NormalTask nextTask : nextCr) {
+						firstTask.getNextTasks().add(nextTask);
 					}
 				}
-
-				return firstCr;
 			}
+
+			return firstCr;
 		}
 		return null;
 	}

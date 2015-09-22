@@ -1,16 +1,17 @@
 package com.synaptix.taskmanager.manager;
 
 import com.synaptix.taskmanager.manager.taskdefinition.IUpdateStatusTaskDefinition;
+import com.synaptix.taskmanager.model.ITaskObject;
 
 public class UpdateStatusTask extends AbstractTask {
 
-	private final Class<?> taskObjectClass;
+	private final Class<? extends ITaskObject<?>> taskObjectClass;
 
 	private final Object currentStatus;
 
 	private final UpdateStatusTask previousUpdateStatusTask;
 
-	public UpdateStatusTask(IUpdateStatusTaskDefinition updateStatusTaskDefinition, Class<?> taskObjectClass, Object currentStatus, UpdateStatusTask previousUpdateStatusTask) {
+	public UpdateStatusTask(IUpdateStatusTaskDefinition updateStatusTaskDefinition, Class<? extends ITaskObject<?>> taskObjectClass, Object currentStatus, UpdateStatusTask previousUpdateStatusTask) {
 		super(updateStatusTaskDefinition);
 
 		this.taskObjectClass = taskObjectClass;
@@ -22,7 +23,7 @@ public class UpdateStatusTask extends AbstractTask {
 		return (IUpdateStatusTaskDefinition) getTaskDefinition();
 	}
 
-	public final Class<?> getTaskObjectClass() {
+	public final Class<? extends ITaskObject<?>> getTaskObjectClass() {
 		return taskObjectClass;
 	}
 

@@ -243,6 +243,7 @@ public class TaskManagerEngine {
 			if (statusGraphs != null && !statusGraphs.isEmpty()) {
 				ITaskObjectManager<?> taskObjectManager = getTaskManagerConfiguration().getTaskObjectManagerRegistry().getTaskObjectManager(taskObjectClass);
 
+				List<AbstractTask> newNextCurrentTasks = new ArrayList<AbstractTask>();
 				for (IStatusGraph statusGraph : statusGraphs) {
 					System.out.println(statusGraph);
 
@@ -254,13 +255,18 @@ public class TaskManagerEngine {
 					UpdateStatusTask nextUpdateStatusTask = getTaskManagerConfiguration().getTaskFactory().newUpdateStatusTask(updateStatusTaskDefinition, taskObjectClass,
 							statusGraph.getCurrentStatus(), updateStatusTask);
 
-					tasksLists.newCurrentTasks = new ArrayList<AbstractTask>();
 					if (nextNormalTasks != null && !nextNormalTasks.isEmpty()) {
+						updateLast(nextNormalTasks, nextUpdateStatusTask);
 
+						newNextCurrentTasks.addAll(nextNormalTasks);
 					} else {
-						tasksLists.newCurrentTasks.add(nextUpdateStatusTask);
+						newNextCurrentTasks.add(nextUpdateStatusTask);
 					}
 				}
+
+				getTaskManagerConfiguration().getTaskManagerWriter().saveNewNextTasksInTaskCluster(taskCluster, updateStatusTask, taskServiceResult, newNextCurrentTasks);
+
+				tasksLists.newCurrentTasks = newNextCurrentTasks;
 			}
 
 		} else if (toDoneTask instanceof NormalTask) {
@@ -272,6 +278,18 @@ public class TaskManagerEngine {
 			tasksLists.tasksToRemoves = null;
 		}
 		return tasksLists;
+	}
+
+	private void updateLast(List<? extends AbstractTask> tasks, UpdateStatusTask updateStatusTask) {
+		if (tasks != null && !tasks.isEmpty()) {
+			for (AbstractTask task : tasks) {
+				if (task.getNextTasks().isEmpty()) {
+					task.getNextTasks().add(updateStatusTask);
+				} else {
+					updateLast(task.getNextTasks(), updateStatusTask);
+				}
+			}
+		}
 	}
 
 	// Task creation

@@ -15,6 +15,8 @@ public class CustomerOrderTaskObjectManager extends AbstractTaskObjectManager<IC
 			return "REF";
 		} else if (CustomerOrderStatus.VAL.equals(currentStatus) && CustomerOrderStatus.CLO.equals(nextStatus)) {
 			return "DATE";
+		} else if (CustomerOrderStatus.VAL.equals(currentStatus) && CustomerOrderStatus.TCO.equals(nextStatus)) {
+			return "NOT-VAL";
 		}
 		return "";
 	}

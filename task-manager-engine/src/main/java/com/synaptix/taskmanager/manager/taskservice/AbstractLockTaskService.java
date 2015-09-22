@@ -1,13 +1,13 @@
 package com.synaptix.taskmanager.manager.taskservice;
 
-import com.synaptix.taskmanager.model.ITask;
+import com.synaptix.taskmanager.manager.AbstractTask;
 import com.synaptix.taskmanager.model.domains.ServiceNature;
 
 import de.jkeylockmanager.manager.KeyLockManager;
 import de.jkeylockmanager.manager.KeyLockManagers;
 import de.jkeylockmanager.manager.ReturnValueLockCallback;
 
-public abstract class AbstractLockTaskService<F> extends AbstractTaskService {
+public abstract class AbstractLockTaskService extends AbstractTaskService {
 
 	private final KeyLockManager keyLockManager;
 
@@ -23,10 +23,10 @@ public abstract class AbstractLockTaskService<F> extends AbstractTaskService {
 	 * @param task
 	 * @return
 	 */
-	protected abstract String getLockKey(ITask task);
+	protected abstract String getLockKey(AbstractTask task);
 
 	@Override
-	public final IExecutionResult execute(final ITask task) {
+	public final IExecutionResult execute(final AbstractTask task) {
 		return keyLockManager.executeLocked(getLockKey(task), new ReturnValueLockCallback<IExecutionResult>() {
 			@Override
 			public IExecutionResult doInLock() throws Exception {
@@ -35,6 +35,6 @@ public abstract class AbstractLockTaskService<F> extends AbstractTaskService {
 		});
 	}
 
-	protected abstract IExecutionResult executeInLock(ITask task);
+	protected abstract IExecutionResult executeInLock(AbstractTask task);
 
 }

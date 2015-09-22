@@ -4,26 +4,25 @@ import java.util.Date;
 
 import com.synaptix.taskmanager.example.CustomerOrderStatus;
 import com.synaptix.taskmanager.example.ICustomerOrder;
-import com.synaptix.taskmanager.manager.taskservice.AbstractTaskService;
+import com.synaptix.taskmanager.manager.AbstractTask;
+import com.synaptix.taskmanager.manager.taskservice.AbstractUpdateStatusTaskService;
 import com.synaptix.taskmanager.manager.taskservice.ExecutionResultBuilder;
-import com.synaptix.taskmanager.model.ITask;
-import com.synaptix.taskmanager.model.domains.ServiceNature;
-import com.synaptix.taskmanager.simple.SimpleTask;
+import com.synaptix.taskmanager.simple.SimpleUpdateStatusTask;
 
-public class CLOTaskService extends AbstractTaskService {
+public class CLOTaskService extends AbstractUpdateStatusTaskService {
 
 	public CLOTaskService() {
-		super(ServiceNature.UPDATE_STATUS);
+		super();
 	}
 
 	@Override
-	public IExecutionResult execute(ITask task) {
-		ICustomerOrder customerOrder = ((SimpleTask) task).<ICustomerOrder> getTaskObject();
+	public IExecutionResult execute(AbstractTask task) {
+		ICustomerOrder customerOrder = ((SimpleUpdateStatusTask) task).<ICustomerOrder> getTaskObject();
 		if (customerOrder.getDateClosed() != null && customerOrder.getDateClosed().before(new Date())) {
-			((SimpleTask) task).<ICustomerOrder> getTaskObject().setStatus(CustomerOrderStatus.CLO);
-			return new ExecutionResultBuilder().finished();
+			((SimpleUpdateStatusTask) task).<ICustomerOrder> getTaskObject().setStatus(CustomerOrderStatus.CLO);
+			return ExecutionResultBuilder.newBuilder().finished();
 		} else {
-			return new ExecutionResultBuilder().notFinished();
+			return ExecutionResultBuilder.newBuilder().notFinished();
 		}
 	}
 }

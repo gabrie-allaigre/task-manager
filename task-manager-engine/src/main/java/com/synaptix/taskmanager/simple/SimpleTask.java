@@ -14,12 +14,6 @@ public class SimpleTask implements ITask {
 
 	private String serviceCode;
 
-	private boolean checkGroup;
-
-	private String previousStatus;
-
-	private String nextStatus;
-
 	private Class<? extends ITaskObject<?>> taskObjectClass;
 
 	public <F extends ITaskObject<?>> F getTaskObject() {
@@ -48,36 +42,6 @@ public class SimpleTask implements ITask {
 	@Override
 	public void setServiceCode(String serviceCode) {
 		this.serviceCode = serviceCode;
-	}
-
-	@Override
-	public String getPreviousStatus() {
-		return this.previousStatus;
-	}
-
-	@Override
-	public void setPreviousStatus(String previousStatus) {
-		this.previousStatus = previousStatus;
-	}
-
-	@Override
-	public String getNextStatus() {
-		return this.nextStatus;
-	}
-
-	@Override
-	public void setNextStatus(String nextStatus) {
-		this.nextStatus = nextStatus;
-	}
-
-	@Override
-	public boolean isCheckGroup() {
-		return this.checkGroup;
-	}
-
-	@Override
-	public void setCheckGroup(boolean checkGroup) {
-		this.checkGroup = checkGroup;
 	}
 
 	@Override

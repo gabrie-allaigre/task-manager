@@ -8,6 +8,4 @@ public interface ITaskDefinition {
 
 	public ITaskService getTaskService();
 
-	public int getResultDepth();
-
 }

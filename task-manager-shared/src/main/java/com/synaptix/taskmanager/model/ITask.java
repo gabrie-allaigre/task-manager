@@ -16,20 +16,6 @@ public interface ITask {
 
 	public void setServiceCode(String serviceCode);
 
-	// Group
-
-	public boolean isCheckGroup();
-
-	public void setCheckGroup(boolean checkGroup);
-
-	public String getPreviousStatus();
-
-	public void setPreviousStatus(String previousStatus);
-
-	public String getNextStatus();
-
-	public void setNextStatus(String nextStatus);
-
 	// Result
 
 	public String getResultStatus();

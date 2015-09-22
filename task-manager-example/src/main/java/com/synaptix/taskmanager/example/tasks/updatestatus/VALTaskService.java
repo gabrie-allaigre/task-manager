@@ -2,26 +2,25 @@ package com.synaptix.taskmanager.example.tasks.updatestatus;
 
 import com.synaptix.taskmanager.example.CustomerOrderStatus;
 import com.synaptix.taskmanager.example.ICustomerOrder;
-import com.synaptix.taskmanager.manager.taskservice.AbstractTaskService;
+import com.synaptix.taskmanager.manager.AbstractTask;
+import com.synaptix.taskmanager.manager.taskservice.AbstractUpdateStatusTaskService;
 import com.synaptix.taskmanager.manager.taskservice.ExecutionResultBuilder;
-import com.synaptix.taskmanager.model.ITask;
-import com.synaptix.taskmanager.model.domains.ServiceNature;
-import com.synaptix.taskmanager.simple.SimpleTask;
+import com.synaptix.taskmanager.simple.SimpleUpdateStatusTask;
 
-public class VALTaskService extends AbstractTaskService {
+public class VALTaskService extends AbstractUpdateStatusTaskService {
 
 	public VALTaskService() {
-		super(ServiceNature.UPDATE_STATUS);
+		super();
 	}
 
 	@Override
-	public IExecutionResult execute(ITask task) {
-		ICustomerOrder customerOrder = ((SimpleTask) task).<ICustomerOrder> getTaskObject();
+	public IExecutionResult execute(AbstractTask task) {
+		ICustomerOrder customerOrder = ((SimpleUpdateStatusTask) task).<ICustomerOrder> getTaskObject();
 		if (customerOrder.isConfirmed()) {
-			((SimpleTask) task).<ICustomerOrder> getTaskObject().setStatus(CustomerOrderStatus.VAL);
-			return new ExecutionResultBuilder().finished();
+			((SimpleUpdateStatusTask) task).<ICustomerOrder> getTaskObject().setStatus(CustomerOrderStatus.VAL);
+			return ExecutionResultBuilder.newBuilder().finished();
 		} else {
-			return new ExecutionResultBuilder().notFinished();
+			return ExecutionResultBuilder.newBuilder().notFinished();
 		}
 	}
 }

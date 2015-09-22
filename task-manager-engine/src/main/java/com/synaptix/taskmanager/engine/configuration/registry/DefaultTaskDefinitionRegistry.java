@@ -5,32 +5,53 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.synaptix.taskmanager.manager.taskdefinition.ITaskDefinition;
+import com.synaptix.taskmanager.manager.taskdefinition.INormalTaskDefinition;
+import com.synaptix.taskmanager.manager.taskdefinition.IUpdateStatusTaskDefinition;
 
 public class DefaultTaskDefinitionRegistry extends AbstractTaskDefinitionRegistry {
 
-	private Map<String, ITaskDefinition> taskDefinitionMap;
+	private Map<String, IUpdateStatusTaskDefinition> updateStatusTaskDefinitionMap;
+
+	private Map<String, INormalTaskDefinition> normalTaskDefinitionMap;
 
 	public DefaultTaskDefinitionRegistry() {
 		super();
 
-		this.taskDefinitionMap = new HashMap<String, ITaskDefinition>();
+		this.updateStatusTaskDefinitionMap = new HashMap<String, IUpdateStatusTaskDefinition>();
+		this.normalTaskDefinitionMap = new HashMap<String, INormalTaskDefinition>();
 	}
 
-	public void addTaskDefinition(ITaskDefinition taskDefinition) {
-		taskDefinitionMap.put(taskDefinition.getCode(), taskDefinition);
+	public void addUpdateStatusTaskDefinition(IUpdateStatusTaskDefinition taskDefinition) {
+		updateStatusTaskDefinitionMap.put(taskDefinition.getCode(), taskDefinition);
 	}
 
-	public void removeTaskDefinition(ITaskDefinition taskDefinition) {
-		taskDefinitionMap.remove(taskDefinition.getCode());
+	public void removeUpdateStatusTaskDefinition(IUpdateStatusTaskDefinition taskDefinition) {
+		updateStatusTaskDefinitionMap.remove(taskDefinition.getCode());
 	}
 
-	public Collection<ITaskDefinition> getTaskDefinitions() {
-		return Collections.unmodifiableCollection(taskDefinitionMap.values());
+	public Collection<IUpdateStatusTaskDefinition> getUpdateStatusTaskDefinitions() {
+		return Collections.unmodifiableCollection(updateStatusTaskDefinitionMap.values());
 	}
 
 	@Override
-	public ITaskDefinition getTaskDefinition(String code) {
-		return taskDefinitionMap.get(code);
+	public IUpdateStatusTaskDefinition getUpdateStatusTaskDefinition(String code) {
+		return updateStatusTaskDefinitionMap.get(code);
+	}
+
+	public void addNormalTaskDefinition(INormalTaskDefinition taskDefinition) {
+		normalTaskDefinitionMap.put(taskDefinition.getCode(), taskDefinition);
+	}
+
+	public void removeNormalTaskDefinition(INormalTaskDefinition taskDefinition) {
+		normalTaskDefinitionMap.remove(taskDefinition.getCode());
+	}
+
+	public Collection<INormalTaskDefinition> getNormalTaskDefinitions() {
+		return Collections.unmodifiableCollection(normalTaskDefinitionMap.values());
+	}
+
+	@Override
+	public INormalTaskDefinition getNormalTaskDefinition(String code) {
+		return normalTaskDefinitionMap.get(code);
 	}
 }

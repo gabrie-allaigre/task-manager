@@ -3,11 +3,11 @@ package com.synaptix.taskmanager.example.tasks.enrichment;
 import java.util.Calendar;
 
 import com.synaptix.taskmanager.example.ICustomerOrder;
+import com.synaptix.taskmanager.manager.AbstractTask;
 import com.synaptix.taskmanager.manager.taskservice.AbstractTaskService;
 import com.synaptix.taskmanager.manager.taskservice.ExecutionResultBuilder;
-import com.synaptix.taskmanager.model.ITask;
 import com.synaptix.taskmanager.model.domains.ServiceNature;
-import com.synaptix.taskmanager.simple.SimpleTask;
+import com.synaptix.taskmanager.simple.SimpleNormalTask;
 
 public class DateClosedTaskService extends AbstractTaskService {
 
@@ -16,10 +16,10 @@ public class DateClosedTaskService extends AbstractTaskService {
 	}
 
 	@Override
-	public IExecutionResult execute(ITask task) {
+	public IExecutionResult execute(AbstractTask task) {
 		Calendar c = Calendar.getInstance();
 		c.add(Calendar.MINUTE, 1);
-		((SimpleTask) task).<ICustomerOrder> getTaskObject().setDateClosed(c.getTime());
-		return new ExecutionResultBuilder().finished();
+		((SimpleNormalTask) task).<ICustomerOrder> getTaskObject().setDateClosed(c.getTime());
+		return ExecutionResultBuilder.newBuilder().finished();
 	}
 }

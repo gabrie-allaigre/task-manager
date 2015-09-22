@@ -8,6 +8,7 @@ import com.synaptix.taskmanager.model.ITaskObject;
 
 public class ComponentTaskObjectManagerRegistry extends DefaultTaskObjectManagerRegistry {
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <F extends ITaskObject<?>> ITaskObjectManager<F> getTaskObjectManager(F taskObject) {
 		if (taskObject instanceof IComponent) {

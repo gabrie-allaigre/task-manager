@@ -1,12 +1,10 @@
 package com.synaptix.taskmanager.manager.taskservice;
 
-import com.synaptix.component.model.IStackResult;
-
 public class ExecutionResultBuilder {
 
 	private final ExecutionResultImpl executionResultImpl;
 
-	public ExecutionResultBuilder() {
+	protected ExecutionResultBuilder() {
 		super();
 
 		this.executionResultImpl = new ExecutionResultImpl();
@@ -22,21 +20,8 @@ public class ExecutionResultBuilder {
 		return executionResultImpl;
 	}
 
-	public ExecutionResultBuilder stackResult(IStackResult stackResult) {
-		executionResultImpl.stackResult = stackResult;
-		return this;
-	}
-
-	public ExecutionResultBuilder resultStatus(String resultStatus) {
-		executionResultImpl.resultStatus = resultStatus;
-		return this;
-	}
-
-	/**
-	 * Sets the result desc. If null, uses the resultDesc of the first stack
-	 */
-	public ExecutionResultBuilder resultDesc(String resultDesc) {
-		executionResultImpl.resultDesc = resultDesc;
+	public ExecutionResultBuilder result(Object result) {
+		executionResultImpl.result = result;
 		return this;
 	}
 
@@ -48,15 +33,15 @@ public class ExecutionResultBuilder {
 		return this;
 	}
 
-	public static final class ExecutionResultImpl implements ITaskService.IExecutionResult {
+	public static ExecutionResultBuilder newBuilder() {
+		return new ExecutionResultBuilder();
+	}
+
+	private static final class ExecutionResultImpl implements ITaskService.IExecutionResult {
 
 		private boolean finished;
 
-		private IStackResult stackResult;
-
-		private String resultStatus;
-
-		private String resultDesc;
+		private Object result;
 
 		private boolean mustStopAndRestartTaskManager;
 
@@ -70,18 +55,8 @@ public class ExecutionResultBuilder {
 		}
 
 		@Override
-		public IStackResult getStackResult() {
-			return stackResult;
-		}
-
-		@Override
-		public String getResultStatus() {
-			return resultStatus;
-		}
-
-		@Override
-		public String getResultDesc() {
-			return resultDesc;
+		public Object getResult() {
+			return result;
 		}
 
 		@Override

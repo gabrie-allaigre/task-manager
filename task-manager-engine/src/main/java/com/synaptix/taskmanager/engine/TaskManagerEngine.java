@@ -15,9 +15,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.synaptix.component.model.IServiceResult;
 import com.synaptix.taskmanager.engine.configuration.ITaskManagerConfiguration;
-import com.synaptix.taskmanager.engine.configuration.result.ServiceResultBuilder;
 import com.synaptix.taskmanager.engine.graph.IStatusGraph;
 import com.synaptix.taskmanager.engine.listener.ITaskCycleListener;
 import com.synaptix.taskmanager.engine.manager.ITaskObjectManager;
@@ -27,7 +25,6 @@ import com.synaptix.taskmanager.engine.task.UpdateStatusTask;
 import com.synaptix.taskmanager.engine.taskdefinition.ITaskDefinition;
 import com.synaptix.taskmanager.engine.taskdefinition.IUpdateStatusTaskDefinition;
 import com.synaptix.taskmanager.engine.taskservice.ITaskService;
-import com.synaptix.taskmanager.error.TaskManagerErrorEnum;
 import com.synaptix.taskmanager.model.ITaskCluster;
 import com.synaptix.taskmanager.model.ITaskObject;
 import com.synaptix.taskmanager.model.domains.ServiceNature;
@@ -68,9 +65,9 @@ public class TaskManagerEngine {
 	 * @param taskObject
 	 * @return
 	 */
-	public IServiceResult<Void> startEngine(ITaskObject<?> taskObject) {
+	public void startEngine(ITaskObject<?> taskObject) {
 		if (taskObject == null) {
-			return new ServiceResultBuilder<TaskManagerErrorEnum>().compileResult(null);
+			return;
 		}
 		// If cluster not existe, create
 		ITaskCluster taskCluster = getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(taskObject);
@@ -78,7 +75,7 @@ public class TaskManagerEngine {
 			taskCluster = createTaskCluster(taskObject);
 		}
 
-		return startEngine(taskCluster);
+		startEngine(taskCluster);
 	}
 
 	/**
@@ -86,7 +83,7 @@ public class TaskManagerEngine {
 	 * @param taskCluster
 	 * @return
 	 */
-	public IServiceResult<Void> startEngine(ITaskCluster taskCluster) {
+	public void startEngine(ITaskCluster taskCluster) {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("TM - StartEngine");
 		}
@@ -95,10 +92,8 @@ public class TaskManagerEngine {
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("TM - Nothing, cluster is null or archived");
 			}
-			return new ServiceResultBuilder<TaskManagerErrorEnum>().compileResult(null);
+			return;
 		}
-
-		ServiceResultBuilder<TaskManagerErrorEnum> serviceResultBuilder = new ServiceResultBuilder<TaskManagerErrorEnum>();
 
 		LinkedList<ITaskCluster> restartClusters = new LinkedList<ITaskCluster>();
 		restartClusters.addFirst(taskCluster);
@@ -223,9 +218,6 @@ public class TaskManagerEngine {
 				}
 			}
 		}
-
-		// serviceResultBuilder.ingest(restart());
-		return serviceResultBuilder.compileResult(null);
 	}
 
 	/*

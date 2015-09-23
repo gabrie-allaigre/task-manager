@@ -2,10 +2,13 @@ package com.synaptix.taskmanager.engine;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -234,19 +237,25 @@ public class TaskManagerEngine {
 			UpdateStatusTask updateStatusTask = (UpdateStatusTask) toDoneTask;
 
 			Class<? extends ITaskObject<?>> taskObjectClass = updateStatusTask.getTaskObjectClass();
-			// if (task.getIdPreviousUpdateStatusTask() != null) {
-			// // Cancel tasks of other branches
-			// tasksLists.tasksToRemoves.addAll(deleteOtherChildPreviousUpdateStatusTasks(task));
-			// }
+
+			List<AbstractTask> toDeleteTasks = null;
+			if (!updateStatusTask.getOtherStatusTasksMap().isEmpty()) {
+				toDeleteTasks = new ArrayList<AbstractTask>();
+				for (Entry<Object, List<? extends AbstractTask>> entry : updateStatusTask.getOtherStatusTasksMap().entrySet()) {
+					toDeleteTasks.addAll(extract(entry.getValue()));
+				}
+			}
 
 			List<IStatusGraph> statusGraphs = getTaskManagerConfiguration().getStatusGraphsRegistry().getNextStatusGraphsByTaskObjectType(taskObjectClass, updateStatusTask.getCurrentStatus());
 			if (statusGraphs != null && !statusGraphs.isEmpty()) {
 				ITaskObjectManager<?> taskObjectManager = getTaskManagerConfiguration().getTaskObjectManagerRegistry().getTaskObjectManager(taskObjectClass);
 
 				List<AbstractTask> newNextCurrentTasks = new ArrayList<AbstractTask>();
-				for (IStatusGraph statusGraph : statusGraphs) {
-					System.out.println(statusGraph);
 
+				List<UpdateStatusTask> nextUpdateStatusTasks = new ArrayList<UpdateStatusTask>();
+				Map<Object, List<? extends AbstractTask>> map = new HashMap<Object, List<? extends AbstractTask>>();
+
+				for (IStatusGraph statusGraph : statusGraphs) {
 					String taskChainCriteria = taskObjectManager.getTaskChainCriteria(updateStatusTask, statusGraph.getPreviousStatus(), statusGraph.getCurrentStatus());
 					List<NormalTask> nextNormalTasks = _createTasks(taskChainCriteria);
 
@@ -259,14 +268,29 @@ public class TaskManagerEngine {
 						updateLast(nextNormalTasks, nextUpdateStatusTask);
 
 						newNextCurrentTasks.addAll(nextNormalTasks);
+
+						map.put(statusGraph.getCurrentStatus(), nextNormalTasks);
 					} else {
 						newNextCurrentTasks.add(nextUpdateStatusTask);
+
+						map.put(statusGraph.getCurrentStatus(), Arrays.asList(nextUpdateStatusTask));
+					}
+
+					nextUpdateStatusTasks.add(nextUpdateStatusTask);
+				}
+
+				for (UpdateStatusTask task : nextUpdateStatusTasks) {
+					for (Entry<Object, List<? extends AbstractTask>> entry : map.entrySet()) {
+						if (!entry.getKey().equals(task.getCurrentStatus())) {
+							task.getOtherStatusTasksMap().put(entry.getKey(), entry.getValue());
+						}
 					}
 				}
 
-				getTaskManagerConfiguration().getTaskManagerWriter().saveNewNextTasksInTaskCluster(taskCluster, updateStatusTask, taskServiceResult, newNextCurrentTasks);
+				getTaskManagerConfiguration().getTaskManagerWriter().saveNewNextTasksInTaskCluster(taskCluster, updateStatusTask, taskServiceResult, newNextCurrentTasks, toDeleteTasks);
 
 				tasksLists.newCurrentTasks = newNextCurrentTasks;
+				tasksLists.tasksToRemoves = toDeleteTasks;
 			}
 
 		} else if (toDoneTask instanceof NormalTask) {
@@ -283,13 +307,30 @@ public class TaskManagerEngine {
 	private void updateLast(List<? extends AbstractTask> tasks, UpdateStatusTask updateStatusTask) {
 		if (tasks != null && !tasks.isEmpty()) {
 			for (AbstractTask task : tasks) {
-				if (task.getNextTasks().isEmpty()) {
-					task.getNextTasks().add(updateStatusTask);
-				} else {
-					updateLast(task.getNextTasks(), updateStatusTask);
+				if (task instanceof NormalTask) {
+					NormalTask normalTask = (NormalTask) task;
+					if (normalTask.getNextTasks().isEmpty()) {
+						normalTask.getNextTasks().add(updateStatusTask);
+					} else {
+						updateLast(normalTask.getNextTasks(), updateStatusTask);
+					}
 				}
 			}
 		}
+	}
+
+	private List<AbstractTask> extract(List<? extends AbstractTask> tasks) {
+		List<AbstractTask> res = new ArrayList<AbstractTask>();
+		if (tasks != null && !tasks.isEmpty()) {
+			for (AbstractTask task : tasks) {
+				res.add(task);
+				if (task instanceof NormalTask) {
+					NormalTask normalTask = (NormalTask) task;
+					res.addAll(extract(normalTask.getNextTasks()));
+				}
+			}
+		}
+		return res;
 	}
 
 	// Task creation

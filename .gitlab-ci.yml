@@ -1,0 +1,3 @@
+job:
+  script:
+    - mvn help:help

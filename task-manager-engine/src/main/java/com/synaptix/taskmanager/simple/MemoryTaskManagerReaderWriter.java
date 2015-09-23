@@ -68,13 +68,18 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 	}
 
 	@Override
-	public void saveNewNextTasksInTaskCluster(ITaskCluster taskCluster, UpdateStatusTask toDoneTask, Object taskServiceResult, List<AbstractTask> newNextCurrentTasks) {
+	public void saveNewNextTasksInTaskCluster(ITaskCluster taskCluster, UpdateStatusTask toDoneTask, Object taskServiceResult, List<AbstractTask> newNextCurrentTasks, List<AbstractTask> deleteTasks) {
 		LOG.info("MRW - saveNewNextTasksInTaskCluster");
 
 		taskNodeMap.get(taskCluster).remove(toDoneTask);
+		if (deleteTasks != null && !deleteTasks.isEmpty()) {
+			taskNodeMap.get(taskCluster).removeAll(deleteTasks);
+		}
 
-		update(((SimpleUpdateStatusTask) toDoneTask).getTaskObject(), newNextCurrentTasks);
-		taskNodeMap.get(taskCluster).addAll(newNextCurrentTasks);
+		if (newNextCurrentTasks != null && !newNextCurrentTasks.isEmpty()) {
+			update(((SimpleUpdateStatusTask) toDoneTask).getTaskObject(), newNextCurrentTasks);
+			taskNodeMap.get(taskCluster).addAll(newNextCurrentTasks);
+		}
 	}
 
 	private void update(ITaskObject<?> taskObject, List<AbstractTask> tasks) {
@@ -83,9 +88,10 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 				if (task instanceof SimpleUpdateStatusTask) {
 					((SimpleUpdateStatusTask) task).setTaskObject(taskObject);
 				} else if (task instanceof SimpleNormalTask) {
-					((SimpleNormalTask) task).setTaskObject(taskObject);
+					SimpleNormalTask normalTask = (SimpleNormalTask) task;
+					normalTask.setTaskObject(taskObject);
+					update(taskObject, normalTask.getNextTasks());
 				}
-				update(taskObject, task.getNextTasks());
 			}
 		}
 	}

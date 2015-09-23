@@ -61,5 +61,17 @@ public class MainExample {
 		engine.startEngine(customerOrder);
 
 		System.out.println(customerOrder);
+
+		try {
+			Thread.sleep(2 * 60 * 1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		engine.startEngine(customerOrder);
+
+		System.out.println(customerOrder);
+
 	}
 }

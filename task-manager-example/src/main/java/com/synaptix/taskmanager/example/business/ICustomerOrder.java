@@ -1,4 +1,4 @@
-package com.synaptix.taskmanager.example;
+package com.synaptix.taskmanager.example.business;
 
 import java.util.Date;
 

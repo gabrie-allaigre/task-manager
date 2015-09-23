@@ -9,9 +9,14 @@ import com.synaptix.taskmanager.engine.configuration.graph.DefaultStatusGraphReg
 import com.synaptix.taskmanager.engine.configuration.registry.DefaultTaskDefinitionRegistry;
 import com.synaptix.taskmanager.engine.graph.IStatusGraph;
 import com.synaptix.taskmanager.engine.graph.StatusGraphsBuilder;
+import com.synaptix.taskmanager.engine.listener.LogTaskCycleListener;
+import com.synaptix.taskmanager.engine.manager.TaskObjectManagerBuilder;
 import com.synaptix.taskmanager.engine.memory.MemoryTaskManagerReaderWriter;
 import com.synaptix.taskmanager.engine.taskdefinition.NormalTaskDefinitionBuilder;
 import com.synaptix.taskmanager.engine.taskdefinition.UpdateStatusTaskDefinitionBuilder;
+import com.synaptix.taskmanager.example.business.CustomerOrderBuilder;
+import com.synaptix.taskmanager.example.business.CustomerOrderStatus;
+import com.synaptix.taskmanager.example.business.ICustomerOrder;
 import com.synaptix.taskmanager.example.tasks.enrichment.DateClosedTaskService;
 import com.synaptix.taskmanager.example.tasks.enrichment.NotConfirmedTaskService;
 import com.synaptix.taskmanager.example.tasks.enrichment.ReferenceTaskService;
@@ -35,7 +40,8 @@ public class MainExample {
 		statusGraphRegistry.addStatusGraphs(ICustomerOrder.class, statusGraphs);
 
 		ComponentTaskObjectManagerRegistry taskObjectManagerRegistry = new ComponentTaskObjectManagerRegistry();
-		taskObjectManagerRegistry.addTaskObjectManager(new CustomerOrderTaskObjectManager());
+		taskObjectManagerRegistry.addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(ICustomerOrder.class).addTaskChainCriteria(null, CustomerOrderStatus.TCO, "REF")
+				.addTaskChainCriteria(CustomerOrderStatus.VAL, CustomerOrderStatus.CLO, "DATE").addTaskChainCriteria(CustomerOrderStatus.VAL, CustomerOrderStatus.TCO, "NOT-VAL").build());
 
 		DefaultTaskDefinitionRegistry taskDefinitionRegistry = new DefaultTaskDefinitionRegistry();
 		taskDefinitionRegistry.addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("TCO", new TCOTaskService()).build());
@@ -51,6 +57,8 @@ public class MainExample {
 
 		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().statusGraphRegistry(statusGraphRegistry).taskObjectManagerRegistry(taskObjectManagerRegistry)
 				.taskServiceRegistry(taskDefinitionRegistry).taskManagerReader(memoryTaskReaderWriter).taskManagerWriter(memoryTaskReaderWriter).build());
+
+		engine.addTaskManagerListener(new LogTaskCycleListener());
 
 		ICustomerOrder customerOrder = new CustomerOrderBuilder().id(UUID.randomUUID()).version(0).customerOrderNo("123456").confirmed(false).build();
 		engine.startEngine(customerOrder);

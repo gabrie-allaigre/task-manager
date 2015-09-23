@@ -3,7 +3,7 @@ grammar GraphCalc;
 compile: expr EOF
        ;
 
-expr: exprOr
+expr: exprAnd
     ;
 
 exprOr: exprAnd (OR exprAnd)*

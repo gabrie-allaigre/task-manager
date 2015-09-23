@@ -1,5 +1,7 @@
 package com.synaptix.taskmanager.engine.configuration;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import com.synaptix.taskmanager.engine.configuration.factory.ITaskFactory;
 import com.synaptix.taskmanager.engine.configuration.graph.DefaultStatusGraphRegistry;
 import com.synaptix.taskmanager.engine.configuration.graph.IStatusGraphRegistry;
@@ -19,7 +21,7 @@ public class TaskManagerConfigurationBuilder {
 
 	private TaskManagerConfigurationImpl taskManagerConfiguration;
 
-	protected TaskManagerConfigurationBuilder() {
+	private TaskManagerConfigurationBuilder() {
 		super();
 
 		this.taskManagerConfiguration = new TaskManagerConfigurationImpl();
@@ -132,6 +134,11 @@ public class TaskManagerConfigurationBuilder {
 		@Override
 		public ITaskManagerWriter getTaskManagerWriter() {
 			return taskManagerWriter;
+		}
+
+		@Override
+		public String toString() {
+			return ToStringBuilder.reflectionToString(this);
 		}
 	}
 }

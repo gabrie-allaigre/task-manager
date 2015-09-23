@@ -162,14 +162,6 @@
 				</plugin>
 				<plugin>
 					<groupId>org.antlr</groupId>
-					<artifactId>antlr3-maven-plugin</artifactId>
-					<version>${antlr3.version}</version>
-					<configuration>
-						<outputDirectory>${generated.sources.dir}</outputDirectory>
-					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>org.antlr</groupId>
 					<artifactId>antlr4-maven-plugin</artifactId>
 					<version>${antlr4.version}</version>
 					<configuration>
@@ -209,25 +201,6 @@
 									</pluginExecutionFilter>
 									<action>
 										<ignore />
-									</action>
-								</pluginExecution>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>org.antlr</groupId>
-										<artifactId>
-											antlr3-maven-plugin
-										</artifactId>
-										<versionRange>
-											[3.5,)
-										</versionRange>
-										<goals>
-											<goal>antlr</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<execute>
-											<runOnIncremental>true</runOnIncremental>
-										</execute>
 									</action>
 								</pluginExecution>
 								<pluginExecution>
@@ -280,11 +253,6 @@
 	</repositories>
 	<dependencyManagement>
 		<dependencies>
-			<dependency>
-				<groupId>org.antlr</groupId>
-				<artifactId>antlr</artifactId>
-				<version>${antlr3.version}</version>
-			</dependency>
 			<dependency>
 				<groupId>org.antlr</groupId>
 				<artifactId>antlr4-runtime</artifactId>

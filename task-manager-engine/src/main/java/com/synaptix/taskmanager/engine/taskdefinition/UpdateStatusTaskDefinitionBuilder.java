@@ -1,12 +1,14 @@
 package com.synaptix.taskmanager.engine.taskdefinition;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import com.synaptix.taskmanager.engine.taskservice.ITaskService;
 
 public class UpdateStatusTaskDefinitionBuilder {
 
 	private MyTaskDefinition taskDefinition;
 
-	protected UpdateStatusTaskDefinitionBuilder(String code, ITaskService taskService) {
+	private UpdateStatusTaskDefinitionBuilder(String code, ITaskService taskService) {
 		super();
 
 		this.taskDefinition = new MyTaskDefinition(code, taskService);
@@ -22,9 +24,9 @@ public class UpdateStatusTaskDefinitionBuilder {
 
 	private static class MyTaskDefinition implements IUpdateStatusTaskDefinition {
 
-		final String code;
+		private final String code;
 
-		final ITaskService taskService;
+		private final ITaskService taskService;
 
 		public MyTaskDefinition(String code, ITaskService taskService) {
 			super();
@@ -41,6 +43,11 @@ public class UpdateStatusTaskDefinitionBuilder {
 		@Override
 		public ITaskService getTaskService() {
 			return this.taskService;
+		}
+
+		@Override
+		public String toString() {
+			return ToStringBuilder.reflectionToString(this);
 		}
 	}
 }

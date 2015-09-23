@@ -60,13 +60,13 @@ public class StatusGraphsBuilder {
 		return new StatusGraphsBuilder(previousStatus);
 	}
 
-	private static class MyStatusGraph implements IStatusGraph {
+	protected static class MyStatusGraph implements IStatusGraph {
 
-		private Object previousStatus;
+		private final Object previousStatus;
 
-		private Object currentStatus;
+		private final Object currentStatus;
 
-		private String updateStatusTaskServiceCode;
+		private final String updateStatusTaskServiceCode;
 
 		public MyStatusGraph(Object previousStatus, Object currentStatus, String updateStatusTaskServiceCode) {
 			super();

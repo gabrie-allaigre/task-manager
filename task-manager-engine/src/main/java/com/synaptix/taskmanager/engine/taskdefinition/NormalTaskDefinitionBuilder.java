@@ -1,12 +1,14 @@
 package com.synaptix.taskmanager.engine.taskdefinition;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import com.synaptix.taskmanager.engine.taskservice.ITaskService;
 
 public class NormalTaskDefinitionBuilder {
 
 	private TaskDefinitionImpl taskDefinition;
 
-	protected NormalTaskDefinitionBuilder(String code, ITaskService taskService) {
+	private NormalTaskDefinitionBuilder(String code, ITaskService taskService) {
 		super();
 
 		this.taskDefinition = new TaskDefinitionImpl(code, taskService);
@@ -22,9 +24,9 @@ public class NormalTaskDefinitionBuilder {
 
 	private static class TaskDefinitionImpl implements INormalTaskDefinition {
 
-		final String code;
+		private final String code;
 
-		final ITaskService taskService;
+		private final ITaskService taskService;
 
 		public TaskDefinitionImpl(String code, ITaskService taskService) {
 			super();
@@ -41,6 +43,11 @@ public class NormalTaskDefinitionBuilder {
 		@Override
 		public ITaskService getTaskService() {
 			return this.taskService;
+		}
+
+		@Override
+		public String toString() {
+			return ToStringBuilder.reflectionToString(this);
 		}
 	}
 }

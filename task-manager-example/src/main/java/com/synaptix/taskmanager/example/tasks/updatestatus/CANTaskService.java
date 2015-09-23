@@ -4,8 +4,8 @@ import com.synaptix.taskmanager.engine.memory.SimpleUpdateStatusTask;
 import com.synaptix.taskmanager.engine.task.AbstractTask;
 import com.synaptix.taskmanager.engine.taskservice.AbstractUpdateStatusTaskService;
 import com.synaptix.taskmanager.engine.taskservice.ExecutionResultBuilder;
-import com.synaptix.taskmanager.example.CustomerOrderStatus;
-import com.synaptix.taskmanager.example.ICustomerOrder;
+import com.synaptix.taskmanager.example.business.CustomerOrderStatus;
+import com.synaptix.taskmanager.example.business.ICustomerOrder;
 
 public class CANTaskService extends AbstractUpdateStatusTaskService {
 

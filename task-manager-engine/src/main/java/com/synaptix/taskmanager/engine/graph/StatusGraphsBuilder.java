@@ -3,7 +3,7 @@ package com.synaptix.taskmanager.engine.graph;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class StatusGraphsBuilder {

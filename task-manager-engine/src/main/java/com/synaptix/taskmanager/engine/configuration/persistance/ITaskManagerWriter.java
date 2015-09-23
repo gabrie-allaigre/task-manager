@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import com.synaptix.taskmanager.manager.AbstractTask;
-import com.synaptix.taskmanager.manager.UpdateStatusTask;
+import com.synaptix.taskmanager.engine.task.AbstractTask;
+import com.synaptix.taskmanager.engine.task.UpdateStatusTask;
 import com.synaptix.taskmanager.model.ITaskCluster;
 import com.synaptix.taskmanager.model.ITaskObject;
 

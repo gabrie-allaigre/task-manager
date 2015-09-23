@@ -1,7 +1,7 @@
 package com.synaptix.taskmanager.example;
 
-import com.synaptix.taskmanager.manager.AbstractTaskObjectManager;
-import com.synaptix.taskmanager.manager.UpdateStatusTask;
+import com.synaptix.taskmanager.engine.manager.AbstractTaskObjectManager;
+import com.synaptix.taskmanager.engine.task.UpdateStatusTask;
 
 public class CustomerOrderTaskObjectManager extends AbstractTaskObjectManager<ICustomerOrder> {
 

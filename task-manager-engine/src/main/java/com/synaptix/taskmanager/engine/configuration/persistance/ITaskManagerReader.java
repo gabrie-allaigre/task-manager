@@ -2,7 +2,7 @@ package com.synaptix.taskmanager.engine.configuration.persistance;
 
 import java.util.List;
 
-import com.synaptix.taskmanager.manager.AbstractTask;
+import com.synaptix.taskmanager.engine.task.AbstractTask;
 import com.synaptix.taskmanager.model.ITaskCluster;
 import com.synaptix.taskmanager.model.ITaskObject;
 

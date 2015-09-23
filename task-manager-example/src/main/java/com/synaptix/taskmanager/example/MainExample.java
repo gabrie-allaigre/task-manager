@@ -7,6 +7,11 @@ import com.synaptix.taskmanager.engine.TaskManagerEngine;
 import com.synaptix.taskmanager.engine.configuration.TaskManagerConfigurationBuilder;
 import com.synaptix.taskmanager.engine.configuration.graph.DefaultStatusGraphRegistry;
 import com.synaptix.taskmanager.engine.configuration.registry.DefaultTaskDefinitionRegistry;
+import com.synaptix.taskmanager.engine.graph.IStatusGraph;
+import com.synaptix.taskmanager.engine.graph.StatusGraphsBuilder;
+import com.synaptix.taskmanager.engine.memory.MemoryTaskManagerReaderWriter;
+import com.synaptix.taskmanager.engine.taskdefinition.NormalTaskDefinitionBuilder;
+import com.synaptix.taskmanager.engine.taskdefinition.UpdateStatusTaskDefinitionBuilder;
 import com.synaptix.taskmanager.example.tasks.enrichment.DateClosedTaskService;
 import com.synaptix.taskmanager.example.tasks.enrichment.NotConfirmedTaskService;
 import com.synaptix.taskmanager.example.tasks.enrichment.ReferenceTaskService;
@@ -14,11 +19,6 @@ import com.synaptix.taskmanager.example.tasks.updatestatus.CANTaskService;
 import com.synaptix.taskmanager.example.tasks.updatestatus.CLOTaskService;
 import com.synaptix.taskmanager.example.tasks.updatestatus.TCOTaskService;
 import com.synaptix.taskmanager.example.tasks.updatestatus.VALTaskService;
-import com.synaptix.taskmanager.manager.graph.IStatusGraph;
-import com.synaptix.taskmanager.manager.graph.StatusGraphsBuilder;
-import com.synaptix.taskmanager.manager.taskdefinition.NormalTaskDefinitionBuilder;
-import com.synaptix.taskmanager.manager.taskdefinition.UpdateStatusTaskDefinitionBuilder;
-import com.synaptix.taskmanager.simple.MemoryTaskManagerReaderWriter;
 
 public class MainExample {
 
@@ -63,7 +63,7 @@ public class MainExample {
 		System.out.println(customerOrder);
 
 		try {
-			Thread.sleep(2 * 60 * 1000);
+			Thread.sleep(2 * 1000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

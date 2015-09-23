@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.synaptix.taskmanager.manager.taskdefinition.INormalTaskDefinition;
-import com.synaptix.taskmanager.manager.taskdefinition.IUpdateStatusTaskDefinition;
+import com.synaptix.taskmanager.engine.taskdefinition.INormalTaskDefinition;
+import com.synaptix.taskmanager.engine.taskdefinition.IUpdateStatusTaskDefinition;
 
 public class DefaultTaskDefinitionRegistry extends AbstractTaskDefinitionRegistry {
 

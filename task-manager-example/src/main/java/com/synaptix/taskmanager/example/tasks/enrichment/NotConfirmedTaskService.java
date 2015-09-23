@@ -1,11 +1,11 @@
 package com.synaptix.taskmanager.example.tasks.enrichment;
 
+import com.synaptix.taskmanager.engine.memory.SimpleNormalTask;
+import com.synaptix.taskmanager.engine.task.AbstractTask;
+import com.synaptix.taskmanager.engine.taskservice.AbstractTaskService;
+import com.synaptix.taskmanager.engine.taskservice.ExecutionResultBuilder;
 import com.synaptix.taskmanager.example.ICustomerOrder;
-import com.synaptix.taskmanager.manager.AbstractTask;
-import com.synaptix.taskmanager.manager.taskservice.AbstractTaskService;
-import com.synaptix.taskmanager.manager.taskservice.ExecutionResultBuilder;
 import com.synaptix.taskmanager.model.domains.ServiceNature;
-import com.synaptix.taskmanager.simple.SimpleNormalTask;
 
 public class NotConfirmedTaskService extends AbstractTaskService {
 

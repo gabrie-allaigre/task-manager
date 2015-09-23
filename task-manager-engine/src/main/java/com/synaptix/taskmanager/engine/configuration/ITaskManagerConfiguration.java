@@ -6,6 +6,7 @@ import com.synaptix.taskmanager.engine.configuration.persistance.ITaskManagerRea
 import com.synaptix.taskmanager.engine.configuration.persistance.ITaskManagerWriter;
 import com.synaptix.taskmanager.engine.configuration.registry.ITaskDefinitionRegistry;
 import com.synaptix.taskmanager.engine.configuration.registry.ITaskObjectManagerRegistry;
+import com.synaptix.taskmanager.engine.configuration.transform.ITaskChainCriteriaTransform;
 
 public interface ITaskManagerConfiguration {
 
@@ -16,6 +17,8 @@ public interface ITaskManagerConfiguration {
 	public ITaskDefinitionRegistry getTaskDefinitionRegistry();
 
 	public ITaskFactory getTaskFactory();
+
+	public ITaskChainCriteriaTransform getTaskChainCriteriaBuilder();
 
 	public ITaskManagerReader getTaskManagerReader();
 

@@ -2,12 +2,12 @@ package com.synaptix.taskmanager.example.tasks.updatestatus;
 
 import java.util.Date;
 
+import com.synaptix.taskmanager.engine.memory.SimpleUpdateStatusTask;
+import com.synaptix.taskmanager.engine.task.AbstractTask;
+import com.synaptix.taskmanager.engine.taskservice.AbstractUpdateStatusTaskService;
+import com.synaptix.taskmanager.engine.taskservice.ExecutionResultBuilder;
 import com.synaptix.taskmanager.example.CustomerOrderStatus;
 import com.synaptix.taskmanager.example.ICustomerOrder;
-import com.synaptix.taskmanager.manager.AbstractTask;
-import com.synaptix.taskmanager.manager.taskservice.AbstractUpdateStatusTaskService;
-import com.synaptix.taskmanager.manager.taskservice.ExecutionResultBuilder;
-import com.synaptix.taskmanager.simple.SimpleUpdateStatusTask;
 
 public class CLOTaskService extends AbstractUpdateStatusTaskService {
 

@@ -1,7 +1,7 @@
 package com.synaptix.taskmanager.engine.configuration.registry;
 
-import com.synaptix.taskmanager.manager.taskdefinition.INormalTaskDefinition;
-import com.synaptix.taskmanager.manager.taskdefinition.IUpdateStatusTaskDefinition;
+import com.synaptix.taskmanager.engine.taskdefinition.INormalTaskDefinition;
+import com.synaptix.taskmanager.engine.taskdefinition.IUpdateStatusTaskDefinition;
 
 public interface ITaskDefinitionRegistry {
 

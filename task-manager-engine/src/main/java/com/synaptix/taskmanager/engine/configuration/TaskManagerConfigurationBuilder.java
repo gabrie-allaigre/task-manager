@@ -9,9 +9,11 @@ import com.synaptix.taskmanager.engine.configuration.registry.DefaultTaskDefinit
 import com.synaptix.taskmanager.engine.configuration.registry.DefaultTaskObjectManagerRegistry;
 import com.synaptix.taskmanager.engine.configuration.registry.ITaskDefinitionRegistry;
 import com.synaptix.taskmanager.engine.configuration.registry.ITaskObjectManagerRegistry;
+import com.synaptix.taskmanager.engine.configuration.transform.DefaultTaskChainCriteriaTransform;
+import com.synaptix.taskmanager.engine.configuration.transform.ITaskChainCriteriaTransform;
+import com.synaptix.taskmanager.engine.memory.MemoryTaskManagerReaderWriter;
+import com.synaptix.taskmanager.engine.memory.SimpleTaskFactory;
 import com.synaptix.taskmanager.model.ITaskObject;
-import com.synaptix.taskmanager.simple.MemoryTaskManagerReaderWriter;
-import com.synaptix.taskmanager.simple.SimpleTaskFactory;
 
 public class TaskManagerConfigurationBuilder {
 
@@ -43,6 +45,11 @@ public class TaskManagerConfigurationBuilder {
 		return this;
 	}
 
+	public TaskManagerConfigurationBuilder taskChainCriteriaBuilder(ITaskChainCriteriaTransform taskChainCriteriaBuilder) {
+		this.taskManagerConfiguration.taskChainCriteriaBuilder = taskChainCriteriaBuilder;
+		return this;
+	}
+
 	public TaskManagerConfigurationBuilder taskManagerReader(ITaskManagerReader taskManagerReader) {
 		this.taskManagerConfiguration.taskManagerReader = taskManagerReader;
 		return this;
@@ -71,6 +78,8 @@ public class TaskManagerConfigurationBuilder {
 
 		private ITaskFactory taskFactory;
 
+		private ITaskChainCriteriaTransform taskChainCriteriaBuilder;
+
 		private ITaskManagerReader taskManagerReader;
 
 		private ITaskManagerWriter taskManagerWriter;
@@ -82,6 +91,7 @@ public class TaskManagerConfigurationBuilder {
 			this.taskObjectManagerRegistry = new DefaultTaskObjectManagerRegistry();
 			this.taskDefinitionRegistry = new DefaultTaskDefinitionRegistry();
 			this.taskFactory = new SimpleTaskFactory();
+			this.taskChainCriteriaBuilder = new DefaultTaskChainCriteriaTransform();
 
 			MemoryTaskManagerReaderWriter memoryTaskReaderWriter = new MemoryTaskManagerReaderWriter();
 			this.taskManagerReader = memoryTaskReaderWriter;
@@ -91,22 +101,27 @@ public class TaskManagerConfigurationBuilder {
 
 		@Override
 		public IStatusGraphRegistry getStatusGraphsRegistry() {
-			return this.statusGraphRegistry;
+			return statusGraphRegistry;
 		}
 
 		@Override
 		public ITaskObjectManagerRegistry getTaskObjectManagerRegistry() {
-			return this.taskObjectManagerRegistry;
+			return taskObjectManagerRegistry;
 		}
 
 		@Override
 		public ITaskDefinitionRegistry getTaskDefinitionRegistry() {
-			return this.taskDefinitionRegistry;
+			return taskDefinitionRegistry;
 		}
 
 		@Override
 		public ITaskFactory getTaskFactory() {
-			return this.taskFactory;
+			return taskFactory;
+		}
+
+		@Override
+		public ITaskChainCriteriaTransform getTaskChainCriteriaBuilder() {
+			return taskChainCriteriaBuilder;
 		}
 
 		@Override

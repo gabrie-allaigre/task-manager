@@ -2,7 +2,7 @@ package com.synaptix.taskmanager.engine.configuration.graph;
 
 import java.util.List;
 
-import com.synaptix.taskmanager.manager.graph.IStatusGraph;
+import com.synaptix.taskmanager.engine.graph.IStatusGraph;
 
 public interface IStatusGraphRegistry {
 

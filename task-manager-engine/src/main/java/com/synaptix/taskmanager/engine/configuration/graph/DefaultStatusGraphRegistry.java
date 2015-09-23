@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.synaptix.taskmanager.manager.graph.IStatusGraph;
+import com.synaptix.taskmanager.engine.graph.IStatusGraph;
 
 public class DefaultStatusGraphRegistry extends AbstractStatusGraphRegistry {
 

@@ -3,36 +3,31 @@ package com.synaptix.taskmanager.engine;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
+
+import javax.swing.event.EventListenerList;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.synaptix.component.model.IServiceResult;
-import com.synaptix.taskmanager.antlr.AbstractGraphNode;
-import com.synaptix.taskmanager.antlr.GraphCalcHelper;
-import com.synaptix.taskmanager.antlr.IdGraphNode;
-import com.synaptix.taskmanager.antlr.NextGraphNode;
-import com.synaptix.taskmanager.antlr.ParallelGraphNode;
 import com.synaptix.taskmanager.engine.configuration.ITaskManagerConfiguration;
 import com.synaptix.taskmanager.engine.configuration.result.ServiceResultBuilder;
+import com.synaptix.taskmanager.engine.graph.IStatusGraph;
+import com.synaptix.taskmanager.engine.listener.ITaskCycleListener;
+import com.synaptix.taskmanager.engine.manager.ITaskObjectManager;
+import com.synaptix.taskmanager.engine.task.AbstractTask;
+import com.synaptix.taskmanager.engine.task.NormalTask;
+import com.synaptix.taskmanager.engine.task.UpdateStatusTask;
+import com.synaptix.taskmanager.engine.taskdefinition.ITaskDefinition;
+import com.synaptix.taskmanager.engine.taskdefinition.IUpdateStatusTaskDefinition;
+import com.synaptix.taskmanager.engine.taskservice.ITaskService;
 import com.synaptix.taskmanager.error.TaskManagerErrorEnum;
-import com.synaptix.taskmanager.manager.AbstractTask;
-import com.synaptix.taskmanager.manager.ITaskObjectManager;
-import com.synaptix.taskmanager.manager.NormalTask;
-import com.synaptix.taskmanager.manager.UpdateStatusTask;
-import com.synaptix.taskmanager.manager.graph.IStatusGraph;
-import com.synaptix.taskmanager.manager.taskdefinition.INormalTaskDefinition;
-import com.synaptix.taskmanager.manager.taskdefinition.ITaskDefinition;
-import com.synaptix.taskmanager.manager.taskdefinition.IUpdateStatusTaskDefinition;
-import com.synaptix.taskmanager.manager.taskservice.ITaskService;
 import com.synaptix.taskmanager.model.ITaskCluster;
 import com.synaptix.taskmanager.model.ITaskObject;
 import com.synaptix.taskmanager.model.domains.ServiceNature;
@@ -43,14 +38,26 @@ public class TaskManagerEngine {
 
 	private ITaskManagerConfiguration taskManagerConfiguration;
 
+	private EventListenerList eventListenerList;
+
 	public TaskManagerEngine(ITaskManagerConfiguration taskManagerConfiguration) {
 		super();
 
 		this.taskManagerConfiguration = taskManagerConfiguration;
+
+		this.eventListenerList = new EventListenerList();
 	}
 
 	public ITaskManagerConfiguration getTaskManagerConfiguration() {
 		return taskManagerConfiguration;
+	}
+
+	public void addTaskManagerListener(ITaskCycleListener taskManagerListener) {
+		eventListenerList.add(ITaskCycleListener.class, taskManagerListener);
+	}
+
+	public void removeTaskManagerListener(ITaskCycleListener taskManagerListener) {
+		eventListenerList.remove(ITaskCycleListener.class, taskManagerListener);
 	}
 
 	// Start engine
@@ -93,123 +100,127 @@ public class TaskManagerEngine {
 
 		ServiceResultBuilder<TaskManagerErrorEnum> serviceResultBuilder = new ServiceResultBuilder<TaskManagerErrorEnum>();
 
-		boolean restart = false;
+		LinkedList<ITaskCluster> restartClusters = new LinkedList<ITaskCluster>();
+		restartClusters.addFirst(taskCluster);
+		while (!restartClusters.isEmpty()) {
+			taskCluster = restartClusters.removeFirst();
 
-		Set<ITaskCluster> restartClusters = new HashSet<ITaskCluster>();
+			boolean restart = false;
 
-		// Find all current task for cluster
-		List<AbstractTask> tasks = getTaskManagerConfiguration().getTaskManagerReader().findCurrentTasksByTaskCluster(taskCluster);
+			// Find all current task for cluster
+			List<AbstractTask> tasks = getTaskManagerConfiguration().getTaskManagerReader().findCurrentTasksByTaskCluster(taskCluster);
 
-		if (tasks == null || tasks.isEmpty()) {
-			if (taskCluster != null && !taskCluster.isCheckGraphCreated()) {
-				createTaskGraphs(taskCluster);
-				restartClusters.add(taskCluster);
+			if (tasks == null || tasks.isEmpty()) {
+				if (taskCluster != null && !taskCluster.isCheckGraphCreated()) {
+					createTaskGraphs(taskCluster);
+					restartClusters.add(taskCluster);
+				} else {
+					getTaskManagerConfiguration().getTaskManagerWriter().archiveTaskCluster(taskCluster);
+				}
 			} else {
-				getTaskManagerConfiguration().getTaskManagerWriter().archiveTaskCluster(taskCluster);
-			}
-		} else {
-			LinkedList<AbstractTask> tasksQueue = new LinkedList<AbstractTask>(tasks);
-			List<AbstractTask> recycleList = new ArrayList<AbstractTask>();
+				LinkedList<AbstractTask> tasksQueue = new LinkedList<AbstractTask>(tasks);
+				List<AbstractTask> recycleList = new ArrayList<AbstractTask>();
 
-			while (!tasksQueue.isEmpty()) {
-				AbstractTask task = tasksQueue.removeFirst();
+				while (!tasksQueue.isEmpty()) {
+					AbstractTask task = tasksQueue.removeFirst();
 
-				boolean done = true;
-				Throwable errorMessage = null;
-				ITaskService taskService = null;
-				Object taskServiceResult = null;
-				if (task.getTaskDefinition() != null) {
-					ITaskDefinition taskDefinition = task.getTaskDefinition();
-					taskService = taskDefinition.getTaskService();
-					if (taskService == null) {
-						if (LOG.isDebugEnabled()) {
-							LOG.debug("TM - TaskService does not exist");
+					boolean done = true;
+					Throwable errorMessage = null;
+					ITaskService taskService = null;
+					Object taskServiceResult = null;
+					if (task.getTaskDefinition() != null) {
+						ITaskDefinition taskDefinition = task.getTaskDefinition();
+						taskService = taskDefinition.getTaskService();
+						if (taskService == null) {
+							if (LOG.isDebugEnabled()) {
+								LOG.debug("TM - TaskService does not exist");
+							}
+							errorMessage = new NotFoundTaskDefinitionException();
+						} else {
+							if (LOG.isDebugEnabled()) {
+								LOG.debug("TM - Execute taskService = " + taskDefinition.getCode());
+							}
+							try {
+								ITaskService.IExecutionResult executionResult = taskService.execute(task);
+								if (executionResult == null) {
+									throw new NullTaskExecutionException();
+								} else {
+									done = executionResult.isFinished();
+									taskServiceResult = executionResult.getResult();
+									if (executionResult.mustStopAndRestartTaskManager()) {
+										restart = true;
+									}
+								}
+							} catch (Throwable t) {
+								LOG.error("TM - Error taskService = " + taskDefinition.getCode(), t);
+								errorMessage = t;
+							}
+
+							if (LOG.isDebugEnabled()) {
+								LOG.debug("TM - Finish " + taskDefinition.getCode() + (done ? " - Success" : " - Failure"));
+							}
 						}
-						errorMessage = new NotFoundTaskDefinitionException();
 					} else {
 						if (LOG.isDebugEnabled()) {
-							LOG.debug("TM - Execute taskService = " + taskDefinition.getCode());
+							LOG.debug("TM - taskService is null");
 						}
-						try {
-							ITaskService.IExecutionResult executionResult = taskService.execute(task);
-							if (executionResult == null) {
-								throw new NullTaskExecutionException();
-							} else {
-								done = executionResult.isFinished();
-								taskServiceResult = executionResult.getResult();
-								if (executionResult.mustStopAndRestartTaskManager()) {
-									restart = true;
-								}
-							}
-						} catch (Throwable t) {
-							LOG.error("TM - Error taskService = " + taskDefinition.getCode(), t);
-							errorMessage = t;
-						}
+					}
 
+					if (done) {
 						if (LOG.isDebugEnabled()) {
-							LOG.debug("TM - Finish " + taskDefinition.getCode() + (done ? " - Success" : " - Failure"));
+							LOG.debug("TM - task is done");
 						}
-					}
-				} else {
-					if (LOG.isDebugEnabled()) {
-						LOG.debug("TM - taskService is null");
-					}
-				}
 
-				if (done) {
-					if (LOG.isDebugEnabled()) {
-						LOG.debug("TM - task is done");
-					}
-
-					TasksLists tasksLists = setTaskDone(taskCluster, task, taskServiceResult);
-					// Add new tasks to top of deque
-					if (tasksLists.newCurrentTasks != null && !tasksLists.newCurrentTasks.isEmpty()) {
-						for (AbstractTask iTask : tasksLists.newCurrentTasks) {
-							tasksQueue.addFirst(iTask);
-						}
-					}
-
-					if (tasksLists.tasksToRemoves != null && !tasksLists.tasksToRemoves.isEmpty()) {
-						for (AbstractTask idTask : tasksLists.tasksToRemoves) {
-							for (Iterator<AbstractTask> iterator = recycleList.iterator(); iterator.hasNext();) {
-								AbstractTask iTask = iterator.next();
-								if (idTask.equals(iTask)) {
-									iterator.remove();
-									break;
-								}
+						TasksLists tasksLists = setTaskDone(taskCluster, task, taskServiceResult);
+						// Add new tasks to top of deque
+						if (tasksLists.newCurrentTasks != null && !tasksLists.newCurrentTasks.isEmpty()) {
+							for (AbstractTask iTask : tasksLists.newCurrentTasks) {
+								tasksQueue.addFirst(iTask);
 							}
-							for (Iterator<AbstractTask> iterator = tasksQueue.iterator(); iterator.hasNext();) {
-								AbstractTask iTask = iterator.next();
-								if (idTask.equals(iTask)) {
-									iterator.remove();
-									break;
+						}
+
+						if (tasksLists.tasksToRemoves != null && !tasksLists.tasksToRemoves.isEmpty()) {
+							for (AbstractTask idTask : tasksLists.tasksToRemoves) {
+								for (Iterator<AbstractTask> iterator = recycleList.iterator(); iterator.hasNext();) {
+									AbstractTask iTask = iterator.next();
+									if (idTask.equals(iTask)) {
+										iterator.remove();
+										break;
+									}
+								}
+								for (Iterator<AbstractTask> iterator = tasksQueue.iterator(); iterator.hasNext();) {
+									AbstractTask iTask = iterator.next();
+									if (idTask.equals(iTask)) {
+										iterator.remove();
+										break;
+									}
 								}
 							}
 						}
-					}
 
-					if (taskService != null && !taskService.getNature().equals(ServiceNature.DATA_CHECK)) {
-						// Add previously failed tasks to end of deque. Not done when service nature is not DATA_CHECK because DATA_CHECK does not update objects.
-						for (AbstractTask iTask : recycleList) {
-							tasksQueue.addLast(iTask);
+						if (taskService != null && !taskService.getNature().equals(ServiceNature.DATA_CHECK)) {
+							// Add previously failed tasks to end of deque. Not done when service nature is not DATA_CHECK because DATA_CHECK does not update objects.
+							for (AbstractTask iTask : recycleList) {
+								tasksQueue.addLast(iTask);
+							}
+							recycleList.clear();
 						}
-						recycleList.clear();
-					}
-				} else {
-					if (LOG.isDebugEnabled()) {
-						LOG.debug("TM - task is nothing");
-					}
+					} else {
+						if (LOG.isDebugEnabled()) {
+							LOG.debug("TM - task is nothing");
+						}
 
-					setTaskNothing(taskCluster, task, taskServiceResult, errorMessage);
+						setTaskNothing(taskCluster, task, taskServiceResult, errorMessage);
 
-					recycleList.add(task);
+						recycleList.add(task);
+					}
+					if (restart) {
+						break;
+					}
 				}
-				if (restart) {
-					break;
+				if (!restart && recycleList.isEmpty()) {
+					getTaskManagerConfiguration().getTaskManagerWriter().archiveTaskCluster(taskCluster);
 				}
-			}
-			if (!restart && recycleList.isEmpty()) {
-				getTaskManagerConfiguration().getTaskManagerWriter().archiveTaskCluster(taskCluster);
 			}
 		}
 
@@ -220,8 +231,10 @@ public class TaskManagerEngine {
 	/*
 	 * Set task as nothing
 	 */
-	private void setTaskNothing(ITaskCluster taskCluster, AbstractTask task, Object taskServiceResult, Throwable errorMessage) {
-		getTaskManagerConfiguration().getTaskManagerWriter().saveNothingTask(taskCluster, task, taskServiceResult, errorMessage);
+	private void setTaskNothing(ITaskCluster taskCluster, AbstractTask task, Object taskServiceResult, Throwable throwable) {
+		getTaskManagerConfiguration().getTaskManagerWriter().saveNothingTask(taskCluster, task, taskServiceResult, throwable);
+
+		onNothingTasks(Arrays.<AbstractTask> asList(task));
 	}
 
 	/*
@@ -233,16 +246,18 @@ public class TaskManagerEngine {
 
 	private TasksLists nextTasks(ITaskCluster taskCluster, AbstractTask toDoneTask, Object taskServiceResult, boolean skip) {
 		TasksLists tasksLists = new TasksLists();
+
+		List<AbstractTask> nextTodoTasks = new ArrayList<AbstractTask>();
+		List<AbstractTask> newNextCurrentTasks = new ArrayList<AbstractTask>();
+		List<AbstractTask> toDeleteTasks = new ArrayList<AbstractTask>();
 		if (toDoneTask instanceof UpdateStatusTask) {
 			UpdateStatusTask updateStatusTask = (UpdateStatusTask) toDoneTask;
 
 			Class<? extends ITaskObject<?>> taskObjectClass = updateStatusTask.getTaskObjectClass();
 
-			List<AbstractTask> toDeleteTasks = null;
 			if (!updateStatusTask.getOtherStatusTasksMap().isEmpty()) {
-				toDeleteTasks = new ArrayList<AbstractTask>();
 				for (Entry<Object, List<? extends AbstractTask>> entry : updateStatusTask.getOtherStatusTasksMap().entrySet()) {
-					toDeleteTasks.addAll(extract(entry.getValue()));
+					toDeleteTasks.addAll(extractAllTasks(entry.getValue()));
 				}
 			}
 
@@ -250,14 +265,12 @@ public class TaskManagerEngine {
 			if (statusGraphs != null && !statusGraphs.isEmpty()) {
 				ITaskObjectManager<?> taskObjectManager = getTaskManagerConfiguration().getTaskObjectManagerRegistry().getTaskObjectManager(taskObjectClass);
 
-				List<AbstractTask> newNextCurrentTasks = new ArrayList<AbstractTask>();
-
 				List<UpdateStatusTask> nextUpdateStatusTasks = new ArrayList<UpdateStatusTask>();
 				Map<Object, List<? extends AbstractTask>> map = new HashMap<Object, List<? extends AbstractTask>>();
 
 				for (IStatusGraph statusGraph : statusGraphs) {
 					String taskChainCriteria = taskObjectManager.getTaskChainCriteria(updateStatusTask, statusGraph.getPreviousStatus(), statusGraph.getCurrentStatus());
-					List<NormalTask> nextNormalTasks = _createTasks(taskChainCriteria);
+					List<NormalTask> nextNormalTasks = getTaskManagerConfiguration().getTaskChainCriteriaBuilder().transformeToTasks(getTaskManagerConfiguration(), taskChainCriteria);
 
 					IUpdateStatusTaskDefinition updateStatusTaskDefinition = getTaskManagerConfiguration().getTaskDefinitionRegistry()
 							.getUpdateStatusTaskDefinition(statusGraph.getUpdateStatusTaskServiceCode());
@@ -265,12 +278,14 @@ public class TaskManagerEngine {
 							statusGraph.getCurrentStatus(), updateStatusTask);
 
 					if (nextNormalTasks != null && !nextNormalTasks.isEmpty()) {
-						updateLast(nextNormalTasks, nextUpdateStatusTask);
+						addUpdateStatusTaskInLast(nextNormalTasks, nextUpdateStatusTask);
 
+						nextTodoTasks.addAll(extractAllTasks(nextNormalTasks));
 						newNextCurrentTasks.addAll(nextNormalTasks);
 
 						map.put(statusGraph.getCurrentStatus(), nextNormalTasks);
 					} else {
+						nextTodoTasks.add(nextUpdateStatusTask);
 						newNextCurrentTasks.add(nextUpdateStatusTask);
 
 						map.put(statusGraph.getCurrentStatus(), Arrays.asList(nextUpdateStatusTask));
@@ -286,25 +301,30 @@ public class TaskManagerEngine {
 						}
 					}
 				}
-
-				getTaskManagerConfiguration().getTaskManagerWriter().saveNewNextTasksInTaskCluster(taskCluster, updateStatusTask, taskServiceResult, newNextCurrentTasks, toDeleteTasks);
-
-				tasksLists.newCurrentTasks = newNextCurrentTasks;
-				tasksLists.tasksToRemoves = toDeleteTasks;
 			}
 
+			getTaskManagerConfiguration().getTaskManagerWriter().saveNewNextTasksInTaskCluster(taskCluster, updateStatusTask, taskServiceResult, newNextCurrentTasks, toDeleteTasks);
 		} else if (toDoneTask instanceof NormalTask) {
-			List<AbstractTask> nextCurrentTasks = ((NormalTask) toDoneTask).getNextTasks();
+			newNextCurrentTasks.addAll(((NormalTask) toDoneTask).getNextTasks());
 
-			getTaskManagerConfiguration().getTaskManagerWriter().saveNextTasksInTaskCluster(taskCluster, toDoneTask, taskServiceResult, nextCurrentTasks);
-
-			tasksLists.newCurrentTasks = nextCurrentTasks;
-			tasksLists.tasksToRemoves = null;
+			getTaskManagerConfiguration().getTaskManagerWriter().saveNextTasksInTaskCluster(taskCluster, toDoneTask, taskServiceResult, newNextCurrentTasks);
 		}
+
+		onDoneTasks(Arrays.asList(toDoneTask));
+		onTodoTasks(nextTodoTasks);
+		onCurrentTasks(newNextCurrentTasks);
+		onDeleteTasks(toDeleteTasks);
+
+		tasksLists.newCurrentTasks = newNextCurrentTasks;
+		tasksLists.tasksToRemoves = toDeleteTasks;
+
 		return tasksLists;
 	}
 
-	private void updateLast(List<? extends AbstractTask> tasks, UpdateStatusTask updateStatusTask) {
+	/*
+	 * Add update status task in the last tasks
+	 */
+	private void addUpdateStatusTaskInLast(List<? extends AbstractTask> tasks, UpdateStatusTask updateStatusTask) {
 		if (tasks != null && !tasks.isEmpty()) {
 			for (AbstractTask task : tasks) {
 				if (task instanceof NormalTask) {
@@ -312,21 +332,24 @@ public class TaskManagerEngine {
 					if (normalTask.getNextTasks().isEmpty()) {
 						normalTask.getNextTasks().add(updateStatusTask);
 					} else {
-						updateLast(normalTask.getNextTasks(), updateStatusTask);
+						addUpdateStatusTaskInLast(normalTask.getNextTasks(), updateStatusTask);
 					}
 				}
 			}
 		}
 	}
 
-	private List<AbstractTask> extract(List<? extends AbstractTask> tasks) {
+	/*
+	 * Extract all tasks
+	 */
+	private List<AbstractTask> extractAllTasks(List<? extends AbstractTask> tasks) {
 		List<AbstractTask> res = new ArrayList<AbstractTask>();
 		if (tasks != null && !tasks.isEmpty()) {
 			for (AbstractTask task : tasks) {
 				res.add(task);
 				if (task instanceof NormalTask) {
 					NormalTask normalTask = (NormalTask) task;
-					res.addAll(extract(normalTask.getNextTasks()));
+					res.addAll(extractAllTasks(normalTask.getNextTasks()));
 				}
 			}
 		}
@@ -335,6 +358,9 @@ public class TaskManagerEngine {
 
 	// Task creation
 
+	/*
+	 * Create task cluster for taskobject, create new task
+	 */
 	@SuppressWarnings("unchecked")
 	private ITaskCluster createTaskCluster(ITaskObject<?> taskObject) {
 		ITaskCluster taskCluster = getTaskManagerConfiguration().getTaskFactory().newTaskCluster();
@@ -344,7 +370,8 @@ public class TaskManagerEngine {
 
 		taskCluster = getTaskManagerConfiguration().getTaskManagerWriter().saveNewGraphForTaskCluster(taskCluster, Arrays.asList(Pair.<ITaskObject<?>, UpdateStatusTask> of(taskObject, task)));
 
-		// TODO
+		onTodoTasks(Arrays.<AbstractTask> asList(task));
+		onCurrentTasks(Arrays.<AbstractTask> asList(task));
 
 		return taskCluster;
 	}
@@ -368,61 +395,93 @@ public class TaskManagerEngine {
 	private ITaskCluster createTaskGraphs(ITaskCluster taskCluster) {
 		List<ITaskObject<?>> taskObjects = getTaskManagerConfiguration().getTaskManagerReader().findTaskObjectsByTaskCluster(taskCluster);
 
+		List<UpdateStatusTask> updateStatusTasks = null;
 		List<Pair<ITaskObject<?>, UpdateStatusTask>> taskObjectNodes = new ArrayList<Pair<ITaskObject<?>, UpdateStatusTask>>();
 		if (taskObjects != null && !taskObjects.isEmpty()) {
+			updateStatusTasks = new ArrayList<UpdateStatusTask>();
 			for (ITaskObject<?> taskObject : taskObjects) {
-				taskObjectNodes.add(Pair.<ITaskObject<?>, UpdateStatusTask> of(taskObject, createInitTask(taskCluster, taskObject)));
+				UpdateStatusTask initTask = createInitTask(taskCluster, taskObject);
+				taskObjectNodes.add(Pair.<ITaskObject<?>, UpdateStatusTask> of(taskObject, initTask));
 			}
 		}
 
 		taskCluster = getTaskManagerConfiguration().getTaskManagerWriter().saveNewGraphForTaskCluster(taskCluster, taskObjectNodes);
 
+		onTodoTasks(updateStatusTasks);
+		onCurrentTasks(updateStatusTasks);
+
 		return taskCluster;
 	}
 
-	/*
-	 * Create a tasks for parent and task chain criteria
-	 */
-	private List<NormalTask> _createTasks(String taskChainCriteria) {
-		if (taskChainCriteria != null && !taskChainCriteria.isEmpty()) {
-			AbstractGraphNode graphNode = GraphCalcHelper.buildGraphRule(taskChainCriteria);
-			return _createTasks(graphNode);
-		}
-		return null;
-	}
+	// Listener
 
-	private List<NormalTask> _createTasks(AbstractGraphNode node) {
-		if (node instanceof IdGraphNode) {
-			IdGraphNode ign = (IdGraphNode) node;
-			INormalTaskDefinition normalTaskDefinition = getTaskManagerConfiguration().getTaskDefinitionRegistry().getNormalTaskDefinition(ign.getId());
-			NormalTask task = getTaskManagerConfiguration().getTaskFactory().newNormalTask(normalTaskDefinition);
-			return Arrays.asList(task);
-		} else if (node instanceof ParallelGraphNode) {
-			ParallelGraphNode pgn = (ParallelGraphNode) node;
-
-			List<NormalTask> taskNodes = new ArrayList<NormalTask>();
-			for (AbstractGraphNode subNode : pgn.getNodes()) {
-				taskNodes.addAll(_createTasks(subNode));
-			}
-
-			return taskNodes;
-		} else if (node instanceof NextGraphNode) {
-			NextGraphNode ngn = (NextGraphNode) node;
-
-			List<NormalTask> firstCr = _createTasks(ngn.getFirstNode());
-			List<NormalTask> nextCr = _createTasks(ngn.getNextNode());
-
-			if (firstCr != null && nextCr != null) {
-				for (NormalTask firstTask : firstCr) {
-					for (NormalTask nextTask : nextCr) {
-						firstTask.getNextTasks().add(nextTask);
-					}
+	private void onTasks(List<? extends AbstractTask> tasks, ExecuteTaskListener executeTaskListener) {
+		if (tasks != null && !tasks.isEmpty()) {
+			ITaskCycleListener[] ls = eventListenerList.getListeners(ITaskCycleListener.class);
+			for (AbstractTask task : tasks) {
+				for (ITaskCycleListener l : ls) {
+					executeTaskListener.execute(l, task);
+				}
+				if (task.getTaskDefinition() != null && task.getTaskDefinition().getTaskService() != null) {
+					executeTaskListener.execute(task.getTaskDefinition().getTaskService(), task);
 				}
 			}
-
-			return firstCr;
 		}
-		return null;
+	}
+
+	private static final ExecuteTaskListener TODO_EXECUTE_TASK_LISTENER = new ExecuteTaskListener() {
+		@Override
+		public void execute(ITaskCycleListener taskCycleListener, AbstractTask task) {
+			taskCycleListener.onTodo(task);
+		}
+	};
+
+	private void onTodoTasks(List<? extends AbstractTask> tasks) {
+		onTasks(tasks, TODO_EXECUTE_TASK_LISTENER);
+	}
+
+	private static final ExecuteTaskListener CURRENT_EXECUTE_TASK_LISTENER = new ExecuteTaskListener() {
+		@Override
+		public void execute(ITaskCycleListener taskCycleListener, AbstractTask task) {
+			taskCycleListener.onCurrent(task);
+		}
+	};
+
+	private void onCurrentTasks(List<? extends AbstractTask> tasks) {
+		onTasks(tasks, CURRENT_EXECUTE_TASK_LISTENER);
+	}
+
+	private static final ExecuteTaskListener DONE_EXECUTE_TASK_LISTENER = new ExecuteTaskListener() {
+		@Override
+		public void execute(ITaskCycleListener taskCycleListener, AbstractTask task) {
+			taskCycleListener.onDone(task);
+		}
+	};
+
+	private void onDoneTasks(List<? extends AbstractTask> tasks) {
+		onTasks(tasks, DONE_EXECUTE_TASK_LISTENER);
+	}
+
+	private static final ExecuteTaskListener NOTHING_EXECUTE_TASK_LISTENER = new ExecuteTaskListener() {
+		@Override
+		public void execute(ITaskCycleListener taskCycleListener, AbstractTask task) {
+			taskCycleListener.onNothing(task);
+		}
+	};
+
+	private void onNothingTasks(List<? extends AbstractTask> tasks) {
+		onTasks(tasks, NOTHING_EXECUTE_TASK_LISTENER);
+	}
+
+	private static final ExecuteTaskListener DELETE_EXECUTE_TASK_LISTENER = new ExecuteTaskListener() {
+		@Override
+		public void execute(ITaskCycleListener taskCycleListener, AbstractTask task) {
+			taskCycleListener.onDelete(task);
+		}
+	};
+
+	private void onDeleteTasks(List<AbstractTask> tasks) {
+		onTasks(tasks, DELETE_EXECUTE_TASK_LISTENER);
 	}
 
 	// Inner class
@@ -432,6 +491,12 @@ public class TaskManagerEngine {
 		public List<AbstractTask> tasksToRemoves;
 
 		public List<AbstractTask> newCurrentTasks;
+
+	}
+
+	private interface ExecuteTaskListener {
+
+		public void execute(ITaskCycleListener taskCycleListener, AbstractTask task);
 
 	}
 }

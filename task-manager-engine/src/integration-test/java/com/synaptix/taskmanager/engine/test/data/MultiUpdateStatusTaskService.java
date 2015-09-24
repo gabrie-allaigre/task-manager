@@ -1,4 +1,4 @@
-package com.synaptix.taskmanager.engine.test.simple;
+package com.synaptix.taskmanager.engine.test.data;
 
 import com.synaptix.taskmanager.engine.memory.SimpleUpdateStatusTask;
 import com.synaptix.taskmanager.engine.task.AbstractTask;

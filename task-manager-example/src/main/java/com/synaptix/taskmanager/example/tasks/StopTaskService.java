@@ -1,4 +1,4 @@
-package com.synaptix.taskmanager.engine.test.simple;
+package com.synaptix.taskmanager.example.tasks;
 
 import com.synaptix.taskmanager.engine.task.AbstractTask;
 import com.synaptix.taskmanager.engine.taskservice.AbstractTaskService;

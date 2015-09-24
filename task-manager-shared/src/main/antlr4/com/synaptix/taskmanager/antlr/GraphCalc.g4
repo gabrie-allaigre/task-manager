@@ -19,7 +19,7 @@ factor: ID                 # id
       | LPAREN expr RPAREN # parens
       ;
 
-NEXT : '=>' ;
+NEXT : '=>'|'->' ;
 AND : ',' ;
 OR : '|' ;
 LPAREN : '(' ;

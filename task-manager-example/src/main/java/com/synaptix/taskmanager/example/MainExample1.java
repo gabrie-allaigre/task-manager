@@ -32,7 +32,7 @@ import com.synaptix.taskmanager.example.tasks.updatestatus.TCOTaskService;
 import com.synaptix.taskmanager.example.tasks.updatestatus.VALTaskService;
 import com.synaptix.taskmanager.model.ITaskObject;
 
-public class MainExample {
+public class MainExample1 {
 
 	public static void main(String[] args) {
 		List<IStatusGraph<CustomerOrderStatus>> statusGraphs = StatusGraphsBuilder.<CustomerOrderStatus> newBuilder()

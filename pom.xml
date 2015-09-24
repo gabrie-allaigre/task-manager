@@ -36,6 +36,7 @@
 
 		<logback.configurationFile>${root-directory}/etc/maven-annotation-logback.xml</logback.configurationFile>
 		<generated.sources.dir>${project.build.directory}/generated-sources/apt</generated.sources.dir>
+		<generated.antlr.sources.dir>${project.build.directory}/generated-sources/apt</generated.antlr.sources.dir>
 	</properties>
 	<scm>
 		<connection>scm:git:https://gitlab.synaptix-labs.com/synaptix/task-manager.git</connection>
@@ -166,7 +167,7 @@
 					<artifactId>antlr4-maven-plugin</artifactId>
 					<version>${antlr4.version}</version>
 					<configuration>
-						<outputDirectory>${generated.sources.dir}</outputDirectory>
+						<outputDirectory>${generated.antlr.sources.dir}</outputDirectory>
 					</configuration>
 				</plugin>
 				<plugin>

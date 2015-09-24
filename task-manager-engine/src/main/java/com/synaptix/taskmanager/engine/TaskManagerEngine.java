@@ -65,9 +65,9 @@ public class TaskManagerEngine {
 	 * @param taskObject
 	 * @return
 	 */
-	public void startEngine(ITaskObject<?> taskObject) {
+	public ITaskCluster startEngine(ITaskObject<?> taskObject) {
 		if (taskObject == null) {
-			return;
+			return null;
 		}
 		// If cluster not existe, create
 		ITaskCluster taskCluster = getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(taskObject);
@@ -76,6 +76,8 @@ public class TaskManagerEngine {
 		}
 
 		startEngine(taskCluster);
+
+		return taskCluster;
 	}
 
 	/**
@@ -157,13 +159,13 @@ public class TaskManagerEngine {
 						}
 					} else {
 						if (LOG.isDebugEnabled()) {
-							LOG.debug("TM - taskService is null");
+							LOG.debug("TM - TaskService is null");
 						}
 					}
 
 					if (done) {
 						if (LOG.isDebugEnabled()) {
-							LOG.debug("TM - task is done");
+							LOG.debug("TM - Task is done");
 						}
 
 						TasksLists tasksLists = setTaskDone(taskCluster, task, taskServiceResult);
@@ -202,7 +204,7 @@ public class TaskManagerEngine {
 						}
 					} else {
 						if (LOG.isDebugEnabled()) {
-							LOG.debug("TM - task is nothing");
+							LOG.debug("TM - Task did nothing");
 						}
 
 						setTaskNothing(taskCluster, task, taskServiceResult, errorMessage);
@@ -236,6 +238,7 @@ public class TaskManagerEngine {
 		return nextTasks(taskCluster, task, taskServiceResult, false);
 	}
 
+	@SuppressWarnings("unchecked")
 	private TasksLists nextTasks(ITaskCluster taskCluster, AbstractTask toDoneTask, Object taskServiceResult, boolean skip) {
 		TasksLists tasksLists = new TasksLists();
 
@@ -253,14 +256,15 @@ public class TaskManagerEngine {
 				}
 			}
 
-			List<IStatusGraph> statusGraphs = getTaskManagerConfiguration().getStatusGraphsRegistry().getNextStatusGraphsByTaskObjectType(taskObjectClass, updateStatusTask.getCurrentStatus());
+			List<IStatusGraph<Object>> statusGraphs = getTaskManagerConfiguration().getStatusGraphsRegistry().getNextStatusGraphsByTaskObjectType((Class<ITaskObject<Object>>) taskObjectClass,
+					updateStatusTask.getCurrentStatus());
 			if (statusGraphs != null && !statusGraphs.isEmpty()) {
 				ITaskObjectManager<?> taskObjectManager = getTaskManagerConfiguration().getTaskObjectManagerRegistry().getTaskObjectManager(taskObjectClass);
 
 				List<UpdateStatusTask> nextUpdateStatusTasks = new ArrayList<UpdateStatusTask>();
 				Map<Object, List<? extends AbstractTask>> map = new HashMap<Object, List<? extends AbstractTask>>();
 
-				for (IStatusGraph statusGraph : statusGraphs) {
+				for (IStatusGraph<Object> statusGraph : statusGraphs) {
 					String taskChainCriteria = taskObjectManager.getTaskChainCriteria(updateStatusTask, statusGraph.getPreviousStatus(), statusGraph.getCurrentStatus());
 					List<NormalTask> nextNormalTasks = getTaskManagerConfiguration().getTaskChainCriteriaBuilder().transformeToTasks(getTaskManagerConfiguration(), taskChainCriteria);
 

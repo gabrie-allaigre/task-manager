@@ -3,6 +3,7 @@ package com.synaptix.taskmanager.engine.configuration.graph;
 import java.util.List;
 
 import com.synaptix.taskmanager.engine.graph.IStatusGraph;
+import com.synaptix.taskmanager.model.ITaskObject;
 
 public interface IStatusGraphRegistry {
 
@@ -15,6 +16,6 @@ public interface IStatusGraphRegistry {
 	 * @param currentStatus
 	 * @return
 	 */
-	public List<IStatusGraph> getNextStatusGraphsByTaskObjectType(Class<?> taskObjectClass, Object currentStatus);
+	public <E extends Object, F extends ITaskObject<E>> List<IStatusGraph<E>> getNextStatusGraphsByTaskObjectType(Class<F> taskObjectClass, E currentStatus);
 
 }

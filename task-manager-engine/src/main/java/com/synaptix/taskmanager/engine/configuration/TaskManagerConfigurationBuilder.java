@@ -3,12 +3,9 @@ package com.synaptix.taskmanager.engine.configuration;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.synaptix.taskmanager.engine.configuration.factory.ITaskFactory;
-import com.synaptix.taskmanager.engine.configuration.graph.DefaultStatusGraphRegistry;
 import com.synaptix.taskmanager.engine.configuration.graph.IStatusGraphRegistry;
 import com.synaptix.taskmanager.engine.configuration.persistance.ITaskManagerReader;
 import com.synaptix.taskmanager.engine.configuration.persistance.ITaskManagerWriter;
-import com.synaptix.taskmanager.engine.configuration.registry.DefaultTaskDefinitionRegistry;
-import com.synaptix.taskmanager.engine.configuration.registry.DefaultTaskObjectManagerRegistry;
 import com.synaptix.taskmanager.engine.configuration.registry.ITaskDefinitionRegistry;
 import com.synaptix.taskmanager.engine.configuration.registry.ITaskObjectManagerRegistry;
 import com.synaptix.taskmanager.engine.configuration.transform.DefaultTaskChainCriteriaTransform;
@@ -89,9 +86,6 @@ public class TaskManagerConfigurationBuilder {
 		public TaskManagerConfigurationImpl() {
 			super();
 
-			this.statusGraphRegistry = new DefaultStatusGraphRegistry();
-			this.taskObjectManagerRegistry = new DefaultTaskObjectManagerRegistry();
-			this.taskDefinitionRegistry = new DefaultTaskDefinitionRegistry();
 			this.taskFactory = new SimpleTaskFactory();
 			this.taskChainCriteriaBuilder = new DefaultTaskChainCriteriaTransform();
 

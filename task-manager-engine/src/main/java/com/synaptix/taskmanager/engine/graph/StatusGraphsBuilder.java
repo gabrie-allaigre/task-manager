@@ -6,69 +6,69 @@ import java.util.List;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.tuple.Pair;
 
-public class StatusGraphsBuilder {
+public class StatusGraphsBuilder<F extends Object> {
 
-	private final Object previousStatus;
+	private final F previousStatus;
 
-	private List<Pair<Object, String>> pairs;
+	private List<Pair<F, String>> pairs;
 
-	private List<IStatusGraph> statusGraphs;
+	private List<IStatusGraph<F>> statusGraphs;
 
 	protected StatusGraphsBuilder() {
 		this(null);
 	}
 
-	protected StatusGraphsBuilder(Object previousStatus) {
+	protected StatusGraphsBuilder(F previousStatus) {
 		super();
 
 		this.previousStatus = previousStatus;
 
-		this.pairs = new ArrayList<Pair<Object, String>>();
-		this.statusGraphs = new ArrayList<IStatusGraph>();
+		this.pairs = new ArrayList<Pair<F, String>>();
+		this.statusGraphs = new ArrayList<IStatusGraph<F>>();
 	}
 
-	public StatusGraphsBuilder addNextStatusGraph(Object nextStatus, String nextUpdateStatusTaskServiceCode) {
+	public StatusGraphsBuilder<F> addNextStatusGraph(F nextStatus, String nextUpdateStatusTaskServiceCode) {
 		this.pairs.add(Pair.of(nextStatus, nextUpdateStatusTaskServiceCode));
 		return this;
 	}
 
-	public StatusGraphsBuilder addNextStatusGraph(Object nextStatus, String nextUpdateStatusTaskServiceCode, StatusGraphsBuilder statusGraphsBuilder) {
+	public StatusGraphsBuilder<F> addNextStatusGraph(F nextStatus, String nextUpdateStatusTaskServiceCode, StatusGraphsBuilder<F> statusGraphsBuilder) {
 		this.pairs.add(Pair.of(nextStatus, nextUpdateStatusTaskServiceCode));
 		if (statusGraphsBuilder.pairs != null && !statusGraphsBuilder.pairs.isEmpty()) {
-			for (Pair<Object, String> pair : statusGraphsBuilder.pairs) {
-				this.statusGraphs.add(new MyStatusGraph(nextStatus, pair.getLeft(), pair.getRight()));
+			for (Pair<F, String> pair : statusGraphsBuilder.pairs) {
+				this.statusGraphs.add(new MyStatusGraph<F>(nextStatus, pair.getLeft(), pair.getRight()));
 			}
 			this.statusGraphs.addAll(statusGraphsBuilder.statusGraphs);
 		}
 		return this;
 	}
 
-	public List<IStatusGraph> build() {
-		List<IStatusGraph> res = new ArrayList<IStatusGraph>();
-		for (Pair<Object, String> pair : pairs) {
-			res.add(new MyStatusGraph(previousStatus, pair.getLeft(), pair.getRight()));
+	public List<IStatusGraph<F>> build() {
+		List<IStatusGraph<F>> res = new ArrayList<IStatusGraph<F>>();
+		for (Pair<F, String> pair : pairs) {
+			res.add(new MyStatusGraph<F>(previousStatus, pair.getLeft(), pair.getRight()));
 		}
 		res.addAll(statusGraphs);
 		return res;
 	}
 
-	public static StatusGraphsBuilder newBuilder() {
-		return new StatusGraphsBuilder();
+	public static <F extends Object> StatusGraphsBuilder<F> newBuilder() {
+		return new StatusGraphsBuilder<F>();
 	}
 
-	public static StatusGraphsBuilder newBuilder(Object previousStatus) {
-		return new StatusGraphsBuilder(previousStatus);
+	public static <F extends Object> StatusGraphsBuilder<F> newBuilder(F previousStatus) {
+		return new StatusGraphsBuilder<F>(previousStatus);
 	}
 
-	protected static class MyStatusGraph implements IStatusGraph {
+	private static class MyStatusGraph<F extends Object> implements IStatusGraph<F> {
 
-		private final Object previousStatus;
+		private final F previousStatus;
 
-		private final Object currentStatus;
+		private final F currentStatus;
 
 		private final String updateStatusTaskServiceCode;
 
-		public MyStatusGraph(Object previousStatus, Object currentStatus, String updateStatusTaskServiceCode) {
+		public MyStatusGraph(F previousStatus, F currentStatus, String updateStatusTaskServiceCode) {
 			super();
 
 			this.previousStatus = previousStatus;
@@ -77,12 +77,12 @@ public class StatusGraphsBuilder {
 		}
 
 		@Override
-		public Object getPreviousStatus() {
+		public F getPreviousStatus() {
 			return previousStatus;
 		}
 
 		@Override
-		public Object getCurrentStatus() {
+		public F getCurrentStatus() {
 			return currentStatus;
 		}
 

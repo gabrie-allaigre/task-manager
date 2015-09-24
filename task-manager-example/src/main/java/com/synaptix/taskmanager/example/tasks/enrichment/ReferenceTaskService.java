@@ -9,13 +9,17 @@ import com.synaptix.taskmanager.model.domains.ServiceNature;
 
 public class ReferenceTaskService extends AbstractTaskService {
 
-	public ReferenceTaskService() {
+	private final String ref;
+
+	public ReferenceTaskService(String ref) {
 		super(ServiceNature.ENRICHMENT);
+
+		this.ref = ref;
 	}
 
 	@Override
 	public IExecutionResult execute(AbstractTask task) {
-		((SimpleNormalTask) task).<ICustomerOrder> getTaskObject().setReference("Ma ref");
+		((SimpleNormalTask) task).<ICustomerOrder> getTaskObject().setReference(ref);
 		return ExecutionResultBuilder.newBuilder().finished();
 	}
 }

@@ -64,7 +64,7 @@ public class TaskManagerEngine {
 	 * @param taskObject
 	 * @return
 	 */
-	public List<ITaskCluster> startEngine(ITaskObject<?> taskObject) {
+	public ITaskCluster startEngine(ITaskObject<?> taskObject) {
 		if (taskObject == null) {
 			return null;
 		}
@@ -74,7 +74,9 @@ public class TaskManagerEngine {
 			taskCluster = createTaskCluster(taskObject);
 		}
 
-		return startEngine(taskCluster);
+		startEngine(taskCluster);
+
+		return taskCluster;
 	}
 
 	/**
@@ -83,7 +85,7 @@ public class TaskManagerEngine {
 	 * @param taskCluster
 	 * @return
 	 */
-	public List<ITaskCluster> startEngine(ITaskCluster taskCluster) {
+	public void startEngine(ITaskCluster taskCluster) {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("TM - StartEngine");
 		}
@@ -92,7 +94,7 @@ public class TaskManagerEngine {
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("TM - Nothing, cluster is null or archived");
 			}
-			return Arrays.asList(taskCluster);
+			return;
 		}
 
 		LinkedList<ITaskCluster> restartClusters = new LinkedList<ITaskCluster>();
@@ -107,7 +109,7 @@ public class TaskManagerEngine {
 
 			if (tasks == null || tasks.isEmpty()) {
 				if (taskCluster != null && !taskCluster.isCheckGraphCreated()) {
-					createTaskGraphs(taskCluster);
+					createTaskGraphsForTaskCluster(taskCluster);
 					restartClusters.add(taskCluster);
 				} else {
 					getTaskManagerConfiguration().getTaskManagerWriter().archiveTaskCluster(taskCluster);
@@ -220,12 +222,36 @@ public class TaskManagerEngine {
 				}
 			}
 		}
-
-		return Arrays.asList(taskCluster);
 	}
 
 	public void addTaskObjectToTaskCluster(ITaskCluster taskCluster, ITaskObject<?> taskObject) {
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("TM - addTaskObjectToTaskCluster");
+		}
 
+		if (taskCluster == null || taskCluster.isCheckArchived()) {
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("TM - Nothing, cluster is null or archived");
+			}
+			return;
+		}
+		if (taskObject == null) {
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("TM - Nothing, taskObject is null");
+			}
+			return;
+		}
+
+		ITaskCluster tc = getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(taskObject);
+		if (tc != null || taskCluster.equals(tc)) {
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("TM - Nothing, taskObject is other or same in cluster");
+			}
+			return;
+		}
+
+		createTaskGraphForTaskCluster(taskCluster, taskObject);
+		startEngine(taskCluster);
 	}
 
 	/*
@@ -394,7 +420,7 @@ public class TaskManagerEngine {
 	/*
 	 * Create Task graphs for task cluster
 	 */
-	private ITaskCluster createTaskGraphs(ITaskCluster taskCluster) {
+	private ITaskCluster createTaskGraphsForTaskCluster(ITaskCluster taskCluster) {
 		List<ITaskObject<?>> taskObjects = getTaskManagerConfiguration().getTaskManagerReader().findTaskObjectsByTaskCluster(taskCluster);
 
 		List<UpdateStatusTask> updateStatusTasks = null;
@@ -411,6 +437,21 @@ public class TaskManagerEngine {
 
 		onTodoTasks(updateStatusTasks);
 		onCurrentTasks(updateStatusTasks);
+
+		return taskCluster;
+	}
+
+	/*
+	 * Create Task graph for task object and add in task cluster
+	 */
+	@SuppressWarnings("unchecked")
+	private ITaskCluster createTaskGraphForTaskCluster(ITaskCluster taskCluster, ITaskObject<?> taskObject) {
+		UpdateStatusTask task = createInitTask(taskCluster, taskObject);
+
+		taskCluster = getTaskManagerConfiguration().getTaskManagerWriter().saveNewGraphForTaskCluster(taskCluster, Arrays.asList(Pair.<ITaskObject<?>, UpdateStatusTask> of(taskObject, task)));
+
+		onTodoTasks(Arrays.<AbstractTask> asList(task));
+		onCurrentTasks(Arrays.<AbstractTask> asList(task));
 
 		return taskCluster;
 	}

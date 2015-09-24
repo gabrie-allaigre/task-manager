@@ -6,6 +6,8 @@ public class BusinessObject implements ITaskObject<String> {
 
 	private String status;
 
+	private String code;
+
 	@Override
 	public String getStatus() {
 		return status;
@@ -15,4 +17,11 @@ public class BusinessObject implements ITaskObject<String> {
 		this.status = status;
 	}
 
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
 }

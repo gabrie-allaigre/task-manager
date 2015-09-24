@@ -34,10 +34,38 @@ public interface ITaskManagerWriter {
 	 */
 	public ITaskCluster archiveTaskCluster(ITaskCluster taskCluster);
 
+	/**
+	 * Save next tasks in task cluster
+	 * 
+	 * @param taskCluster
+	 *            cluster
+	 * @param toDoneTask
+	 *            task is done
+	 * @param taskServiceResult
+	 *            result
+	 * @param nextCurrentTasks
+	 *            next tasks
+	 */
 	public void saveNextTasksInTaskCluster(ITaskCluster taskCluster, AbstractTask toDoneTask, Object taskServiceResult, List<AbstractTask> nextCurrentTasks);
 
+	/**
+	 * Task is nothing
+	 * 
+	 * @param taskCluster
+	 * @param nothingTask
+	 * @param taskServiceResult
+	 * @param errorMessage
+	 */
 	public void saveNothingTask(ITaskCluster taskCluster, AbstractTask nothingTask, Object taskServiceResult, Throwable errorMessage);
 
+	/**
+	 * 
+	 * @param taskCluster
+	 * @param toDoneTask
+	 * @param taskServiceResult
+	 * @param newNextCurrentTasks
+	 * @param deleteTasks
+	 */
 	public void saveNewNextTasksInTaskCluster(ITaskCluster taskCluster, UpdateStatusTask toDoneTask, Object taskServiceResult, List<AbstractTask> newNextCurrentTasks, List<AbstractTask> deleteTasks);
 
 }

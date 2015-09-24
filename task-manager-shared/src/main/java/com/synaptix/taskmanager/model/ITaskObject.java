@@ -9,6 +9,4 @@ public interface ITaskObject<E extends Object> {
 
 	public E getStatus();
 
-	public void setStatus(E status);
-
 }

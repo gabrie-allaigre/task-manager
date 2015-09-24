@@ -9,6 +9,8 @@ import com.synaptix.taskmanager.model.ITaskObject;
 @SynaptixComponent
 public interface ICustomerOrder extends IEntity, ITaskObject<CustomerOrderStatus> {
 
+	public void setStatus(CustomerOrderStatus status);
+
 	public String getCustomerOrderNo();
 
 	public void setCustomerOrderNo(String customerOrderNo);

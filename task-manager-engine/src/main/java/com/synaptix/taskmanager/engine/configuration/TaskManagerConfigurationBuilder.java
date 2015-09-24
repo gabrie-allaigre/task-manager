@@ -34,7 +34,7 @@ public class TaskManagerConfigurationBuilder {
 		return this;
 	}
 
-	public TaskManagerConfigurationBuilder taskServiceRegistry(ITaskDefinitionRegistry taskDefinitionRegistry) {
+	public TaskManagerConfigurationBuilder taskDefinitionRegistry(ITaskDefinitionRegistry taskDefinitionRegistry) {
 		this.taskManagerConfiguration.taskDefinitionRegistry = taskDefinitionRegistry;
 		return this;
 	}

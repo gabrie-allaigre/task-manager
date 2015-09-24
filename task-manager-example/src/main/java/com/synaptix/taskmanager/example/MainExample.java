@@ -18,7 +18,6 @@ import com.synaptix.taskmanager.engine.graph.StatusGraphsBuilder;
 import com.synaptix.taskmanager.engine.listener.LogTaskCycleListener;
 import com.synaptix.taskmanager.engine.manager.ITaskObjectManager;
 import com.synaptix.taskmanager.engine.manager.TaskObjectManagerBuilder;
-import com.synaptix.taskmanager.engine.memory.MemoryTaskManagerReaderWriter;
 import com.synaptix.taskmanager.engine.taskdefinition.NormalTaskDefinitionBuilder;
 import com.synaptix.taskmanager.engine.taskdefinition.UpdateStatusTaskDefinitionBuilder;
 import com.synaptix.taskmanager.example.business.CustomerOrderBuilder;
@@ -70,10 +69,8 @@ public class MainExample {
 				.addNormalTaskDefinition(NormalTaskDefinitionBuilder.newBuilder("REF2", new ReferenceTaskService("Ma ref 2")).build())
 				.addNormalTaskDefinition(NormalTaskDefinitionBuilder.newBuilder("NOT-VAL", new NotConfirmedTaskService()).build()).build();
 
-		MemoryTaskManagerReaderWriter memoryTaskReaderWriter = new MemoryTaskManagerReaderWriter();
-
 		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().statusGraphRegistry(statusGraphRegistry).taskObjectManagerRegistry(taskObjectManagerRegistry)
-				.taskServiceRegistry(taskDefinitionRegistry).taskManagerReader(memoryTaskReaderWriter).taskManagerWriter(memoryTaskReaderWriter).build());
+				.taskDefinitionRegistry(taskDefinitionRegistry).build());
 
 		engine.addTaskManagerListener(new LogTaskCycleListener());
 

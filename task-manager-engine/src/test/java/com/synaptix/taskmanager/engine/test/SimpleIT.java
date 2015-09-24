@@ -16,7 +16,7 @@ import com.synaptix.taskmanager.engine.test.simple.BusinessObject;
 import com.synaptix.taskmanager.engine.test.simple.MultiUpdateStatusTaskService;
 import com.synaptix.taskmanager.engine.test.simple.StopTaskService;
 
-public class SimpleTest {
+public class SimpleIT {
 
 	/**
 	 * null -> A

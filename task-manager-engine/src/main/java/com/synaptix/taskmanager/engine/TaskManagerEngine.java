@@ -64,7 +64,7 @@ public class TaskManagerEngine {
 	 * @param taskObject
 	 * @return
 	 */
-	public ITaskCluster startEngine(ITaskObject<?> taskObject) {
+	public List<ITaskCluster> startEngine(ITaskObject<?> taskObject) {
 		if (taskObject == null) {
 			return null;
 		}
@@ -74,17 +74,16 @@ public class TaskManagerEngine {
 			taskCluster = createTaskCluster(taskObject);
 		}
 
-		startEngine(taskCluster);
-
-		return taskCluster;
+		return startEngine(taskCluster);
 	}
 
 	/**
+	 * Start engin for taskCluster
 	 * 
 	 * @param taskCluster
 	 * @return
 	 */
-	public void startEngine(ITaskCluster taskCluster) {
+	public List<ITaskCluster> startEngine(ITaskCluster taskCluster) {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("TM - StartEngine");
 		}
@@ -93,7 +92,7 @@ public class TaskManagerEngine {
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("TM - Nothing, cluster is null or archived");
 			}
-			return;
+			return Arrays.asList(taskCluster);
 		}
 
 		LinkedList<ITaskCluster> restartClusters = new LinkedList<ITaskCluster>();
@@ -221,6 +220,12 @@ public class TaskManagerEngine {
 				}
 			}
 		}
+
+		return Arrays.asList(taskCluster);
+	}
+
+	public void addTaskObjectToTaskCluster(ITaskCluster taskCluster, ITaskObject<?> taskObject) {
+
 	}
 
 	/*

@@ -27,7 +27,6 @@ import com.synaptix.taskmanager.engine.taskdefinition.IUpdateStatusTaskDefinitio
 import com.synaptix.taskmanager.engine.taskservice.ITaskService;
 import com.synaptix.taskmanager.model.ITaskCluster;
 import com.synaptix.taskmanager.model.ITaskObject;
-import com.synaptix.taskmanager.model.domains.ServiceNature;
 
 public class TaskManagerEngine {
 
@@ -125,6 +124,7 @@ public class TaskManagerEngine {
 					Throwable errorMessage = null;
 					ITaskService taskService = null;
 					Object taskServiceResult = null;
+					boolean noChanges = false;
 					if (task.getTaskDefinition() != null) {
 						ITaskDefinition taskDefinition = task.getTaskDefinition();
 						taskService = taskDefinition.getTaskService();
@@ -144,6 +144,7 @@ public class TaskManagerEngine {
 								} else {
 									done = executionResult.isFinished();
 									taskServiceResult = executionResult.getResult();
+									noChanges = executionResult.isNoChanges();
 									if (executionResult.mustStopAndRestartTaskManager()) {
 										restart = true;
 									}
@@ -195,7 +196,7 @@ public class TaskManagerEngine {
 							}
 						}
 
-						if (taskService != null && !taskService.getNature().equals(ServiceNature.DATA_CHECK)) {
+						if (!noChanges) {
 							// Add previously failed tasks to end of deque. Not done when service nature is not DATA_CHECK because DATA_CHECK does not update objects.
 							for (AbstractTask iTask : recycleList) {
 								tasksQueue.addLast(iTask);

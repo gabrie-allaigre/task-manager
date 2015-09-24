@@ -2,10 +2,10 @@ package com.synaptix.taskmanager.engine.test.simple;
 
 import com.synaptix.taskmanager.engine.memory.SimpleUpdateStatusTask;
 import com.synaptix.taskmanager.engine.task.AbstractTask;
-import com.synaptix.taskmanager.engine.taskservice.AbstractUpdateStatusTaskService;
+import com.synaptix.taskmanager.engine.taskservice.AbstractTaskService;
 import com.synaptix.taskmanager.engine.taskservice.ExecutionResultBuilder;
 
-public class MultiUpdateStatusTaskService extends AbstractUpdateStatusTaskService {
+public class MultiUpdateStatusTaskService extends AbstractTaskService {
 
 	private final String status;
 

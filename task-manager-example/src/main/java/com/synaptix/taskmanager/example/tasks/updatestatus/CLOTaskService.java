@@ -4,12 +4,12 @@ import java.util.Date;
 
 import com.synaptix.taskmanager.engine.memory.SimpleUpdateStatusTask;
 import com.synaptix.taskmanager.engine.task.AbstractTask;
-import com.synaptix.taskmanager.engine.taskservice.AbstractUpdateStatusTaskService;
+import com.synaptix.taskmanager.engine.taskservice.AbstractTaskService;
 import com.synaptix.taskmanager.engine.taskservice.ExecutionResultBuilder;
 import com.synaptix.taskmanager.example.business.CustomerOrderStatus;
 import com.synaptix.taskmanager.example.business.ICustomerOrder;
 
-public class CLOTaskService extends AbstractUpdateStatusTaskService {
+public class CLOTaskService extends AbstractTaskService {
 
 	public CLOTaskService() {
 		super();

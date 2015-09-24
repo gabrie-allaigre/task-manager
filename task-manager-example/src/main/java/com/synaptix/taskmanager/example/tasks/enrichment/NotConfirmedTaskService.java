@@ -5,12 +5,11 @@ import com.synaptix.taskmanager.engine.task.AbstractTask;
 import com.synaptix.taskmanager.engine.taskservice.AbstractTaskService;
 import com.synaptix.taskmanager.engine.taskservice.ExecutionResultBuilder;
 import com.synaptix.taskmanager.example.business.ICustomerOrder;
-import com.synaptix.taskmanager.model.domains.ServiceNature;
 
 public class NotConfirmedTaskService extends AbstractTaskService {
 
 	public NotConfirmedTaskService() {
-		super(ServiceNature.MANUAL_ENRICHMENT);
+		super();
 	}
 
 	@Override

@@ -20,6 +20,11 @@ public class ExecutionResultBuilder {
 		return executionResultImpl;
 	}
 
+	public ExecutionResultBuilder noChanges() {
+		executionResultImpl.noChanges = true;
+		return this;
+	}
+
 	public ExecutionResultBuilder result(Object result) {
 		executionResultImpl.result = result;
 		return this;
@@ -45,13 +50,22 @@ public class ExecutionResultBuilder {
 
 		private boolean mustStopAndRestartTaskManager;
 
+		private boolean noChanges;
+
 		public ExecutionResultImpl() {
 			super();
+
+			this.noChanges = false;
 		}
 
 		@Override
 		public boolean isFinished() {
 			return finished;
+		}
+
+		@Override
+		public boolean isNoChanges() {
+			return noChanges;
 		}
 
 		@Override

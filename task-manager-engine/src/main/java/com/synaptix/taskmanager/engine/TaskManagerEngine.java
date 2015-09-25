@@ -258,9 +258,9 @@ public class TaskManagerEngine {
 	 * @param taskCluster
 	 * @param taskObjects
 	 */
-	public void addTaskObjectToTaskCluster(ITaskCluster taskCluster, ITaskObject<?>... taskObjects) {
+	public void addTaskObjectsToTaskCluster(ITaskCluster taskCluster, ITaskObject<?>... taskObjects) {
 		if (LOG.isDebugEnabled()) {
-			LOG.debug("TM - addTaskObjectToTaskCluster");
+			LOG.debug("TM - addTaskObjectsToTaskCluster");
 		}
 
 		if (taskCluster == null || taskCluster.isCheckArchived()) {
@@ -280,7 +280,7 @@ public class TaskManagerEngine {
 		for (ITaskObject<?> taskObject : taskObjects) {
 			if (taskObject != null) {
 				ITaskCluster tc = getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(taskObject);
-				if (tc != null || taskCluster.equals(tc)) {
+				if (tc != null) {
 					if (LOG.isDebugEnabled()) {
 						LOG.debug("TM - Nothing, taskObject is other or same in cluster");
 					}
@@ -299,9 +299,9 @@ public class TaskManagerEngine {
 	 *
 	 * @param taskObjects
 	 */
-	public void removeTaskObjectToTaskCluster(ITaskObject<?>... taskObjects) {
+	public void removeTaskObjectsFromTaskCluster(ITaskObject<?>... taskObjects) {
 		if (LOG.isDebugEnabled()) {
-			LOG.debug("TM - addTaskObjectToTaskCluster");
+			LOG.debug("TM - removeTaskObjectsFromTaskCluster");
 		}
 
 		if (taskObjects == null || taskObjects.length == 0) {
@@ -311,26 +311,126 @@ public class TaskManagerEngine {
 			return;
 		}
 
-		Map<ITaskCluster, Set<ITaskObject<?>>> modifyClusterMap = new HashMap<ITaskCluster, Set<ITaskObject<?>>>();
+		Map<ITaskCluster, List<ITaskObject<?>>> modifyClusterMap = new HashMap<ITaskCluster, List<ITaskObject<?>>>();
 		for (ITaskObject<?> taskObject : taskObjects) {
 			if (taskObject != null) {
 				ITaskCluster tc = getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(taskObject);
 				if (tc != null) {
-					Set<ITaskObject<?>> tos = modifyClusterMap.get(tc);
+					List<ITaskObject<?>> tos = modifyClusterMap.get(tc);
 					if (tos == null) {
-						tos = new HashSet<ITaskObject<?>>();
+						tos = new ArrayList<ITaskObject<?>>();
 						modifyClusterMap.put(tc, tos);
 					}
-					tos.add(taskObject);
+					if (!tos.contains(taskObject)) {
+						tos.add(taskObject);
+					}
 				}
 			}
 		}
 
-		for(Entry<ITaskCluster,Set<ITaskObject<?>>> entry : modifyClusterMap.entrySet()) {
-			getTaskManagerConfiguration().getTaskManagerWriter().saveRemoveTaskObjectsForTaskCluster(entry.getKey(),new ArrayList<ITaskObject<?>>(entry.getValue()));
+		for (Entry<ITaskCluster, List<ITaskObject<?>>> entry : modifyClusterMap.entrySet()) {
+			getTaskManagerConfiguration().getTaskManagerWriter().saveRemoveTaskObjectsFromTaskCluster(entry.getKey(), entry.getValue());
 		}
 
 		startEngine(modifyClusterMap.keySet().toArray(new ITaskCluster[modifyClusterMap.size()]));
+	}
+
+	/**
+	 * Move task objects (with other cluster) to new task cluster, start engin on all cluster
+	 *
+	 * @param taskObjects
+	 * @return
+	 */
+	public ITaskCluster moveTaskObjectsToNewTaskCluster(ITaskObject<?>... taskObjects) {
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("TM - moveTaskObjectsToNewTaskCluster");
+		}
+
+		if (taskObjects == null || taskObjects.length == 0) {
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("TM - Nothing, taskObject is null");
+			}
+			return null;
+		}
+
+		Map<ITaskCluster, List<ITaskObject<?>>> modifyClusterMap = new HashMap<ITaskCluster, List<ITaskObject<?>>>();
+		for (ITaskObject<?> taskObject : taskObjects) {
+			if (taskObject != null) {
+				ITaskCluster tc = getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(taskObject);
+				if (tc != null) {
+					List<ITaskObject<?>> tos = modifyClusterMap.get(tc);
+					if (tos == null) {
+						tos = new ArrayList<ITaskObject<?>>();
+						modifyClusterMap.put(tc, tos);
+					}
+					if (!tos.contains(taskObject)) {
+						tos.add(taskObject);
+					}
+				}
+			}
+		}
+
+		ITaskCluster taskCluster = null;
+		if (!modifyClusterMap.isEmpty()) {
+			taskCluster = getTaskManagerConfiguration().getTaskFactory().newTaskCluster();
+			taskCluster = getTaskManagerConfiguration().getTaskManagerWriter().saveNewTaskCluster(taskCluster);
+
+			taskCluster = getTaskManagerConfiguration().getTaskManagerWriter().saveMoveTaskObjectsToTaskCluster(taskCluster, modifyClusterMap, true);
+
+			List<ITaskCluster> cs = new ArrayList<ITaskCluster>(modifyClusterMap.keySet());
+			cs.add(taskCluster);
+			startEngine(cs.toArray(new ITaskCluster[cs.size()]));
+		}
+		return taskCluster;
+	}
+
+	/**
+	 * Move task objects (with other cluster) to task cluster, start engin on all cluster
+	 * @param dstTaskCluster
+	 * @param taskObjects
+	 */
+	public void moveTaskObjectsToTaskCluster(ITaskCluster dstTaskCluster, ITaskObject<?>... taskObjects) {
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("TM - addTaskObjectsToTaskCluster");
+		}
+
+		if (dstTaskCluster == null || dstTaskCluster.isCheckArchived()) {
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("TM - Nothing, cluster is null or archived");
+			}
+			return;
+		}
+		if (taskObjects == null || taskObjects.length == 0) {
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("TM - Nothing, taskObject is null");
+			}
+			return;
+		}
+
+		Map<ITaskCluster, List<ITaskObject<?>>> modifyClusterMap = new HashMap<ITaskCluster, List<ITaskObject<?>>>();
+		for (ITaskObject<?> taskObject : taskObjects) {
+			if (taskObject != null) {
+				ITaskCluster tc = getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(taskObject);
+				if (tc != null && !tc.equals(dstTaskCluster)) {
+					List<ITaskObject<?>> tos = modifyClusterMap.get(tc);
+					if (tos == null) {
+						tos = new ArrayList<ITaskObject<?>>();
+						modifyClusterMap.put(tc, tos);
+					}
+					if (!tos.contains(taskObject)) {
+						tos.add(taskObject);
+					}
+				}
+			}
+		}
+
+		if (!modifyClusterMap.isEmpty()) {
+			getTaskManagerConfiguration().getTaskManagerWriter().saveMoveTaskObjectsToTaskCluster(dstTaskCluster, modifyClusterMap,false);
+
+			List<ITaskCluster> cs = new ArrayList<ITaskCluster>(modifyClusterMap.keySet());
+			cs.add(dstTaskCluster);
+			startEngine(cs.toArray(new ITaskCluster[cs.size()]));
+		}
 	}
 
 	/*
@@ -349,7 +449,8 @@ public class TaskManagerEngine {
 		return nextTasks(taskCluster, task, taskServiceResult, false);
 	}
 
-	@SuppressWarnings("unchecked") private TasksLists nextTasks(ITaskCluster taskCluster, AbstractTask toDoneTask, Object taskServiceResult, boolean skip) {
+	@SuppressWarnings("unchecked")
+	private TasksLists nextTasks(ITaskCluster taskCluster, AbstractTask toDoneTask, Object taskServiceResult, boolean skip) {
 		TasksLists tasksLists = new TasksLists();
 
 		List<AbstractTask> nextTodoTasks = new ArrayList<AbstractTask>();
@@ -503,7 +604,7 @@ public class TaskManagerEngine {
 			}
 		}
 
-		taskCluster = getTaskManagerConfiguration().getTaskManagerWriter().saveNewGraphForTaskCluster(taskCluster, taskObjectNodes);
+		taskCluster = getTaskManagerConfiguration().getTaskManagerWriter().saveNewGraphFromTaskCluster(taskCluster, taskObjectNodes);
 
 		onTodoTasks(updateStatusTasks);
 		onCurrentTasks(updateStatusTasks);
@@ -525,7 +626,7 @@ public class TaskManagerEngine {
 			}
 		}
 
-		taskCluster = getTaskManagerConfiguration().getTaskManagerWriter().saveNewGraphForTaskCluster(taskCluster, taskObjectNodes);
+		taskCluster = getTaskManagerConfiguration().getTaskManagerWriter().saveNewGraphFromTaskCluster(taskCluster, taskObjectNodes);
 
 		onTodoTasks(updateStatusTasks);
 		onCurrentTasks(updateStatusTasks);
@@ -550,7 +651,8 @@ public class TaskManagerEngine {
 	}
 
 	private static final ExecuteTaskListener TODO_EXECUTE_TASK_LISTENER = new ExecuteTaskListener() {
-		@Override public void execute(ITaskCycleListener taskCycleListener, AbstractTask task) {
+		@Override
+		public void execute(ITaskCycleListener taskCycleListener, AbstractTask task) {
 			taskCycleListener.onTodo(task);
 		}
 	};
@@ -560,7 +662,8 @@ public class TaskManagerEngine {
 	}
 
 	private static final ExecuteTaskListener CURRENT_EXECUTE_TASK_LISTENER = new ExecuteTaskListener() {
-		@Override public void execute(ITaskCycleListener taskCycleListener, AbstractTask task) {
+		@Override
+		public void execute(ITaskCycleListener taskCycleListener, AbstractTask task) {
 			taskCycleListener.onCurrent(task);
 		}
 	};
@@ -570,7 +673,8 @@ public class TaskManagerEngine {
 	}
 
 	private static final ExecuteTaskListener DONE_EXECUTE_TASK_LISTENER = new ExecuteTaskListener() {
-		@Override public void execute(ITaskCycleListener taskCycleListener, AbstractTask task) {
+		@Override
+		public void execute(ITaskCycleListener taskCycleListener, AbstractTask task) {
 			taskCycleListener.onDone(task);
 		}
 	};
@@ -580,7 +684,8 @@ public class TaskManagerEngine {
 	}
 
 	private static final ExecuteTaskListener NOTHING_EXECUTE_TASK_LISTENER = new ExecuteTaskListener() {
-		@Override public void execute(ITaskCycleListener taskCycleListener, AbstractTask task) {
+		@Override
+		public void execute(ITaskCycleListener taskCycleListener, AbstractTask task) {
 			taskCycleListener.onNothing(task);
 		}
 	};
@@ -590,7 +695,8 @@ public class TaskManagerEngine {
 	}
 
 	private static final ExecuteTaskListener DELETE_EXECUTE_TASK_LISTENER = new ExecuteTaskListener() {
-		@Override public void execute(ITaskCycleListener taskCycleListener, AbstractTask task) {
+		@Override
+		public void execute(ITaskCycleListener taskCycleListener, AbstractTask task) {
 			taskCycleListener.onDelete(task);
 		}
 	};

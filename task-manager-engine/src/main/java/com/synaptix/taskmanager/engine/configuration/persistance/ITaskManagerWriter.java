@@ -1,13 +1,13 @@
 package com.synaptix.taskmanager.engine.configuration.persistance;
 
-import java.util.List;
-
-import org.apache.commons.lang3.tuple.Pair;
-
 import com.synaptix.taskmanager.engine.task.AbstractTask;
 import com.synaptix.taskmanager.engine.task.UpdateStatusTask;
 import com.synaptix.taskmanager.model.ITaskCluster;
 import com.synaptix.taskmanager.model.ITaskObject;
+import org.apache.commons.lang3.tuple.Pair;
+
+import java.util.List;
+import java.util.Map;
 
 public interface ITaskManagerWriter {
 
@@ -17,7 +17,7 @@ public interface ITaskManagerWriter {
 	 * @param taskCluster
 	 *            new taskCluster
 	 */
-	public ITaskCluster saveNewTaskCluster(ITaskCluster taskCluster);
+	ITaskCluster saveNewTaskCluster(ITaskCluster taskCluster);
 
 	/**
 	 * Save taskCluster, add taskNode for each taskObject
@@ -25,21 +25,32 @@ public interface ITaskManagerWriter {
 	 * @param taskCluster
 	 * @param taskObjectTasks
 	 */
-	public ITaskCluster saveNewGraphForTaskCluster(ITaskCluster taskCluster, List<Pair<ITaskObject<?>, UpdateStatusTask>> taskObjectTasks);
+	ITaskCluster saveNewGraphFromTaskCluster(ITaskCluster taskCluster, List<Pair<ITaskObject<?>, UpdateStatusTask>> taskObjectTasks);
 
 	/**
+	 * Save remove taskObjects to task cluster
 	 *
 	 * @param taskCluster
 	 * @param taskObjects
 	 */
-	public void saveRemoveTaskObjectsForTaskCluster(ITaskCluster taskCluster,List<ITaskObject<?>> taskObjects);
+	void saveRemoveTaskObjectsFromTaskCluster(ITaskCluster taskCluster, List<ITaskObject<?>> taskObjects);
+
+	/**
+	 * Save move task objects to task cluster
+	 *
+	 * @param dstTaskCluster
+	 * @param modifyClusterMap
+	 * @param newTaskCluster
+	 * @return
+	 */
+	ITaskCluster saveMoveTaskObjectsToTaskCluster(ITaskCluster dstTaskCluster, Map<ITaskCluster, List<ITaskObject<?>>> modifyClusterMap,boolean newTaskCluster);
 
 	/**
 	 * When taskCluster is finish (no task current)
 	 * 
 	 * @param taskCluster
 	 */
-	public ITaskCluster archiveTaskCluster(ITaskCluster taskCluster);
+	ITaskCluster archiveTaskCluster(ITaskCluster taskCluster);
 
 	/**
 	 * Save next tasks in task cluster
@@ -53,7 +64,7 @@ public interface ITaskManagerWriter {
 	 * @param nextCurrentTasks
 	 *            next tasks
 	 */
-	public void saveNextTasksInTaskCluster(ITaskCluster taskCluster, AbstractTask toDoneTask, Object taskServiceResult, List<AbstractTask> nextCurrentTasks);
+	void saveNextTasksInTaskCluster(ITaskCluster taskCluster, AbstractTask toDoneTask, Object taskServiceResult, List<AbstractTask> nextCurrentTasks);
 
 	/**
 	 * Task is nothing
@@ -63,7 +74,7 @@ public interface ITaskManagerWriter {
 	 * @param taskServiceResult
 	 * @param errorMessage
 	 */
-	public void saveNothingTask(ITaskCluster taskCluster, AbstractTask nothingTask, Object taskServiceResult, Throwable errorMessage);
+	void saveNothingTask(ITaskCluster taskCluster, AbstractTask nothingTask, Object taskServiceResult, Throwable errorMessage);
 
 	/**
 	 * 
@@ -73,6 +84,7 @@ public interface ITaskManagerWriter {
 	 * @param newNextCurrentTasks
 	 * @param deleteTasks
 	 */
-	public void saveNewNextTasksInTaskCluster(ITaskCluster taskCluster, UpdateStatusTask toDoneTask, Object taskServiceResult, List<AbstractTask> newNextCurrentTasks, List<AbstractTask> deleteTasks);
+	void saveNewNextTasksInTaskCluster(ITaskCluster taskCluster, UpdateStatusTask toDoneTask, Object taskServiceResult, List<AbstractTask> newNextCurrentTasks, List<AbstractTask> deleteTasks);
+
 
 }

@@ -50,7 +50,7 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 	}
 
 	@Override
-	public ITaskCluster saveNewGraphForTaskCluster(ITaskCluster taskCluster, List<Pair<ITaskObject<?>, UpdateStatusTask>> taskObjectTasks) {
+	public ITaskCluster saveNewGraphFromTaskCluster(ITaskCluster taskCluster, List<Pair<ITaskObject<?>, UpdateStatusTask>> taskObjectTasks) {
 		LOG.info("MRW - saveNewTaskObjectInTaskCluster");
 
 		if (taskObjectTasks != null && !taskObjectTasks.isEmpty()) {
@@ -75,8 +75,8 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 	}
 
 	@Override
-	public void saveRemoveTaskObjectsForTaskCluster(ITaskCluster taskCluster, List<ITaskObject<?>> taskObjects) {
-		LOG.info("MRW - saveRemoveTaskObjectsForTaskCluster");
+	public void saveRemoveTaskObjectsFromTaskCluster(ITaskCluster taskCluster, List<ITaskObject<?>> taskObjects) {
+		LOG.info("MRW - saveRemoveTaskObjectsFromTaskCluster");
 
 		if (taskObjects != null && !taskObjects.isEmpty()) {
 			List<ITaskObject<?>> tos = taskClusterMap.get(taskCluster);
@@ -86,16 +86,56 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 				tos.remove(taskObject);
 
 				Iterator<AbstractTask> it = ats.iterator();
-				while(it.hasNext()) {
+				while (it.hasNext()) {
 					AbstractTask task = it.next();
 					if (task instanceof ISimpleCommon) {
-						if (((ISimpleCommon)task).getTaskObject().equals(taskObject)) {
+						if (((ISimpleCommon) task).getTaskObject().equals(taskObject)) {
 							it.remove();
 						}
 					}
 				}
 			}
 		}
+	}
+
+	@Override
+	public ITaskCluster saveMoveTaskObjectsToTaskCluster(ITaskCluster dstTaskCluster, Map<ITaskCluster, List<ITaskObject<?>>> modifyClusterMap,boolean newTaskCluster) {
+		if (modifyClusterMap != null && !modifyClusterMap.isEmpty()) {
+			List<ITaskObject<?>> dstTos = taskClusterMap.get(dstTaskCluster);
+			List<AbstractTask> dstAts= taskNodeMap.get(dstTaskCluster);
+
+			for (Entry<ITaskCluster, List<ITaskObject<?>>> entry : modifyClusterMap.entrySet()) {
+				ITaskCluster srcTaskCluster = entry.getKey();
+				List<ITaskObject<?>> taskObjects = entry.getValue();
+
+				if (taskObjects != null && !taskObjects.isEmpty()) {
+					List<ITaskObject<?>> srcTos = taskClusterMap.get(srcTaskCluster);
+					List<AbstractTask> srcAts= taskNodeMap.get(srcTaskCluster);
+
+					for (ITaskObject<?> taskObject : taskObjects) {
+						srcTos.remove(taskObject);
+						dstTos.add(taskObject);
+
+						Iterator<AbstractTask> it = srcAts.iterator();
+						while (it.hasNext()) {
+							AbstractTask task = it.next();
+							if (task instanceof ISimpleCommon) {
+								if (((ISimpleCommon) task).getTaskObject().equals(taskObject)) {
+									it.remove();
+									dstAts.add(task);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if (newTaskCluster) {
+			((SimpleTaskCluster) dstTaskCluster).setCheckGraphCreated(true);
+		}
+
+		return dstTaskCluster;
 	}
 
 	@Override

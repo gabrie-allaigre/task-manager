@@ -17,6 +17,8 @@ import org.junit.Test;
 public class MultiIT {
 
 	/**
+	 * Add taskObject tto existing cluster
+	 *
 	 * null -> A -> (VERSB -> B -> STOP,VERSC -> C -> STOP) -> D
 	 */
 	@Test
@@ -57,7 +59,7 @@ public class MultiIT {
 		Assert.assertNull(firstBusinessObject.getStatus());
 
 		ITaskCluster taskCluster = engine.startEngine(firstBusinessObject);
-		engine.addTaskObjectToTaskCluster(taskCluster, secondBusinessObject);
+		engine.addTaskObjectsToTaskCluster(taskCluster, secondBusinessObject);
 
 		Assert.assertEquals(firstBusinessObject.getStatus(), "B");
 		Assert.assertEquals(secondBusinessObject.getStatus(), "C");
@@ -69,6 +71,9 @@ public class MultiIT {
 		Assert.assertSame(taskCluster, secondTaskCluster);
 	}
 
+	/**
+	 * Start engine with 2 task objects
+	 */
 	@Test
 	public void test2() {
 		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder()
@@ -109,6 +114,9 @@ public class MultiIT {
 		Assert.assertTrue(taskCluster.isCheckArchived());
 	}
 
+	/**
+	 * Remove task object to task cluster
+	 */
 	@Test
 	public void test3() {
 		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder()
@@ -143,11 +151,108 @@ public class MultiIT {
 
 		otherBusinessObject.setCode("VersB");
 
-		engine.removeTaskObjectToTaskCluster(otherBusinessObject);
+		engine.removeTaskObjectsFromTaskCluster(otherBusinessObject);
 
 		engine.startEngine(taskCluster);
 
 		Assert.assertEquals(otherBusinessObject.getStatus(), "A");
 		Assert.assertTrue(taskCluster.isCheckArchived());
+	}
+
+	/**
+	 * Move task object to new task cluster
+	 */
+	@Test
+	public void test4() {
+		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder()
+				.statusGraphRegistry(StatusGraphRegistryBuilder.newBuilder()
+						.addStatusGraphs(BusinessObject.class,
+								StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
+						.addStatusGraphs(OtherBusinessObject.class,
+								StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("B", "BTask")).build())
+						.build())
+				.taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder()
+						.addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(BusinessObject.class).build())
+						.addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(OtherBusinessObject.class).addTaskChainCriteria("A", "B", "VERSB").build())
+						.build())
+				.taskDefinitionRegistry(
+						TaskDefinitionRegistryBuilder.newBuilder().addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+								.addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+								.addNormalTaskDefinition(NormalTaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build())
+				.build());
+
+		BusinessObject businessObject = new BusinessObject();
+		businessObject.setCode("VersA");
+
+		OtherBusinessObject otherBusinessObject = new OtherBusinessObject();
+		otherBusinessObject.setCode("VersA");
+
+		ITaskCluster taskCluster = engine.startEngine(businessObject,otherBusinessObject);
+
+		Assert.assertEquals(businessObject.getCode(), "VersA");
+		Assert.assertEquals(otherBusinessObject.getCode(), "VersA");
+		Assert.assertEquals(businessObject.getStatus(), "B");
+		Assert.assertEquals(otherBusinessObject.getStatus(), "A");
+
+		otherBusinessObject.setCode("VersB");
+
+		ITaskCluster newTaskCluster = engine.moveTaskObjectsToNewTaskCluster(otherBusinessObject);
+
+		Assert.assertNotSame(taskCluster,newTaskCluster);
+
+		Assert.assertEquals(engine.getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(otherBusinessObject), newTaskCluster);
+		Assert.assertEquals(otherBusinessObject.getStatus(), "B");
+		Assert.assertTrue(taskCluster.isCheckArchived());
+		Assert.assertTrue(newTaskCluster.isCheckArchived());
+	}
+
+	/**
+	 * Move task object to new task cluster
+	 */
+	@Test
+	public void test5() {
+		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder()
+				.statusGraphRegistry(StatusGraphRegistryBuilder.newBuilder()
+						.addStatusGraphs(BusinessObject.class,
+								StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
+						.addStatusGraphs(OtherBusinessObject.class,
+								StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("B", "BTask")).build())
+						.build())
+				.taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder()
+						.addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(BusinessObject.class).addTaskChainCriteria("A", "B", "VERSB").build())
+						.addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(OtherBusinessObject.class).addTaskChainCriteria("A", "B", "VERSB").build())
+						.build())
+				.taskDefinitionRegistry(
+						TaskDefinitionRegistryBuilder.newBuilder().addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+								.addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+								.addNormalTaskDefinition(NormalTaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build())
+				.build());
+
+		BusinessObject businessObject = new BusinessObject();
+		businessObject.setCode("VersA");
+
+		ITaskCluster taskCluster = engine.startEngine(businessObject);
+
+		Assert.assertEquals(businessObject.getCode(), "VersA");
+		Assert.assertEquals(businessObject.getStatus(), "A");
+
+		OtherBusinessObject otherBusinessObject = new OtherBusinessObject();
+		otherBusinessObject.setCode("VersA");
+
+		ITaskCluster otherTaskCluster = engine.startEngine(otherBusinessObject);
+
+		Assert.assertEquals(otherBusinessObject.getCode(), "VersA");
+		Assert.assertEquals(otherBusinessObject.getStatus(), "A");
+
+		businessObject.setCode("VersB");
+		otherBusinessObject.setCode("VersB");
+
+		engine.moveTaskObjectsToTaskCluster(taskCluster,otherBusinessObject);
+
+		Assert.assertEquals(engine.getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(otherBusinessObject), taskCluster);
+		Assert.assertEquals(businessObject.getStatus(), "B");
+		Assert.assertEquals(otherBusinessObject.getStatus(), "B");
+		Assert.assertTrue(taskCluster.isCheckArchived());
+		Assert.assertTrue(otherTaskCluster.isCheckArchived());
 	}
 }

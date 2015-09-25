@@ -18,6 +18,7 @@ public class SimpleNormalTask extends NormalTask implements ISimpleCommon {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public <G extends ITaskObject<?>> G getTaskObject() {
 		return (G) taskObject;
 	}

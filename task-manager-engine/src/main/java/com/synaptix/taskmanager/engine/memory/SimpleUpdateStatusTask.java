@@ -19,6 +19,7 @@ public class SimpleUpdateStatusTask extends UpdateStatusTask implements ISimpleC
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public <G extends ITaskObject<?>> G getTaskObject() {
 		return (G) taskObject;
 	}

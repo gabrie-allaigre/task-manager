@@ -1,4 +1,4 @@
-package com.synaptix.taskmanager.engine.test;
+package com.synaptix.taskmanager.engine.test.it;
 
 import org.junit.Assert;
 import org.junit.Test;

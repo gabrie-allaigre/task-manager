@@ -1,4 +1,4 @@
-package com.synaptix.taskmanager.engine.test;
+package com.synaptix.taskmanager.engine.test.it;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -67,6 +67,10 @@ public class MultiIT {
 		Assert.assertEquals(secondBusinessObject.getStatus(), "C");
 
 		Assert.assertFalse(taskCluster.isCheckArchived());
+
+		ITaskCluster secondTaskCluster = engine.getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(secondBusinessObject);
+
+		Assert.assertSame(taskCluster, secondTaskCluster);
 	}
 
 }

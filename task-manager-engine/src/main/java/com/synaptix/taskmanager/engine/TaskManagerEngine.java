@@ -79,12 +79,14 @@ public class TaskManagerEngine {
 		Set<ITaskCluster> taskClusters = new HashSet<ITaskCluster>();
 		Set<ITaskObject<?>> createClusters = new HashSet<ITaskObject<?>>();
 		for (ITaskObject<?> taskObject : taskObjects) {
-			// If cluster not existe, create
-			ITaskCluster taskCluster = getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(taskObject);
-			if (taskCluster == null) {
-				createClusters.add(taskObject);
-			} else {
-				taskClusters.add(taskCluster);
+			if (taskObject != null) {
+				// If cluster not existe, create
+				ITaskCluster taskCluster = getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(taskObject);
+				if (taskCluster == null) {
+					createClusters.add(taskObject);
+				} else {
+					taskClusters.add(taskCluster);
+				}
 			}
 		}
 
@@ -121,7 +123,7 @@ public class TaskManagerEngine {
 
 		LinkedList<ITaskCluster> restartClusters = new LinkedList<ITaskCluster>();
 		for (ITaskCluster taskCluster : taskClusters) {
-			if (!taskCluster.isCheckArchived() && !restartClusters.contains(taskCluster)) {
+			if (taskCluster != null && !taskCluster.isCheckArchived() && !restartClusters.contains(taskCluster)) {
 				restartClusters.add(taskCluster);
 			}
 		}
@@ -179,6 +181,7 @@ public class TaskManagerEngine {
 							} catch (Throwable t) {
 								LOG.error("TM - Error taskService = " + taskDefinition.getCode(), t);
 								errorMessage = t;
+								done = false;
 							}
 
 							if (LOG.isDebugEnabled()) {
@@ -315,7 +318,7 @@ public class TaskManagerEngine {
 			}
 
 			List<IStatusGraph<Object>> statusGraphs = getTaskManagerConfiguration().getStatusGraphsRegistry().getNextStatusGraphsByTaskObjectType((Class<ITaskObject<Object>>) taskObjectClass,
-					updateStatusTask.getCurrentStatus());
+					updateStatusTask, updateStatusTask.getCurrentStatus());
 			if (statusGraphs != null && !statusGraphs.isEmpty()) {
 				ITaskObjectManager<?> taskObjectManager = getTaskManagerConfiguration().getTaskObjectManagerRegistry().getTaskObjectManager(taskObjectClass);
 

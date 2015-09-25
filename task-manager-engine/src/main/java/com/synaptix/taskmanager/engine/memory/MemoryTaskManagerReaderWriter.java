@@ -1,6 +1,7 @@
 package com.synaptix.taskmanager.engine.memory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,16 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 		this.taskNodeMap = new HashMap<ITaskCluster, List<AbstractTask>>();
 	}
 
+	/**
+	 * Add array of task object in task cluster
+	 * 
+	 * @param taskCluster
+	 * @param taskObjects
+	 */
+	public void addTaskObjectsInTaskCluster(ITaskCluster taskCluster, ITaskObject<?>... taskObjects) {
+		taskClusterMap.get(taskCluster).addAll(Arrays.asList(taskObjects));
+	}
+
 	// WRITER
 
 	@Override
@@ -56,6 +67,8 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 
 			taskNodeMap.get(taskCluster).add(task);
 		}
+
+		((SimpleTaskCluster) taskCluster).setCheckGraphCreated(true);
 
 		return taskCluster;
 	}

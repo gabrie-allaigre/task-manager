@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.synaptix.taskmanager.engine.graph.IStatusGraph;
+import com.synaptix.taskmanager.engine.task.UpdateStatusTask;
 import com.synaptix.taskmanager.model.ITaskObject;
 
 public class StatusGraphRegistryBuilder {
@@ -45,7 +46,7 @@ public class StatusGraphRegistryBuilder {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public <E extends Object, F extends ITaskObject<E>> List<IStatusGraph<E>> getNextStatusGraphsByTaskObjectType(Class<F> taskObjectClass, E currentStatus) {
+		public <E, F extends ITaskObject<E>> List<IStatusGraph<E>> getNextStatusGraphsByTaskObjectType(Class<F> taskObjectClass, UpdateStatusTask updateStatusTask, E currentStatus) {
 			List<IStatusGraph<E>> res = new ArrayList<IStatusGraph<E>>();
 			List<IStatusGraph<E>> statusGraphs = (List<IStatusGraph<E>>) statusGraphMap.get(taskObjectClass);
 			if (statusGraphs != null && !statusGraphs.isEmpty()) {

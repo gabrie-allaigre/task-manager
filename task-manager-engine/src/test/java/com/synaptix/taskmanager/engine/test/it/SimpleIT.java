@@ -10,15 +10,20 @@ import com.synaptix.taskmanager.engine.configuration.registry.TaskDefinitionRegi
 import com.synaptix.taskmanager.engine.configuration.registry.TaskObjectManagerRegistryBuilder;
 import com.synaptix.taskmanager.engine.graph.StatusGraphsBuilder;
 import com.synaptix.taskmanager.engine.manager.TaskObjectManagerBuilder;
+import com.synaptix.taskmanager.engine.memory.MemoryTaskManagerReaderWriter;
+import com.synaptix.taskmanager.engine.memory.SimpleTaskCluster;
 import com.synaptix.taskmanager.engine.taskdefinition.NormalTaskDefinitionBuilder;
 import com.synaptix.taskmanager.engine.taskdefinition.UpdateStatusTaskDefinitionBuilder;
+import com.synaptix.taskmanager.engine.test.data.BugTaskService;
 import com.synaptix.taskmanager.engine.test.data.BusinessObject;
 import com.synaptix.taskmanager.engine.test.data.ChangeCodeTaskService;
 import com.synaptix.taskmanager.engine.test.data.MultiUpdateStatusTaskService;
+import com.synaptix.taskmanager.engine.test.data.NullTaskService;
 import com.synaptix.taskmanager.engine.test.data.SetNowDateTaskService;
 import com.synaptix.taskmanager.engine.test.data.StopTaskService;
 import com.synaptix.taskmanager.engine.test.data.VerifyCodeTaskService;
 import com.synaptix.taskmanager.model.ITaskCluster;
+import com.synaptix.taskmanager.model.ITaskObject;
 
 public class SimpleIT {
 
@@ -320,5 +325,114 @@ public class SimpleIT {
 		Assert.assertEquals(businessObject.getCode(), "VersB");
 		Assert.assertEquals(businessObject.getStatus(), "B");
 		Assert.assertTrue(taskCluster.isCheckArchived());
+	}
+
+	@Test
+	public void test9() {
+		TaskManagerEngine engine = new TaskManagerEngine(
+				TaskManagerConfigurationBuilder.newBuilder()
+						.statusGraphRegistry(StatusGraphRegistryBuilder.newBuilder()
+								.addStatusGraphs(BusinessObject.class, StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("A", "ATask").build()).build())
+				.taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(BusinessObject.class).build()).build())
+				.taskDefinitionRegistry(TaskDefinitionRegistryBuilder.newBuilder()
+						.addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build()).build()).build());
+
+		ITaskCluster taskCluster = engine.startEngine((ITaskObject<?>) null);
+
+		Assert.assertNull(taskCluster);
+	}
+
+	@Test
+	public void test10() {
+		TaskManagerEngine engine = new TaskManagerEngine(
+				TaskManagerConfigurationBuilder.newBuilder()
+						.statusGraphRegistry(StatusGraphRegistryBuilder.newBuilder()
+								.addStatusGraphs(BusinessObject.class, StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("A", "ATask").build()).build())
+				.taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(BusinessObject.class).build()).build())
+				.taskDefinitionRegistry(TaskDefinitionRegistryBuilder.newBuilder()
+						.addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build()).build()).build());
+
+		engine.startEngine((ITaskCluster) null);
+
+		Assert.assertTrue(true);
+	}
+
+	@Test
+	public void test11() {
+		MemoryTaskManagerReaderWriter memoryTaskManagerReaderWriter = new MemoryTaskManagerReaderWriter();
+
+		TaskManagerEngine engine = new TaskManagerEngine(
+				TaskManagerConfigurationBuilder.newBuilder()
+						.statusGraphRegistry(StatusGraphRegistryBuilder.newBuilder()
+								.addStatusGraphs(BusinessObject.class, StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("A", "ATask").build()).build())
+				.taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(BusinessObject.class).build()).build())
+				.taskDefinitionRegistry(TaskDefinitionRegistryBuilder.newBuilder()
+						.addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build()).build())
+				.taskManagerReader(memoryTaskManagerReaderWriter).taskManagerWriter(memoryTaskManagerReaderWriter).build());
+
+		SimpleTaskCluster taskCluster = new SimpleTaskCluster();
+		taskCluster.setCheckGraphCreated(false);
+
+		memoryTaskManagerReaderWriter.saveNewTaskCluster(taskCluster);
+
+		BusinessObject businessObject = new BusinessObject();
+
+		memoryTaskManagerReaderWriter.addTaskObjectsInTaskCluster(taskCluster, businessObject);
+
+		engine.startEngine(taskCluster);
+
+		Assert.assertEquals(businessObject.getStatus(), "A");
+		Assert.assertTrue(taskCluster.isCheckGraphCreated());
+		Assert.assertTrue(taskCluster.isCheckArchived());
+	}
+
+	/**
+	 * null -> A
+	 */
+	@Test
+	public void test12() {
+		TaskManagerEngine engine = new TaskManagerEngine(
+				TaskManagerConfigurationBuilder.newBuilder()
+						.statusGraphRegistry(StatusGraphRegistryBuilder.newBuilder()
+								.addStatusGraphs(BusinessObject.class, StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("A", "ATask").build()).build())
+				.taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder()
+						.addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(BusinessObject.class).addTaskChainCriteria(null, "A", "BUG").build()).build())
+				.taskDefinitionRegistry(
+						TaskDefinitionRegistryBuilder.newBuilder().addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+								.addNormalTaskDefinition(NormalTaskDefinitionBuilder.newBuilder("BUG", new BugTaskService()).build()).build())
+						.build());
+
+		BusinessObject businessObject = new BusinessObject();
+		Assert.assertNull(businessObject.getStatus());
+
+		ITaskCluster taskCluster = engine.startEngine(businessObject);
+
+		Assert.assertEquals(businessObject.getStatus(), null);
+		Assert.assertFalse(taskCluster.isCheckArchived());
+	}
+
+	/**
+	 * null -> A
+	 */
+	@Test
+	public void test13() {
+		TaskManagerEngine engine = new TaskManagerEngine(
+				TaskManagerConfigurationBuilder.newBuilder()
+						.statusGraphRegistry(StatusGraphRegistryBuilder.newBuilder()
+								.addStatusGraphs(BusinessObject.class, StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("A", "ATask").build()).build())
+				.taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder()
+						.addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(BusinessObject.class).addTaskChainCriteria(null, "A", "NULL").build()).build())
+				.taskDefinitionRegistry(
+						TaskDefinitionRegistryBuilder.newBuilder().addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+								.addNormalTaskDefinition(NormalTaskDefinitionBuilder.newBuilder("NULL", new NullTaskService()).build()).build())
+						.build());
+
+		BusinessObject businessObject = new BusinessObject();
+		Assert.assertNull(businessObject.getStatus());
+
+		ITaskCluster taskCluster = engine.startEngine(businessObject);
+
+		Assert.assertEquals(businessObject.getStatus(), null);
+		Assert.assertFalse(taskCluster.isCheckArchived());
 	}
 }

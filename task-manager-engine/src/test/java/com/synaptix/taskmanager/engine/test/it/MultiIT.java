@@ -1,8 +1,5 @@
 package com.synaptix.taskmanager.engine.test.it;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.synaptix.taskmanager.engine.TaskManagerEngine;
 import com.synaptix.taskmanager.engine.configuration.TaskManagerConfigurationBuilder;
 import com.synaptix.taskmanager.engine.configuration.graph.StatusGraphRegistryBuilder;
@@ -12,11 +9,10 @@ import com.synaptix.taskmanager.engine.graph.StatusGraphsBuilder;
 import com.synaptix.taskmanager.engine.manager.TaskObjectManagerBuilder;
 import com.synaptix.taskmanager.engine.taskdefinition.NormalTaskDefinitionBuilder;
 import com.synaptix.taskmanager.engine.taskdefinition.UpdateStatusTaskDefinitionBuilder;
-import com.synaptix.taskmanager.engine.test.data.BusinessObject;
-import com.synaptix.taskmanager.engine.test.data.MultiUpdateStatusTaskService;
-import com.synaptix.taskmanager.engine.test.data.StopTaskService;
-import com.synaptix.taskmanager.engine.test.data.VerifyCodeTaskService;
+import com.synaptix.taskmanager.engine.test.data.*;
 import com.synaptix.taskmanager.model.ITaskCluster;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class MultiIT {
 
@@ -73,4 +69,85 @@ public class MultiIT {
 		Assert.assertSame(taskCluster, secondTaskCluster);
 	}
 
+	@Test
+	public void test2() {
+		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder()
+				.statusGraphRegistry(StatusGraphRegistryBuilder.newBuilder()
+						.addStatusGraphs(BusinessObject.class,
+								StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
+						.addStatusGraphs(OtherBusinessObject.class,
+								StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("B", "BTask")).build())
+						.build())
+				.taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder()
+						.addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(BusinessObject.class).build())
+						.addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(OtherBusinessObject.class).addTaskChainCriteria("A", "B", "VERSB").build())
+						.build())
+				.taskDefinitionRegistry(
+						TaskDefinitionRegistryBuilder.newBuilder().addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+								.addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+								.addNormalTaskDefinition(NormalTaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build())
+				.build());
+
+		BusinessObject businessObject = new BusinessObject();
+		businessObject.setCode("VersA");
+
+		OtherBusinessObject otherBusinessObject = new OtherBusinessObject();
+		otherBusinessObject.setCode("VersA");
+
+		ITaskCluster taskCluster = engine.startEngine(businessObject,otherBusinessObject);
+
+		Assert.assertEquals(businessObject.getCode(), "VersA");
+		Assert.assertEquals(otherBusinessObject.getCode(), "VersA");
+		Assert.assertEquals(businessObject.getStatus(), "B");
+		Assert.assertEquals(otherBusinessObject.getStatus(), "A");
+
+		otherBusinessObject.setCode("VersB");
+
+		engine.startEngine(taskCluster);
+
+		Assert.assertEquals(otherBusinessObject.getStatus(), "B");
+		Assert.assertTrue(taskCluster.isCheckArchived());
+	}
+
+	@Test
+	public void test3() {
+		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder()
+				.statusGraphRegistry(StatusGraphRegistryBuilder.newBuilder()
+						.addStatusGraphs(BusinessObject.class,
+								StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
+						.addStatusGraphs(OtherBusinessObject.class,
+								StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("B", "BTask")).build())
+						.build())
+				.taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder()
+						.addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(BusinessObject.class).build())
+						.addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(OtherBusinessObject.class).addTaskChainCriteria("A", "B", "VERSB").build())
+						.build())
+				.taskDefinitionRegistry(
+						TaskDefinitionRegistryBuilder.newBuilder().addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+								.addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+								.addNormalTaskDefinition(NormalTaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build())
+				.build());
+
+		BusinessObject businessObject = new BusinessObject();
+		businessObject.setCode("VersA");
+
+		OtherBusinessObject otherBusinessObject = new OtherBusinessObject();
+		otherBusinessObject.setCode("VersA");
+
+		ITaskCluster taskCluster = engine.startEngine(businessObject,otherBusinessObject);
+
+		Assert.assertEquals(businessObject.getCode(), "VersA");
+		Assert.assertEquals(otherBusinessObject.getCode(), "VersA");
+		Assert.assertEquals(businessObject.getStatus(), "B");
+		Assert.assertEquals(otherBusinessObject.getStatus(), "A");
+
+		otherBusinessObject.setCode("VersB");
+
+		engine.removeTaskObjectToTaskCluster(otherBusinessObject);
+
+		engine.startEngine(taskCluster);
+
+		Assert.assertEquals(otherBusinessObject.getStatus(), "A");
+		Assert.assertTrue(taskCluster.isCheckArchived());
+	}
 }

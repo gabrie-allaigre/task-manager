@@ -28,6 +28,13 @@ public interface ITaskManagerWriter {
 	public ITaskCluster saveNewGraphForTaskCluster(ITaskCluster taskCluster, List<Pair<ITaskObject<?>, UpdateStatusTask>> taskObjectTasks);
 
 	/**
+	 *
+	 * @param taskCluster
+	 * @param taskObjects
+	 */
+	public void saveRemoveTaskObjectsForTaskCluster(ITaskCluster taskCluster,List<ITaskObject<?>> taskObjects);
+
+	/**
 	 * When taskCluster is finish (no task current)
 	 * 
 	 * @param taskCluster

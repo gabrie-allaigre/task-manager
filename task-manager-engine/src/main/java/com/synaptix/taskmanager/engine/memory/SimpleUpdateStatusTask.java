@@ -4,7 +4,7 @@ import com.synaptix.taskmanager.engine.task.UpdateStatusTask;
 import com.synaptix.taskmanager.engine.taskdefinition.IUpdateStatusTaskDefinition;
 import com.synaptix.taskmanager.model.ITaskObject;
 
-public class SimpleUpdateStatusTask extends UpdateStatusTask {
+public class SimpleUpdateStatusTask extends UpdateStatusTask implements ISimpleCommon {
 
 	private ITaskObject<?> taskObject;
 
@@ -13,11 +13,12 @@ public class SimpleUpdateStatusTask extends UpdateStatusTask {
 		super(updateStatusTaskDefinition, taskObjectClass, currentStatus, previousUpdateStatusTask);
 	}
 
+	@Override
 	public void setTaskObject(ITaskObject<?> taskObject) {
 		this.taskObject = taskObject;
 	}
 
-	@SuppressWarnings("unchecked")
+	@Override
 	public <G extends ITaskObject<?>> G getTaskObject() {
 		return (G) taskObject;
 	}

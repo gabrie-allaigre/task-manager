@@ -4,7 +4,7 @@ import com.synaptix.taskmanager.engine.task.NormalTask;
 import com.synaptix.taskmanager.engine.taskdefinition.INormalTaskDefinition;
 import com.synaptix.taskmanager.model.ITaskObject;
 
-public class SimpleNormalTask extends NormalTask {
+public class SimpleNormalTask extends NormalTask implements ISimpleCommon {
 
 	private ITaskObject<?> taskObject;
 
@@ -12,13 +12,14 @@ public class SimpleNormalTask extends NormalTask {
 		super(normalTaskDefinition);
 	}
 
-	public <E extends ITaskObject<?>> void setTaskObject(E taskObject) {
+	@Override
+	public void setTaskObject(ITaskObject<?> taskObject) {
 		this.taskObject = taskObject;
 	}
 
-	@SuppressWarnings("unchecked")
-	public <E extends ITaskObject<?>> E getTaskObject() {
-		return (E) taskObject;
+	@Override
+	public <G extends ITaskObject<?>> G getTaskObject() {
+		return (G) taskObject;
 	}
 
 	@Override

@@ -1,10 +1,6 @@
 package com.synaptix.taskmanager.engine.memory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -35,7 +31,7 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 
 	/**
 	 * Add array of task object in task cluster
-	 * 
+	 *
 	 * @param taskCluster
 	 * @param taskObjects
 	 */
@@ -57,20 +53,49 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 	public ITaskCluster saveNewGraphForTaskCluster(ITaskCluster taskCluster, List<Pair<ITaskObject<?>, UpdateStatusTask>> taskObjectTasks) {
 		LOG.info("MRW - saveNewTaskObjectInTaskCluster");
 
-		for (Pair<ITaskObject<?>, UpdateStatusTask> taskObjectNode : taskObjectTasks) {
-			ITaskObject<?> taskObject = taskObjectNode.getLeft();
-			taskClusterMap.get(taskCluster).add(taskObject);
+		if (taskObjectTasks != null && !taskObjectTasks.isEmpty()) {
+			List<ITaskObject<?>> tos = taskClusterMap.get(taskCluster);
+			List<AbstractTask> ats = taskNodeMap.get(taskCluster);
 
-			UpdateStatusTask task = taskObjectNode.getRight();
+			for (Pair<ITaskObject<?>, UpdateStatusTask> taskObjectNode : taskObjectTasks) {
+				ITaskObject<?> taskObject = taskObjectNode.getLeft();
+				tos.add(taskObject);
 
-			((SimpleUpdateStatusTask) task).setTaskObject(taskObject);
+				UpdateStatusTask task = taskObjectNode.getRight();
 
-			taskNodeMap.get(taskCluster).add(task);
+				((ISimpleCommon) task).setTaskObject(taskObject);
+
+				ats.add(task);
+			}
 		}
 
 		((SimpleTaskCluster) taskCluster).setCheckGraphCreated(true);
 
 		return taskCluster;
+	}
+
+	@Override
+	public void saveRemoveTaskObjectsForTaskCluster(ITaskCluster taskCluster, List<ITaskObject<?>> taskObjects) {
+		LOG.info("MRW - saveRemoveTaskObjectsForTaskCluster");
+
+		if (taskObjects != null && !taskObjects.isEmpty()) {
+			List<ITaskObject<?>> tos = taskClusterMap.get(taskCluster);
+			List<AbstractTask> ats = taskNodeMap.get(taskCluster);
+
+			for (ITaskObject<?> taskObject : taskObjects) {
+				tos.remove(taskObject);
+
+				Iterator<AbstractTask> it = ats.iterator();
+				while(it.hasNext()) {
+					AbstractTask task = it.next();
+					if (task instanceof ISimpleCommon) {
+						if (((ISimpleCommon)task).getTaskObject().equals(taskObject)) {
+							it.remove();
+						}
+					}
+				}
+			}
+		}
 	}
 
 	@Override

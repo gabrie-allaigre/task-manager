@@ -2,39 +2,59 @@ package com.synaptix.taskmanager.engine.taskservice;
 
 import com.synaptix.taskmanager.engine.listener.ITaskCycleListener;
 import com.synaptix.taskmanager.engine.task.AbstractTask;
+import com.synaptix.taskmanager.model.ITaskCluster;
+import com.synaptix.taskmanager.model.ITaskObject;
 
 public interface ITaskService extends ITaskCycleListener {
 
-	public IExecutionResult execute(AbstractTask task);
+	/**
+	 * Execute service
+	 *
+	 * @param task task link with service
+	 * @return result of execution, <use>ExecutionResultBuilder</use>
+	 */
+	IExecutionResult execute(AbstractTask task);
 
-	public interface IExecutionResult {
+	interface Context {
+
+		void addTaskObjectsToTaskCluster(ITaskCluster taskCluster, ITaskObject<?>... taskObjects);
+
+		void removeTaskObjectsFromTaskCluster(ITaskObject<?>... taskObjects);
+
+		ITaskCluster moveTaskObjectsToNewTaskCluster(ITaskObject<?>... taskObjects);
+
+		void moveTaskObjectsToTaskCluster(ITaskCluster dstTaskCluster, ITaskObject<?>... taskObjects);
+
+	}
+
+	interface IExecutionResult {
 
 		/**
 		 * Task is finish
-		 * 
-		 * @return
+		 *
+		 * @return true is finish
 		 */
-		public boolean isFinished();
+		boolean isFinished();
 
 		/**
 		 * Task no changes business object
-		 * 
-		 * @return
+		 *
+		 * @return true is no changes
 		 */
-		public boolean isNoChanges();
+		boolean isNoChanges();
 
 		/**
 		 * Get result of task, finish or not
-		 * 
-		 * @return
+		 *
+		 * @return the result
 		 */
-		public Object getResult();
+		Object getResult();
 
 		/**
 		 * Must stop and restart task manager
-		 * 
-		 * @return
+		 *
+		 * @return true if must stop and restart
 		 */
-		public boolean mustStopAndRestartTaskManager();
+		boolean mustStopAndRestartTaskManager();
 	}
 }

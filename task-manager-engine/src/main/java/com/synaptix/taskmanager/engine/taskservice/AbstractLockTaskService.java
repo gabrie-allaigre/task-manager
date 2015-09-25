@@ -19,8 +19,8 @@ public abstract class AbstractLockTaskService extends AbstractTaskService {
 	/**
 	 * Return lock key, not NULL
 	 * 
-	 * @param task
-	 * @return
+	 * @param task task link with service
+	 * @return key
 	 */
 	protected abstract String getLockKey(AbstractTask task);
 

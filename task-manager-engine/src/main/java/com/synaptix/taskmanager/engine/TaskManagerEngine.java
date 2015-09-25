@@ -253,7 +253,13 @@ public class TaskManagerEngine {
 		}
 	}
 
-	public void addTaskObjectToTaskCluster(ITaskCluster taskCluster, ITaskObject<?> taskObject) {
+	/**
+	 * Add task objects in task cluster
+	 * 
+	 * @param taskCluster
+	 * @param taskObjects
+	 */
+	public void addTaskObjectToTaskCluster(ITaskCluster taskCluster, ITaskObject<?>... taskObjects) {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("TM - addTaskObjectToTaskCluster");
 		}
@@ -264,23 +270,49 @@ public class TaskManagerEngine {
 			}
 			return;
 		}
-		if (taskObject == null) {
+		if (taskObjects == null || taskObjects.length == 0) {
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("TM - Nothing, taskObject is null");
 			}
 			return;
 		}
 
-		ITaskCluster tc = getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(taskObject);
-		if (tc != null || taskCluster.equals(tc)) {
+		List<ITaskObject<?>> adds = new ArrayList<ITaskObject<?>>();
+		for (ITaskObject<?> taskObject : taskObjects) {
+			if (taskObject != null) {
+				ITaskCluster tc = getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(taskObject);
+				if (tc != null || taskCluster.equals(tc)) {
+					if (LOG.isDebugEnabled()) {
+						LOG.debug("TM - Nothing, taskObject is other or same in cluster");
+					}
+				} else {
+					adds.add(taskObject);
+				}
+			}
+		}
+
+		createTaskGraphForTaskCluster(taskCluster, adds.toArray(new ITaskObject<?>[adds.size()]));
+		startEngine(taskCluster);
+	}
+
+	public void removeTaskObjectToTaskCluster(ITaskObject<?>... taskObjects) {
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("TM - addTaskObjectToTaskCluster");
+		}
+
+		if (taskObjects == null || taskObjects.length == 0) {
 			if (LOG.isDebugEnabled()) {
-				LOG.debug("TM - Nothing, taskObject is other or same in cluster");
+				LOG.debug("TM - Nothing, taskObject is null");
 			}
 			return;
 		}
 
-		createTaskGraphForTaskCluster(taskCluster, taskObject);
-		startEngine(taskCluster);
+		Map<ITaskCluster, List<ITaskObject<?>>> modifyClusterMap = new HashMap<ITaskCluster, List<ITaskObject<?>>>();
+		for (ITaskObject<?> taskObject : taskObjects) {
+
+		}
+
+		startEngine(modifyClusterMap.keySet().toArray(new ITaskCluster[modifyClusterMap.size()]));
 	}
 
 	/*

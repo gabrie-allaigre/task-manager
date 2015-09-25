@@ -45,7 +45,6 @@ public class DefaultTaskChainCriteriaTransform extends AbstractTaskChainCriteria
 		parser.removeErrorListeners();
 		parser.addErrorListener(ThrowingErrorListener.INSTANCE);
 		return parser.compile();
-
 	}
 
 	private List<NormalTask> _createTasks(ITaskManagerConfiguration taskManagerConfiguration, AbstractGraphNode node) {

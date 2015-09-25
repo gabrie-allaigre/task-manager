@@ -132,17 +132,36 @@ public class StatusGraphTest {
 		Assert.assertEquals(statusGraphs.size(), 0);
 	}
 
+	/**
+	 * null -> (A -> C -> (A,D),B)
+	 */
+	@Test
+	public void test8() {
+		IStatusGraphRegistry statusGraphRegistry = StatusGraphRegistryBuilder.newBuilder()
+				.addStatusGraphs(BusinessObject.class,
+						StatusGraphsBuilder.<String> newBuilder()
+								.addNextStatusGraph("A", "ATask",
+										StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("C", "CTask",
+												StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("A", "ATask").addNextStatusGraph("D", "DTask")))
+								.addNextStatusGraph("B", "BTask").build())
+				.build();
+
+		List<IStatusGraph<String>> statusGraphs = statusGraphRegistry.getNextStatusGraphsByTaskObjectType(BusinessObject.class, null, "C");
+		Assert.assertNotNull(statusGraphs);
+		Assert.assertEquals(statusGraphs.size(), 2);
+
+		assertUniqueContains(statusGraphs, "C", "A", "ATask");
+		assertUniqueContains(statusGraphs, "C", "D", "DTask");
+	}
+
 	private static <E extends Object> void assertUniqueContains(List<IStatusGraph<E>> statusGraphs, E previousStatus, E currentStatus, String updateStatusTaskServiceCode) {
 		boolean ok = false;
 		if (statusGraphs != null && !statusGraphs.isEmpty()) {
 			for (IStatusGraph<E> statusGraph : statusGraphs) {
 				if (Objects.equals(statusGraph.getPreviousStatus(), previousStatus) && Objects.equals(statusGraph.getCurrentStatus(), currentStatus)
 						&& Objects.equals(statusGraph.getUpdateStatusTaskServiceCode(), updateStatusTaskServiceCode)) {
-					if (ok) {
-						Assert.assertTrue("Not unique " + previousStatus + " " + currentStatus + " " + updateStatusTaskServiceCode, ok);
-					} else {
-						ok = true;
-					}
+					Assert.assertFalse("Not unique " + previousStatus + " " + currentStatus + " " + updateStatusTaskServiceCode, ok);
+					ok = true;
 				}
 			}
 		}

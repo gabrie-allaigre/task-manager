@@ -16,7 +16,7 @@ public class CLOTaskService extends AbstractTaskService {
 	}
 
 	@Override
-	public IExecutionResult execute(AbstractTask task) {
+	public IExecutionResult execute(IContext context,AbstractTask task) {
 		ICustomerOrder customerOrder = ((SimpleUpdateStatusTask) task).<ICustomerOrder> getTaskObject();
 		if (customerOrder.getDateClosed() != null && customerOrder.getDateClosed().before(new Date())) {
 			((SimpleUpdateStatusTask) task).<ICustomerOrder> getTaskObject().setStatus(CustomerOrderStatus.CLO);

@@ -14,7 +14,7 @@ public class TCOTaskService extends AbstractTaskService {
 	}
 
 	@Override
-	public IExecutionResult execute(AbstractTask task) {
+	public IExecutionResult execute(IContext context,AbstractTask task) {
 		((SimpleUpdateStatusTask) task).<ICustomerOrder> getTaskObject().setStatus(CustomerOrderStatus.TCO);
 		return ExecutionResultBuilder.newBuilder().finished();
 	}

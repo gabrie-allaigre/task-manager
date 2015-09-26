@@ -6,8 +6,6 @@ import java.util.Objects;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.synaptix.taskmanager.engine.configuration.graph.IStatusGraphRegistry;
-import com.synaptix.taskmanager.engine.configuration.graph.StatusGraphRegistryBuilder;
 import com.synaptix.taskmanager.engine.graph.IStatusGraph;
 import com.synaptix.taskmanager.engine.graph.StatusGraphsBuilder;
 import com.synaptix.taskmanager.engine.test.data.BusinessObject;
@@ -70,101 +68,20 @@ public class StatusGraphTest {
 		assertUniqueContains(statusGraphs, null, "B", "BTask");
 	}
 
-	/**
-	 * null -> (A -> C -> (A,D),B)
-	 */
-	@Test
-	public void test5() {
-		IStatusGraphRegistry statusGraphRegistry = StatusGraphRegistryBuilder.newBuilder()
-				.addStatusGraphs(BusinessObject.class,
-						StatusGraphsBuilder.<String> newBuilder()
-								.addNextStatusGraph("A", "ATask",
-										StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("C", "CTask",
-												StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("A", "ATask").addNextStatusGraph("D", "DTask")))
-								.addNextStatusGraph("B", "BTask").build())
-				.build();
-
-		List<IStatusGraph<String>> statusGraphs = statusGraphRegistry.getNextStatusGraphsByTaskObjectType(BusinessObject.class, null, null);
-		Assert.assertNotNull(statusGraphs);
-		Assert.assertEquals(statusGraphs.size(), 2);
-
-		assertUniqueContains(statusGraphs, null, "A", "ATask");
-		assertUniqueContains(statusGraphs, null, "B", "BTask");
-	}
-
-	/**
-	 * null -> (A -> C -> (A,D),B)
-	 */
-	@Test
-	public void test6() {
-		IStatusGraphRegistry statusGraphRegistry = StatusGraphRegistryBuilder.newBuilder()
-				.addStatusGraphs(BusinessObject.class,
-						StatusGraphsBuilder.<String> newBuilder()
-								.addNextStatusGraph("A", "ATask",
-										StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("C", "CTask",
-												StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("A", "ATask").addNextStatusGraph("D", "DTask")))
-								.addNextStatusGraph("B", "BTask").build())
-				.build();
-
-		List<IStatusGraph<String>> statusGraphs = statusGraphRegistry.getNextStatusGraphsByTaskObjectType(BusinessObject.class, null, "A");
-		Assert.assertNotNull(statusGraphs);
-		Assert.assertEquals(statusGraphs.size(), 1);
-
-		assertUniqueContains(statusGraphs, "A", "C", "CTask");
-	}
-
-	/**
-	 * null -> (A -> C -> (A,D),B)
-	 */
-	@Test
-	public void test7() {
-		IStatusGraphRegistry statusGraphRegistry = StatusGraphRegistryBuilder.newBuilder()
-				.addStatusGraphs(BusinessObject.class,
-						StatusGraphsBuilder.<String> newBuilder()
-								.addNextStatusGraph("A", "ATask",
-										StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("C", "CTask",
-												StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("A", "ATask").addNextStatusGraph("D", "DTask")))
-								.addNextStatusGraph("B", "BTask").build())
-				.build();
-
-		List<IStatusGraph<String>> statusGraphs = statusGraphRegistry.getNextStatusGraphsByTaskObjectType(BusinessObject.class, null, "B");
-		Assert.assertNotNull(statusGraphs);
-		Assert.assertEquals(statusGraphs.size(), 0);
-	}
-
-	/**
-	 * null -> (A -> C -> (A,D),B)
-	 */
-	@Test
-	public void test8() {
-		IStatusGraphRegistry statusGraphRegistry = StatusGraphRegistryBuilder.newBuilder()
-				.addStatusGraphs(BusinessObject.class,
-						StatusGraphsBuilder.<String> newBuilder()
-								.addNextStatusGraph("A", "ATask",
-										StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("C", "CTask",
-												StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("A", "ATask").addNextStatusGraph("D", "DTask")))
-								.addNextStatusGraph("B", "BTask").build())
-				.build();
-
-		List<IStatusGraph<String>> statusGraphs = statusGraphRegistry.getNextStatusGraphsByTaskObjectType(BusinessObject.class, null, "C");
-		Assert.assertNotNull(statusGraphs);
-		Assert.assertEquals(statusGraphs.size(), 2);
-
-		assertUniqueContains(statusGraphs, "C", "A", "ATask");
-		assertUniqueContains(statusGraphs, "C", "D", "DTask");
-	}
-
-	private static <E extends Object> void assertUniqueContains(List<IStatusGraph<E>> statusGraphs, E previousStatus, E currentStatus, String updateStatusTaskServiceCode) {
-		boolean ok = false;
+	public static <E extends Object> void assertUniqueContains(List<IStatusGraph<E>> statusGraphs, E previousStatus, E currentStatus, String updateStatusTaskServiceCode) {
+		int i = 0;
 		if (statusGraphs != null && !statusGraphs.isEmpty()) {
 			for (IStatusGraph<E> statusGraph : statusGraphs) {
 				if (Objects.equals(statusGraph.getPreviousStatus(), previousStatus) && Objects.equals(statusGraph.getCurrentStatus(), currentStatus)
 						&& Objects.equals(statusGraph.getUpdateStatusTaskServiceCode(), updateStatusTaskServiceCode)) {
-					Assert.assertFalse("Not unique " + previousStatus + " " + currentStatus + " " + updateStatusTaskServiceCode, ok);
-					ok = true;
+					i++;
 				}
 			}
 		}
-		Assert.assertTrue("Not contains " + previousStatus + " " + currentStatus + " " + updateStatusTaskServiceCode, ok);
+		if (i == 0) {
+			Assert.assertTrue("Not contains " + previousStatus + " " + currentStatus + " " + updateStatusTaskServiceCode, false);
+		} else  if (i>1) {
+			Assert.assertTrue("Not unique " + previousStatus + " " + currentStatus + " " + updateStatusTaskServiceCode, false);
+		}
 	}
 }

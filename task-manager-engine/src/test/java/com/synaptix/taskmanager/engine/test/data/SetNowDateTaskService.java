@@ -14,7 +14,7 @@ public class SetNowDateTaskService extends AbstractTaskService {
 	}
 
 	@Override
-	public IExecutionResult execute(AbstractTask task) {
+	public IExecutionResult execute(IContext context,AbstractTask task) {
 		((SimpleNormalTask) task).<BusinessObject> getTaskObject().setDate(new Date());
 		return ExecutionResultBuilder.newBuilder().finished();
 	}

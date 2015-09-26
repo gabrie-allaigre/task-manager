@@ -14,7 +14,7 @@ public class CANTaskService extends AbstractTaskService {
 	}
 
 	@Override
-	public IExecutionResult execute(AbstractTask task) {
+	public IExecutionResult execute(IContext context,AbstractTask task) {
 		ICustomerOrder customerOrder = ((SimpleUpdateStatusTask) task).<ICustomerOrder> getTaskObject();
 		if (customerOrder.isCancelled()) {
 			((SimpleUpdateStatusTask) task).<ICustomerOrder> getTaskObject().setStatus(CustomerOrderStatus.CAN);

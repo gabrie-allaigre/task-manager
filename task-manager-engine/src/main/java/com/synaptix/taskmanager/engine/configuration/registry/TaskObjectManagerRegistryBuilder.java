@@ -18,7 +18,7 @@ public class TaskObjectManagerRegistryBuilder {
 		this.objectManagerRegistry = new MyObjectManagerRegistry(getClass);
 	}
 
-	public TaskObjectManagerRegistryBuilder addTaskObjectManager(ITaskObjectManager<?> taskObjectManager) {
+	public TaskObjectManagerRegistryBuilder addTaskObjectManager(ITaskObjectManager<?,?> taskObjectManager) {
 		objectManagerRegistry.taskObjectManagerMap.put(taskObjectManager.getTaskObjectClass(), taskObjectManager);
 		return this;
 	}
@@ -37,7 +37,7 @@ public class TaskObjectManagerRegistryBuilder {
 
 	public interface IGetClass {
 
-		public <F extends ITaskObject<?>> Class<F> getClass(F taskObject);
+		<F extends ITaskObject<?>> Class<F> getClass(F taskObject);
 
 	}
 
@@ -45,29 +45,29 @@ public class TaskObjectManagerRegistryBuilder {
 
 		private final IGetClass getClass;
 
-		private final Map<Class<? extends ITaskObject<?>>, ITaskObjectManager<?>> taskObjectManagerMap;
+		private final Map<Class<? extends ITaskObject<?>>, ITaskObjectManager<?,?>> taskObjectManagerMap;
 
 		public MyObjectManagerRegistry(IGetClass getClass) {
 			super();
 
 			this.getClass = getClass;
 
-			this.taskObjectManagerMap = new HashMap<Class<? extends ITaskObject<?>>, ITaskObjectManager<?>>();
+			this.taskObjectManagerMap = new HashMap<Class<? extends ITaskObject<?>>, ITaskObjectManager<?,?>>();
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public <F extends ITaskObject<?>> ITaskObjectManager<F> getTaskObjectManager(F taskObject) {
+		public <E extends Object,F extends ITaskObject<E>> ITaskObjectManager<E,F> getTaskObjectManager(F taskObject) {
 			if (getClass != null) {
-				return getTaskObjectManager((Class<F>) getClass.getClass(taskObject));
+				return getTaskObjectManager(getClass.getClass(taskObject));
 			}
 			return getTaskObjectManager((Class<F>) taskObject.getClass());
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public <F extends ITaskObject<?>> ITaskObjectManager<F> getTaskObjectManager(Class<F> taskObjectClass) {
-			return (ITaskObjectManager<F>) taskObjectManagerMap.get(taskObjectClass);
+		public <E extends Object,F extends ITaskObject<E>> ITaskObjectManager<E,F> getTaskObjectManager(Class<F> taskObjectClass) {
+			return (ITaskObjectManager<E,F>) taskObjectManagerMap.get(taskObjectClass);
 		}
 
 		@Override

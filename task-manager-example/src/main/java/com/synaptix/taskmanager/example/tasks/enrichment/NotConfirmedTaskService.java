@@ -13,7 +13,7 @@ public class NotConfirmedTaskService extends AbstractTaskService {
 	}
 
 	@Override
-	public IExecutionResult execute(AbstractTask task) {
+	public IExecutionResult execute(IContext context,AbstractTask task) {
 		if (!((SimpleNormalTask) task).<ICustomerOrder> getTaskObject().isConfirmed()) {
 			return ExecutionResultBuilder.newBuilder().noChanges().finished();
 		} else {

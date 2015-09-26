@@ -17,7 +17,7 @@ public class ChangeCodeTaskService extends AbstractTaskService {
 	}
 
 	@Override
-	public IExecutionResult execute(AbstractTask task) {
+	public IExecutionResult execute(IContext context,AbstractTask task) {
 		((SimpleNormalTask) task).<ICustomerOrder> getTaskObject().setCustomerOrderNo(newCode);
 		return ExecutionResultBuilder.newBuilder().finished();
 	}

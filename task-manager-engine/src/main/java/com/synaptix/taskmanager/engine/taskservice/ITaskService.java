@@ -10,18 +10,29 @@ public interface ITaskService extends ITaskCycleListener {
 	/**
 	 * Execute service
 	 *
+	 * @param context give access task manager engine
 	 * @param task task link with service
 	 * @return result of execution, <use>ExecutionResultBuilder</use>
 	 */
-	IExecutionResult execute(AbstractTask task);
+	IExecutionResult execute(IContext context,AbstractTask task);
 
-	interface Context {
+	interface IContext {
+
+		ITaskCluster getCurrentTaskCluster();
+
+		void startEngine(ITaskObject<?>... taskObjects);
+
+		void startEngine(ITaskCluster... taskClusters);
+
+		void addTaskObjectsToTaskCluster(ITaskObject<?>... taskObjects);
 
 		void addTaskObjectsToTaskCluster(ITaskCluster taskCluster, ITaskObject<?>... taskObjects);
 
 		void removeTaskObjectsFromTaskCluster(ITaskObject<?>... taskObjects);
 
-		ITaskCluster moveTaskObjectsToNewTaskCluster(ITaskObject<?>... taskObjects);
+		void moveTaskObjectsToNewTaskCluster(ITaskObject<?>... taskObjects);
+
+		void moveTaskObjectsToTaskCluster(ITaskObject<?>... taskObjects);
 
 		void moveTaskObjectsToTaskCluster(ITaskCluster dstTaskCluster, ITaskObject<?>... taskObjects);
 

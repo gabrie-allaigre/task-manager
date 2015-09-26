@@ -10,7 +10,7 @@ public class BugTaskService extends AbstractTaskService {
 	}
 
 	@Override
-	public IExecutionResult execute(AbstractTask task) {
+	public IExecutionResult execute(IContext context,AbstractTask task) {
 		throw new RuntimeException("BUG");
 	}
 }

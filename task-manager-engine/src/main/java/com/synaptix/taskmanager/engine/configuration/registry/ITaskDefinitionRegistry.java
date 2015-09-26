@@ -11,7 +11,7 @@ public interface ITaskDefinitionRegistry {
 	 * @param code
 	 * @return
 	 */
-	public IUpdateStatusTaskDefinition getUpdateStatusTaskDefinition(String code);
+	IUpdateStatusTaskDefinition getUpdateStatusTaskDefinition(String code);
 
 	/**
 	 * Return TaskDefinition with service code
@@ -19,6 +19,6 @@ public interface ITaskDefinitionRegistry {
 	 * @param code
 	 * @return
 	 */
-	public INormalTaskDefinition getNormalTaskDefinition(String code);
+	INormalTaskDefinition getNormalTaskDefinition(String code);
 
 }

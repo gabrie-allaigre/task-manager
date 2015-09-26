@@ -15,7 +15,7 @@ public class DateClosedTaskService extends AbstractTaskService {
 	}
 
 	@Override
-	public IExecutionResult execute(AbstractTask task) {
+	public IExecutionResult execute(IContext context,AbstractTask task) {
 		Calendar c = Calendar.getInstance();
 		c.add(Calendar.SECOND, 1);
 		((SimpleNormalTask) task).<ICustomerOrder> getTaskObject().setDateClosed(c.getTime());

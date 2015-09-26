@@ -1,7 +1,6 @@
 package com.synaptix.taskmanager.engine.configuration;
 
 import com.synaptix.taskmanager.engine.configuration.factory.ITaskFactory;
-import com.synaptix.taskmanager.engine.configuration.graph.IStatusGraphRegistry;
 import com.synaptix.taskmanager.engine.configuration.persistance.ITaskManagerReader;
 import com.synaptix.taskmanager.engine.configuration.persistance.ITaskManagerWriter;
 import com.synaptix.taskmanager.engine.configuration.registry.ITaskDefinitionRegistry;
@@ -10,18 +9,16 @@ import com.synaptix.taskmanager.engine.configuration.transform.ITaskChainCriteri
 
 public interface ITaskManagerConfiguration {
 
-	public IStatusGraphRegistry getStatusGraphsRegistry();
+	ITaskObjectManagerRegistry getTaskObjectManagerRegistry();
 
-	public ITaskObjectManagerRegistry getTaskObjectManagerRegistry();
+	ITaskDefinitionRegistry getTaskDefinitionRegistry();
 
-	public ITaskDefinitionRegistry getTaskDefinitionRegistry();
+	ITaskFactory getTaskFactory();
 
-	public ITaskFactory getTaskFactory();
+	ITaskChainCriteriaTransform getTaskChainCriteriaBuilder();
 
-	public ITaskChainCriteriaTransform getTaskChainCriteriaBuilder();
+	ITaskManagerReader getTaskManagerReader();
 
-	public ITaskManagerReader getTaskManagerReader();
-
-	public ITaskManagerWriter getTaskManagerWriter();
+	ITaskManagerWriter getTaskManagerWriter();
 
 }

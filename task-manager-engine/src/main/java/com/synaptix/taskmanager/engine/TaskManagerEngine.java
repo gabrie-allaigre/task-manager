@@ -166,7 +166,9 @@ public class TaskManagerEngine {
 								LOG.debug("TM - Execute taskService = " + taskDefinition.getCode());
 							}
 							try {
-								ITaskService.IExecutionResult executionResult = taskService.execute(task);
+								MyContext context = new MyContext(taskCluster);
+
+								ITaskService.IExecutionResult executionResult = taskService.execute(context, task);
 								if (executionResult == null) {
 									throw new NullTaskExecutionException();
 								} else {
@@ -175,6 +177,10 @@ public class TaskManagerEngine {
 									noChanges = executionResult.isNoChanges();
 									if (executionResult.mustStopAndRestartTaskManager()) {
 										restart = true;
+										restartClusters.add(taskCluster);
+									}
+									if (done) {
+										executeContext(context);
 									}
 								}
 							} catch (Throwable t) {
@@ -386,6 +392,7 @@ public class TaskManagerEngine {
 
 	/**
 	 * Move task objects (with other cluster) to task cluster, start engin on all cluster
+	 *
 	 * @param dstTaskCluster
 	 * @param taskObjects
 	 */
@@ -425,12 +432,18 @@ public class TaskManagerEngine {
 		}
 
 		if (!modifyClusterMap.isEmpty()) {
-			getTaskManagerConfiguration().getTaskManagerWriter().saveMoveTaskObjectsToTaskCluster(dstTaskCluster, modifyClusterMap,false);
+			getTaskManagerConfiguration().getTaskManagerWriter().saveMoveTaskObjectsToTaskCluster(dstTaskCluster, modifyClusterMap, false);
 
 			List<ITaskCluster> cs = new ArrayList<ITaskCluster>(modifyClusterMap.keySet());
 			cs.add(dstTaskCluster);
 			startEngine(cs.toArray(new ITaskCluster[cs.size()]));
 		}
+	}
+
+	// Private Methods
+
+	private void executeContext(MyContext context) {
+
 	}
 
 	/*
@@ -459,7 +472,7 @@ public class TaskManagerEngine {
 		if (toDoneTask instanceof UpdateStatusTask) {
 			UpdateStatusTask updateStatusTask = (UpdateStatusTask) toDoneTask;
 
-			Class<? extends ITaskObject<?>> taskObjectClass = updateStatusTask.getTaskObjectClass();
+			Class<? extends ITaskObject<Object>> taskObjectClass = (Class<? extends ITaskObject<Object>>) updateStatusTask.getTaskObjectClass();
 
 			if (!updateStatusTask.getOtherStatusTasksMap().isEmpty()) {
 				for (Entry<Object, List<? extends AbstractTask>> entry : updateStatusTask.getOtherStatusTasksMap().entrySet()) {
@@ -467,11 +480,9 @@ public class TaskManagerEngine {
 				}
 			}
 
-			List<IStatusGraph<Object>> statusGraphs = getTaskManagerConfiguration().getStatusGraphsRegistry()
-					.getNextStatusGraphsByTaskObjectType((Class<ITaskObject<Object>>) taskObjectClass, updateStatusTask, updateStatusTask.getCurrentStatus());
+			ITaskObjectManager<Object, ? extends ITaskObject<Object>> taskObjectManager = getTaskManagerConfiguration().getTaskObjectManagerRegistry().getTaskObjectManager(taskObjectClass);
+			List<IStatusGraph<Object>> statusGraphs = taskObjectManager.getNextStatusGraphsByTaskObjectType(updateStatusTask, updateStatusTask.getCurrentStatus());
 			if (statusGraphs != null && !statusGraphs.isEmpty()) {
-				ITaskObjectManager<?> taskObjectManager = getTaskManagerConfiguration().getTaskObjectManagerRegistry().getTaskObjectManager(taskObjectClass);
-
 				List<UpdateStatusTask> nextUpdateStatusTasks = new ArrayList<UpdateStatusTask>();
 				Map<Object, List<? extends AbstractTask>> map = new HashMap<Object, List<? extends AbstractTask>>();
 
@@ -578,8 +589,8 @@ public class TaskManagerEngine {
 	/*
 	 * Create status graph and tasks
 	 */
-	private <F extends ITaskObject<?>> UpdateStatusTask createInitTask(ITaskCluster taskCluster, F taskObject) {
-		ITaskObjectManager<F> taskObjectManager = getTaskManagerConfiguration().getTaskObjectManagerRegistry().getTaskObjectManager(taskObject);
+	private <E extends Object, F extends ITaskObject<E>> UpdateStatusTask createInitTask(F taskObject) {
+		ITaskObjectManager<E, F> taskObjectManager = getTaskManagerConfiguration().getTaskObjectManagerRegistry().getTaskObjectManager(taskObject);
 		Class<F> taskObjectClass = taskObjectManager.getTaskObjectClass();
 
 		// Create a first task, it does nothing
@@ -599,7 +610,7 @@ public class TaskManagerEngine {
 		if (taskObjects != null && !taskObjects.isEmpty()) {
 			updateStatusTasks = new ArrayList<UpdateStatusTask>();
 			for (ITaskObject<?> taskObject : taskObjects) {
-				UpdateStatusTask initTask = createInitTask(taskCluster, taskObject);
+				UpdateStatusTask initTask = createInitTask(taskObject);
 				taskObjectNodes.add(Pair.<ITaskObject<?>, UpdateStatusTask>of(taskObject, initTask));
 			}
 		}
@@ -621,7 +632,7 @@ public class TaskManagerEngine {
 		if (taskObjects != null && taskObjects.length > 0) {
 			updateStatusTasks = new ArrayList<UpdateStatusTask>();
 			for (ITaskObject<?> taskObject : taskObjects) {
-				UpdateStatusTask initTask = createInitTask(taskCluster, taskObject);
+				UpdateStatusTask initTask = createInitTask(taskObject);
 				taskObjectNodes.add(Pair.<ITaskObject<?>, UpdateStatusTask>of(taskObject, initTask));
 			}
 		}
@@ -707,17 +718,71 @@ public class TaskManagerEngine {
 
 	// Inner class
 
-	private class TasksLists {
+	private static class TasksLists {
 
-		public List<AbstractTask> tasksToRemoves;
+		List<AbstractTask> tasksToRemoves;
 
-		public List<AbstractTask> newCurrentTasks;
+		List<AbstractTask> newCurrentTasks;
 
 	}
 
 	private interface ExecuteTaskListener {
 
-		public void execute(ITaskCycleListener taskCycleListener, AbstractTask task);
+		void execute(ITaskCycleListener taskCycleListener, AbstractTask task);
 
+	}
+
+	private static class MyContext implements ITaskService.IContext {
+
+		private final ITaskCluster currentTaskCluster;
+
+		public MyContext(ITaskCluster currentTaskCluster) {
+			super();
+
+			this.currentTaskCluster = currentTaskCluster;
+		}
+
+		@Override
+		public ITaskCluster getCurrentTaskCluster() {
+			return currentTaskCluster;
+		}
+
+		@Override
+		public void startEngine(ITaskObject<?>... taskObjects) {
+		}
+
+		@Override
+		public void startEngine(ITaskCluster... taskClusters) {
+
+		}
+
+		@Override
+		public void addTaskObjectsToTaskCluster(ITaskObject<?>... taskObjects) {
+			addTaskObjectsToTaskCluster(currentTaskCluster, taskObjects);
+		}
+
+		@Override
+		public void addTaskObjectsToTaskCluster(ITaskCluster taskCluster, ITaskObject<?>... taskObjects) {
+
+		}
+
+		@Override
+		public void removeTaskObjectsFromTaskCluster(ITaskObject<?>... taskObjects) {
+
+		}
+
+		@Override
+		public void moveTaskObjectsToNewTaskCluster(ITaskObject<?>... taskObjects) {
+		}
+
+		@Override
+		public void moveTaskObjectsToTaskCluster(ITaskObject<?>... taskObjects) {
+			moveTaskObjectsToTaskCluster(currentTaskCluster, taskObjects);
+		}
+
+		@Override
+		public void moveTaskObjectsToTaskCluster(ITaskCluster dstTaskCluster, ITaskObject<?>... taskObjects) {
+
+		}
 	}
 }

@@ -2,7 +2,6 @@ package com.synaptix.taskmanager.engine.test.it;
 
 import com.synaptix.taskmanager.engine.TaskManagerEngine;
 import com.synaptix.taskmanager.engine.configuration.TaskManagerConfigurationBuilder;
-import com.synaptix.taskmanager.engine.configuration.graph.StatusGraphRegistryBuilder;
 import com.synaptix.taskmanager.engine.configuration.registry.TaskDefinitionRegistryBuilder;
 import com.synaptix.taskmanager.engine.configuration.registry.TaskObjectManagerRegistryBuilder;
 import com.synaptix.taskmanager.engine.graph.StatusGraphsBuilder;
@@ -25,20 +24,15 @@ public class MultiIT {
 	public void test1() {
 		TaskManagerEngine engine = new TaskManagerEngine(
 				TaskManagerConfigurationBuilder.newBuilder()
-						.statusGraphRegistry(
-								StatusGraphRegistryBuilder.newBuilder()
-										.addStatusGraphs(BusinessObject.class,
-												StatusGraphsBuilder.<String> newBuilder()
-														.addNextStatusGraph("A", "ATask",
-																StatusGraphsBuilder.<String> newBuilder()
-																		.addNextStatusGraph("B", "BTask", StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("D", "DTask"))
-																		.addNextStatusGraph("C", "CTask",
-																				StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("D",
-																						"DTask")))
-														.build())
-										.build())
 						.taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder()
-								.addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(BusinessObject.class).addTaskChainCriteria("A", "B", "VERSB").addTaskChainCriteria("A", "C", "VERSC")
+								.addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String> newBuilder()
+										.addNextStatusGraph("A", "ATask",
+												StatusGraphsBuilder.<String> newBuilder()
+														.addNextStatusGraph("B", "BTask", StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("D", "DTask"))
+														.addNextStatusGraph("C", "CTask",
+																StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("D",
+																		"DTask")))
+										.build()).addTaskChainCriteria("A", "B", "VERSB").addTaskChainCriteria("A", "C", "VERSC")
 										.addTaskChainCriteria("B", "D", "STOP").addTaskChainCriteria("C", "D", "STOP").build())
 								.build())
 				.taskDefinitionRegistry(
@@ -77,15 +71,10 @@ public class MultiIT {
 	@Test
 	public void test2() {
 		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder()
-				.statusGraphRegistry(StatusGraphRegistryBuilder.newBuilder()
-						.addStatusGraphs(BusinessObject.class,
-								StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
-						.addStatusGraphs(OtherBusinessObject.class,
-								StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("B", "BTask")).build())
-						.build())
 				.taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder()
-						.addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(BusinessObject.class).build())
-						.addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(OtherBusinessObject.class).addTaskChainCriteria("A", "B", "VERSB").build())
+						.addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build()).build())
+						.addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(OtherBusinessObject.class).statusGraphs(StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("B", "BTask")).build()).addTaskChainCriteria(
+								"A", "B", "VERSB").build())
 						.build())
 				.taskDefinitionRegistry(
 						TaskDefinitionRegistryBuilder.newBuilder().addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
@@ -120,15 +109,10 @@ public class MultiIT {
 	@Test
 	public void test3() {
 		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder()
-				.statusGraphRegistry(StatusGraphRegistryBuilder.newBuilder()
-						.addStatusGraphs(BusinessObject.class,
-								StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
-						.addStatusGraphs(OtherBusinessObject.class,
-								StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("B", "BTask")).build())
-						.build())
 				.taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder()
-						.addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(BusinessObject.class).build())
-						.addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(OtherBusinessObject.class).addTaskChainCriteria("A", "B", "VERSB").build())
+						.addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build()).build())
+						.addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(OtherBusinessObject.class).statusGraphs(StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("B", "BTask")).build()).addTaskChainCriteria(
+								"A", "B", "VERSB").build())
 						.build())
 				.taskDefinitionRegistry(
 						TaskDefinitionRegistryBuilder.newBuilder().addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
@@ -165,15 +149,10 @@ public class MultiIT {
 	@Test
 	public void test4() {
 		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder()
-				.statusGraphRegistry(StatusGraphRegistryBuilder.newBuilder()
-						.addStatusGraphs(BusinessObject.class,
-								StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
-						.addStatusGraphs(OtherBusinessObject.class,
-								StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("B", "BTask")).build())
-						.build())
 				.taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder()
-						.addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(BusinessObject.class).build())
-						.addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(OtherBusinessObject.class).addTaskChainCriteria("A", "B", "VERSB").build())
+						.addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build()).build())
+						.addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(OtherBusinessObject.class).statusGraphs(StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("B", "BTask")).build()).addTaskChainCriteria(
+								"A", "B", "VERSB").build())
 						.build())
 				.taskDefinitionRegistry(
 						TaskDefinitionRegistryBuilder.newBuilder().addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
@@ -212,15 +191,11 @@ public class MultiIT {
 	@Test
 	public void test5() {
 		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder()
-				.statusGraphRegistry(StatusGraphRegistryBuilder.newBuilder()
-						.addStatusGraphs(BusinessObject.class,
-								StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
-						.addStatusGraphs(OtherBusinessObject.class,
-								StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("B", "BTask")).build())
-						.build())
 				.taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder()
-						.addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(BusinessObject.class).addTaskChainCriteria("A", "B", "VERSB").build())
-						.addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(OtherBusinessObject.class).addTaskChainCriteria("A", "B", "VERSB").build())
+						.addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build()).addTaskChainCriteria(
+								"A", "B", "VERSB").build())
+						.addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(OtherBusinessObject.class).statusGraphs(StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("B", "BTask")).build()).addTaskChainCriteria(
+								"A", "B", "VERSB").build())
 						.build())
 				.taskDefinitionRegistry(
 						TaskDefinitionRegistryBuilder.newBuilder().addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())

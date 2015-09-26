@@ -18,7 +18,7 @@ public class MultiUpdateStatusTaskService extends AbstractTaskService {
 	}
 
 	@Override
-	public IExecutionResult execute(AbstractTask task) {
+	public IExecutionResult execute(IContext context,AbstractTask task) {
 		((SimpleUpdateStatusTask) task).<ICustomerOrder> getTaskObject().setStatus(status);
 		return ExecutionResultBuilder.newBuilder().finished();
 	}

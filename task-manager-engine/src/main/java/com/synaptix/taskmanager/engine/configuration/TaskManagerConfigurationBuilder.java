@@ -3,7 +3,6 @@ package com.synaptix.taskmanager.engine.configuration;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.synaptix.taskmanager.engine.configuration.factory.ITaskFactory;
-import com.synaptix.taskmanager.engine.configuration.graph.IStatusGraphRegistry;
 import com.synaptix.taskmanager.engine.configuration.persistance.ITaskManagerReader;
 import com.synaptix.taskmanager.engine.configuration.persistance.ITaskManagerWriter;
 import com.synaptix.taskmanager.engine.configuration.registry.ITaskDefinitionRegistry;
@@ -22,11 +21,6 @@ public class TaskManagerConfigurationBuilder {
 		super();
 
 		this.taskManagerConfiguration = new TaskManagerConfigurationImpl();
-	}
-
-	public <E extends Enum<E>, F extends ITaskObject<E>> TaskManagerConfigurationBuilder statusGraphRegistry(IStatusGraphRegistry statusGraphRegistry) {
-		this.taskManagerConfiguration.statusGraphRegistry = statusGraphRegistry;
-		return this;
 	}
 
 	public TaskManagerConfigurationBuilder taskObjectManagerRegistry(ITaskObjectManagerRegistry taskObjectManagerRegistry) {
@@ -69,8 +63,6 @@ public class TaskManagerConfigurationBuilder {
 
 	private static class TaskManagerConfigurationImpl implements ITaskManagerConfiguration {
 
-		private IStatusGraphRegistry statusGraphRegistry;
-
 		private ITaskObjectManagerRegistry taskObjectManagerRegistry;
 
 		private ITaskDefinitionRegistry taskDefinitionRegistry;
@@ -93,11 +85,6 @@ public class TaskManagerConfigurationBuilder {
 			this.taskManagerReader = memoryTaskReaderWriter;
 			this.taskManagerWriter = memoryTaskReaderWriter;
 
-		}
-
-		@Override
-		public IStatusGraphRegistry getStatusGraphsRegistry() {
-			return statusGraphRegistry;
 		}
 
 		@Override

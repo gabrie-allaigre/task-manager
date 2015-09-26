@@ -6,7 +6,6 @@ import com.synaptix.component.IComponent;
 import com.synaptix.component.factory.Proxy;
 import com.synaptix.taskmanager.engine.TaskManagerEngine;
 import com.synaptix.taskmanager.engine.configuration.TaskManagerConfigurationBuilder;
-import com.synaptix.taskmanager.engine.configuration.graph.StatusGraphRegistryBuilder;
 import com.synaptix.taskmanager.engine.configuration.registry.TaskDefinitionRegistryBuilder;
 import com.synaptix.taskmanager.engine.configuration.registry.TaskObjectManagerRegistryBuilder;
 import com.synaptix.taskmanager.engine.graph.StatusGraphsBuilder;
@@ -22,18 +21,10 @@ import com.synaptix.taskmanager.example.tasks.MultiUpdateStatusTaskService;
 import com.synaptix.taskmanager.example.tasks.VerifyCodeTaskService;
 import com.synaptix.taskmanager.model.ITaskObject;
 
-public class MainExample2 {
+public class MainExample11 {
 
 	public static void main(String[] args) {
 		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder()
-				.statusGraphRegistry(StatusGraphRegistryBuilder.newBuilder()
-						.addStatusGraphs(ICustomerOrder.class,
-								StatusGraphsBuilder.<CustomerOrderStatus> newBuilder()
-										.addNextStatusGraph(CustomerOrderStatus.TCO, "ATask",
-												StatusGraphsBuilder.<CustomerOrderStatus> newBuilder().addNextStatusGraph(CustomerOrderStatus.VAL, "BTask").addNextStatusGraph(CustomerOrderStatus.TCO,
-														"ATask"))
-										.build())
-						.build())
 				.taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder(new TaskObjectManagerRegistryBuilder.IGetClass() {
 					@SuppressWarnings("unchecked")
 					@Override
@@ -43,7 +34,11 @@ public class MainExample2 {
 						}
 						return (Class<F>) taskObject.getClass();
 					}
-				}).addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(ICustomerOrder.class).addTaskChainCriteria(CustomerOrderStatus.TCO, CustomerOrderStatus.VAL, "VERSB")
+				}).addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(ICustomerOrder.class).statusGraphs(StatusGraphsBuilder.<CustomerOrderStatus> newBuilder()
+						.addNextStatusGraph(CustomerOrderStatus.TCO, "ATask",
+								StatusGraphsBuilder.<CustomerOrderStatus> newBuilder().addNextStatusGraph(CustomerOrderStatus.VAL, "BTask").addNextStatusGraph(CustomerOrderStatus.TCO,
+										"ATask"))
+						.build()).addTaskChainCriteria(CustomerOrderStatus.TCO, CustomerOrderStatus.VAL, "VERSB")
 						.addTaskChainCriteria(CustomerOrderStatus.TCO, CustomerOrderStatus.TCO, "VERSA=>CHANGE").build()).build())
 				.taskDefinitionRegistry(TaskDefinitionRegistryBuilder.newBuilder()
 						.addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService(CustomerOrderStatus.TCO)).build())

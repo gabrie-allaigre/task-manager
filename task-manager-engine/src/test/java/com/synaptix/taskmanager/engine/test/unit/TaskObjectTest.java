@@ -19,7 +19,7 @@ public class TaskObjectTest {
 
 	@Test
 	public void test1() {
-		ITaskObjectManager<String, BusinessObject> taskObjectManager = TaskObjectManagerBuilder.newBuilder(BusinessObject.class).build();
+		ITaskObjectManager<String, BusinessObject> taskObjectManager = TaskObjectManagerBuilder.<String,BusinessObject>newBuilder(BusinessObject.class).build();
 
 		Assert.assertEquals(taskObjectManager.getTaskObjectClass(), BusinessObject.class);
 		Assert.assertNull(taskObjectManager.getTaskChainCriteria(null, null, null));
@@ -27,21 +27,21 @@ public class TaskObjectTest {
 
 	@Test
 	public void test2() {
-		ITaskObjectManager<String, BusinessObject> taskObjectManager = TaskObjectManagerBuilder.newBuilder(BusinessObject.class).addTaskChainCriteria(null, "A", "VERSA->VERSB").build();
+		ITaskObjectManager<String, BusinessObject> taskObjectManager = TaskObjectManagerBuilder.<String,BusinessObject>newBuilder(BusinessObject.class).addTaskChainCriteria(null, "A", "VERSA->VERSB").build();
 
 		Assert.assertEquals(taskObjectManager.getTaskChainCriteria(null, null, "A"), "VERSA->VERSB");
 	}
 
 	@Test
 	public void test3() {
-		ITaskObjectManager<String, BusinessObject> taskObjectManager = TaskObjectManagerBuilder.newBuilder(BusinessObject.class).addTaskChainCriteria(null, "A", "VERSA->VERSB").build();
+		ITaskObjectManager<String, BusinessObject> taskObjectManager = TaskObjectManagerBuilder.<String,BusinessObject>newBuilder(BusinessObject.class).addTaskChainCriteria(null, "A", "VERSA->VERSB").build();
 
 		Assert.assertEquals(taskObjectManager.getTaskChainCriteria(null, null, "A"), "VERSA->VERSB");
 	}
 
 	@Test
 	public void test4() {
-		ITaskObjectManager<String, BusinessObject> taskObjectManager = TaskObjectManagerBuilder.newBuilder(BusinessObject.class).addTaskChainCriteria(null, "A", "VERSA->VERSB")
+		ITaskObjectManager<String, BusinessObject> taskObjectManager = TaskObjectManagerBuilder.<String,BusinessObject>newBuilder(BusinessObject.class).addTaskChainCriteria(null, "A", "VERSA->VERSB")
 				.addTaskChainCriteria("B", "C", "VERSC").build();
 
 		Assert.assertEquals(taskObjectManager.getTaskChainCriteria(null, "B", "C"), "VERSC");
@@ -49,7 +49,7 @@ public class TaskObjectTest {
 
 	@Test
 	public void test5() {
-		ITaskObjectManager<String, BusinessObject> taskObjectManager = TaskObjectManagerBuilder.newBuilder(BusinessObject.class).addTaskChainCriteria(null, "A", "VERSA->VERSB")
+		ITaskObjectManager<String, BusinessObject> taskObjectManager = TaskObjectManagerBuilder.<String,BusinessObject>newBuilder(BusinessObject.class).addTaskChainCriteria(null, "A", "VERSA->VERSB")
 				.addTaskChainCriteria("B", "C", "VERSC").build();
 
 		ITaskObjectManagerRegistry taskObjectManagerRegistry = TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(taskObjectManager).build();
@@ -60,9 +60,9 @@ public class TaskObjectTest {
 
 	@Test
 	public void test6() {
-		ITaskObjectManager<String, BusinessObject> taskObjectManager = TaskObjectManagerBuilder.newBuilder(BusinessObject.class).addTaskChainCriteria(null, "A", "VERSA->VERSB")
+		ITaskObjectManager<String, BusinessObject> taskObjectManager = TaskObjectManagerBuilder.<String,BusinessObject>newBuilder(BusinessObject.class).addTaskChainCriteria(null, "A", "VERSA->VERSB")
 				.addTaskChainCriteria("B", "C", "VERSC").build();
-		ITaskObjectManager<String, OtherBusinessObject> otherTaskObjectManager = TaskObjectManagerBuilder.newBuilder(OtherBusinessObject.class).addTaskChainCriteria(null, "A", "VERSA->VERSB").build();
+		ITaskObjectManager<String, OtherBusinessObject> otherTaskObjectManager = TaskObjectManagerBuilder.<String,OtherBusinessObject>newBuilder(OtherBusinessObject.class).addTaskChainCriteria(null, "A", "VERSA->VERSB").build();
 
 		ITaskObjectManagerRegistry taskObjectManagerRegistry = TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(taskObjectManager).addTaskObjectManager(otherTaskObjectManager)
 				.build();
@@ -79,7 +79,7 @@ public class TaskObjectTest {
 	 */
 	@Test
 	public void test7() {
-		ITaskObjectManager<String, BusinessObject> taskObjectManager = TaskObjectManagerBuilder.newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder()
+		ITaskObjectManager<String, BusinessObject> taskObjectManager = TaskObjectManagerBuilder.<String,BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder()
 				.addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder()
 						.addNextStatusGraph("C", "CTask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask").addNextStatusGraph("D", "DTask"))).addNextStatusGraph("B", "BTask")
 				.build()).build();
@@ -97,7 +97,7 @@ public class TaskObjectTest {
 	 */
 	@Test
 	public void test8() {
-		ITaskObjectManager<String, BusinessObject> taskObjectManager = TaskObjectManagerBuilder.newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder()
+		ITaskObjectManager<String, BusinessObject> taskObjectManager = TaskObjectManagerBuilder.<String,BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder()
 				.addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder()
 						.addNextStatusGraph("C", "CTask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask").addNextStatusGraph("D", "DTask"))).addNextStatusGraph("B", "BTask")
 				.build()).build();
@@ -114,7 +114,7 @@ public class TaskObjectTest {
 	 */
 	@Test
 	public void test9() {
-		ITaskObjectManager<String, BusinessObject> taskObjectManager = TaskObjectManagerBuilder.newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder()
+		ITaskObjectManager<String, BusinessObject> taskObjectManager = TaskObjectManagerBuilder.<String,BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder()
 				.addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder()
 						.addNextStatusGraph("C", "CTask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask").addNextStatusGraph("D", "DTask"))).addNextStatusGraph("B", "BTask")
 				.build()).build();
@@ -129,7 +129,7 @@ public class TaskObjectTest {
 	 */
 	@Test
 	public void test10() {
-		ITaskObjectManager<String, BusinessObject> taskObjectManager = TaskObjectManagerBuilder.newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder()
+		ITaskObjectManager<String, BusinessObject> taskObjectManager = TaskObjectManagerBuilder.<String,BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder()
 				.addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder()
 						.addNextStatusGraph("C", "CTask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask").addNextStatusGraph("D", "DTask"))).addNextStatusGraph("B", "BTask")
 				.build()).build();

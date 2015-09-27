@@ -7,7 +7,9 @@ import com.synaptix.entity.IEntity;
 import com.synaptix.taskmanager.model.ITaskObject;
 
 @SynaptixComponent
-public interface ICustomerOrder extends IEntity, ITaskObject<CustomerOrderStatus> {
+public interface ICustomerOrder extends IEntity, ITaskObject {
+
+	public CustomerOrderStatus getStatus();
 
 	public void setStatus(CustomerOrderStatus status);
 

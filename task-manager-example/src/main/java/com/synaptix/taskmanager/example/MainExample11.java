@@ -25,7 +25,7 @@ public class MainExample11 {
 
 	public static void main(String[] args) {
 		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder()
-				.taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder(new TaskObjectManagerRegistryBuilder.IGetClass() {
+				.taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().getClass(new TaskObjectManagerRegistryBuilder.IGetClass() {
 					@SuppressWarnings("unchecked")
 					@Override
 					public <F extends ITaskObject> Class<F> getClass(F taskObject) {
@@ -34,7 +34,7 @@ public class MainExample11 {
 						}
 						return (Class<F>) taskObject.getClass();
 					}
-				}).addTaskObjectManager(TaskObjectManagerBuilder.newBuilder(ICustomerOrder.class).statusGraphs(StatusGraphsBuilder.<CustomerOrderStatus> newBuilder()
+				}).addTaskObjectManager(TaskObjectManagerBuilder.<CustomerOrderStatus,ICustomerOrder>newBuilder(ICustomerOrder.class).statusGraphs(StatusGraphsBuilder.<CustomerOrderStatus> newBuilder()
 						.addNextStatusGraph(CustomerOrderStatus.TCO, "ATask",
 								StatusGraphsBuilder.<CustomerOrderStatus> newBuilder().addNextStatusGraph(CustomerOrderStatus.VAL, "BTask").addNextStatusGraph(CustomerOrderStatus.TCO,
 										"ATask"))

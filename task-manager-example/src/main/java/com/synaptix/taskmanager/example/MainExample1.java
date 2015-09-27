@@ -32,7 +32,7 @@ public class MainExample1 {
 		ITaskObjectManagerRegistry taskObjectManagerRegistry = TaskObjectManagerRegistryBuilder.newBuilder(new TaskObjectManagerRegistryBuilder.IGetClass() {
 			@SuppressWarnings("unchecked")
 			@Override
-			public <F extends ITaskObject<?>> Class<F> getClass(F taskObject) {
+			public <F extends ITaskObject> Class<F> getClass(F taskObject) {
 				if (taskObject instanceof IComponent) {
 					return (Class<F>) ((Proxy) taskObject).straightGetComponentClass();
 				}

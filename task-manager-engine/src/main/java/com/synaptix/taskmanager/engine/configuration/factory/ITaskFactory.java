@@ -14,21 +14,21 @@ public interface ITaskFactory {
 	 * 
 	 * @return
 	 */
-	public ITaskCluster newTaskCluster();
+	ITaskCluster newTaskCluster();
 
 	/**
 	 * Create a new task
 	 * 
 	 * @return
 	 */
-	public NormalTask newNormalTask(INormalTaskDefinition normalTaskDefinition);
+	NormalTask newNormalTask(INormalTaskDefinition normalTaskDefinition);
 
 	/**
 	 * Create a update status task
 	 * 
 	 * @return
 	 */
-	public UpdateStatusTask newUpdateStatusTask(IUpdateStatusTaskDefinition updateStatusTaskDefinition, Class<? extends ITaskObject<?>> taskObjectClass, Object currentStatus,
+	UpdateStatusTask newUpdateStatusTask(IUpdateStatusTaskDefinition updateStatusTaskDefinition, Class<? extends ITaskObject> taskObjectClass, Object currentStatus,
 			UpdateStatusTask previousUpdateStatusTask);
 
 }

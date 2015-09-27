@@ -25,7 +25,7 @@ public interface ITaskManagerWriter {
 	 * @param taskCluster
 	 * @param taskObjectTasks
 	 */
-	ITaskCluster saveNewGraphFromTaskCluster(ITaskCluster taskCluster, List<Pair<ITaskObject<?>, UpdateStatusTask>> taskObjectTasks);
+	ITaskCluster saveNewGraphFromTaskCluster(ITaskCluster taskCluster, List<Pair<ITaskObject, UpdateStatusTask>> taskObjectTasks);
 
 	/**
 	 * Save remove taskObjects to task cluster
@@ -33,7 +33,7 @@ public interface ITaskManagerWriter {
 	 * @param taskCluster
 	 * @param taskObjects
 	 */
-	void saveRemoveTaskObjectsFromTaskCluster(ITaskCluster taskCluster, List<ITaskObject<?>> taskObjects);
+	void saveRemoveTaskObjectsFromTaskCluster(ITaskCluster taskCluster, List<ITaskObject> taskObjects);
 
 	/**
 	 * Save move task objects to task cluster
@@ -43,7 +43,7 @@ public interface ITaskManagerWriter {
 	 * @param newTaskCluster
 	 * @return
 	 */
-	ITaskCluster saveMoveTaskObjectsToTaskCluster(ITaskCluster dstTaskCluster, Map<ITaskCluster, List<ITaskObject<?>>> modifyClusterMap,boolean newTaskCluster);
+	ITaskCluster saveMoveTaskObjectsToTaskCluster(ITaskCluster dstTaskCluster, Map<ITaskCluster, List<ITaskObject>> modifyClusterMap,boolean newTaskCluster);
 
 	/**
 	 * When taskCluster is finish (no task current)

@@ -12,7 +12,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import com.synaptix.taskmanager.engine.task.UpdateStatusTask;
 import com.synaptix.taskmanager.model.ITaskObject;
 
-public class TaskObjectManagerBuilder<E extends Object, F extends ITaskObject<E>> {
+public class TaskObjectManagerBuilder<E extends Object, F extends ITaskObject> {
 
 	private MyTaskObjectManager<E, F> taskObjectManager;
 
@@ -20,6 +20,16 @@ public class TaskObjectManagerBuilder<E extends Object, F extends ITaskObject<E>
 		super();
 
 		this.taskObjectManager = new MyTaskObjectManager<E, F>(taskObjectClass);
+	}
+
+	public TaskObjectManagerBuilder<E, F> initialStatus(E defaultInitialStatus) {
+		taskObjectManager.defaultInitialStatus = defaultInitialStatus;
+		return this;
+	}
+
+	public TaskObjectManagerBuilder<E, F> initialStatus(IGetStatus<E,F> getStatus) {
+		taskObjectManager.getStatus = getStatus;
+		return this;
 	}
 
 	public TaskObjectManagerBuilder<E, F> statusGraphs(List<IStatusGraph<E>> statusGraphs) {
@@ -36,20 +46,38 @@ public class TaskObjectManagerBuilder<E extends Object, F extends ITaskObject<E>
 		return taskObjectManager;
 	}
 
-	public static <E extends Object, F extends ITaskObject<E>> TaskObjectManagerBuilder<E, F> newBuilder(Class<F> taskObjectClass) {
+	public static <E extends Object, F extends ITaskObject> TaskObjectManagerBuilder<E, F> newBuilder(Class<F> taskObjectClass) {
 		return new TaskObjectManagerBuilder<E, F>(taskObjectClass);
 	}
 
-	private static class MyTaskObjectManager<E extends Object, F extends ITaskObject<E>> extends AbstractTaskObjectManager<E,F> {
+	public interface IGetStatus<E extends Object,F extends ITaskObject> {
+
+		E getStatus(F taskObject);
+
+	}
+
+	private static class MyTaskObjectManager<E extends Object, F extends ITaskObject> extends AbstractTaskObjectManager<E,F> {
+
+		private final Map<Pair<E, E>, String> taskChainCriteriaMap;
 
 		private List<IStatusGraph<E>> statusGraphs;
 
-		private final Map<Pair<E, E>, String> taskChainCriteriaMap;
+		private E defaultInitialStatus;
+
+		private IGetStatus<E,F> getStatus;
 
 		public MyTaskObjectManager(Class<F> taskObjectClass) {
 			super(taskObjectClass);
 
 			this.taskChainCriteriaMap = new HashMap<Pair<E, E>, String>();
+		}
+
+		@Override
+		public E getInitialStatus(F taskObject) {
+			if (getStatus != null) {
+				return getStatus.getStatus(taskObject);
+			}
+			return defaultInitialStatus;
 		}
 
 		@Override

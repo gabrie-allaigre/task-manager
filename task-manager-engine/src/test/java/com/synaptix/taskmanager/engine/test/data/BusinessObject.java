@@ -4,7 +4,7 @@ import java.util.Date;
 
 import com.synaptix.taskmanager.model.ITaskObject;
 
-public class BusinessObject implements ITaskObject<String> {
+public class BusinessObject implements ITaskObject {
 
 	private String status;
 
@@ -12,7 +12,6 @@ public class BusinessObject implements ITaskObject<String> {
 
 	private Date date;
 
-	@Override
 	public String getStatus() {
 		return status;
 	}

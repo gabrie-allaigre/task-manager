@@ -273,7 +273,7 @@ public class SimpleIT {
 				TaskDefinitionRegistryBuilder.newBuilder().addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build()).build())
 				.build());
 
-		ITaskCluster taskCluster = engine.startEngine((ITaskObject<?>) null);
+		ITaskCluster taskCluster = engine.startEngine((ITaskObject) null);
 
 		Assert.assertNull(taskCluster);
 	}

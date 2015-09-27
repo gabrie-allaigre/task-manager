@@ -6,20 +6,20 @@ import com.synaptix.taskmanager.model.ITaskObject;
 
 public class SimpleNormalTask extends NormalTask implements ISimpleCommon {
 
-	private ITaskObject<?> taskObject;
+	private ITaskObject taskObject;
 
 	public SimpleNormalTask(INormalTaskDefinition normalTaskDefinition) {
 		super(normalTaskDefinition);
 	}
 
 	@Override
-	public void setTaskObject(ITaskObject<?> taskObject) {
+	public void setTaskObject(ITaskObject taskObject) {
 		this.taskObject = taskObject;
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <G extends ITaskObject<?>> G getTaskObject() {
+	public <G extends ITaskObject> G getTaskObject() {
 		return (G) taskObject;
 	}
 

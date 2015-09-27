@@ -14,7 +14,7 @@ public class VALTaskService extends AbstractTaskService {
 	}
 
 	@Override
-	public IExecutionResult execute(IContext context, AbstractTask task) {
+	public IExecutionResult execute(IEngineContext context, AbstractTask task) {
 		ICustomerOrder customerOrder = ((SimpleUpdateStatusTask) task).<ICustomerOrder>getTaskObject();
 		if (customerOrder.isConfirmed()) {
 			((SimpleUpdateStatusTask) task).<ICustomerOrder>getTaskObject().setStatus(CustomerOrderStatus.VAL);

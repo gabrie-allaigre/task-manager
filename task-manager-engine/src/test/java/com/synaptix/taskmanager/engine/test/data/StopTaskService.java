@@ -11,7 +11,7 @@ public class StopTaskService extends AbstractTaskService {
 	}
 
 	@Override
-	public IExecutionResult execute(IContext context,AbstractTask task) {
+	public IExecutionResult execute(IEngineContext context,AbstractTask task) {
 		return ExecutionResultBuilder.newBuilder().notFinished();
 	}
 

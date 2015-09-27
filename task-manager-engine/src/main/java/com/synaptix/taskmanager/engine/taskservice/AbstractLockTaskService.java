@@ -25,7 +25,7 @@ public abstract class AbstractLockTaskService extends AbstractTaskService {
 	protected abstract String getLockKey(AbstractTask task);
 
 	@Override
-	public final IExecutionResult execute(final IContext context,final AbstractTask task) {
+	public final IExecutionResult execute(final IEngineContext context,final AbstractTask task) {
 		return keyLockManager.executeLocked(getLockKey(task), new ReturnValueLockCallback<IExecutionResult>() {
 			@Override
 			public IExecutionResult doInLock() throws Exception {
@@ -34,6 +34,6 @@ public abstract class AbstractLockTaskService extends AbstractTaskService {
 		});
 	}
 
-	protected abstract IExecutionResult executeInLock(IContext context,AbstractTask task);
+	protected abstract IExecutionResult executeInLock(IEngineContext context,AbstractTask task);
 
 }

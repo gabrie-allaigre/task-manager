@@ -14,13 +14,13 @@ public interface ITaskService extends ITaskCycleListener {
 	 * @param task task link with service
 	 * @return result of execution, <use>ExecutionResultBuilder</use>
 	 */
-	IExecutionResult execute(IContext context,AbstractTask task);
+	IExecutionResult execute(IEngineContext context,AbstractTask task);
 
-	interface IContext {
+	interface IEngineContext {
 
 		ITaskCluster getCurrentTaskCluster();
 
-		void startEngine(ITaskObject<?>... taskObjects);
+		void startEngine(TaskClusterCallback taskClusterCallback,ITaskObject<?>... taskObjects);
 
 		void startEngine(ITaskCluster... taskClusters);
 
@@ -30,11 +30,17 @@ public interface ITaskService extends ITaskCycleListener {
 
 		void removeTaskObjectsFromTaskCluster(ITaskObject<?>... taskObjects);
 
-		void moveTaskObjectsToNewTaskCluster(ITaskObject<?>... taskObjects);
+		void moveTaskObjectsToNewTaskCluster(TaskClusterCallback taskClusterCallback,ITaskObject<?>... taskObjects);
 
 		void moveTaskObjectsToTaskCluster(ITaskObject<?>... taskObjects);
 
 		void moveTaskObjectsToTaskCluster(ITaskCluster dstTaskCluster, ITaskObject<?>... taskObjects);
+
+		interface TaskClusterCallback {
+
+			void setTaskCluster(ITaskCluster taskCluster);
+
+		}
 
 	}
 

@@ -166,7 +166,7 @@ public class TaskManagerEngine {
 								LOG.debug("TM - Execute taskService = " + taskDefinition.getCode());
 							}
 							try {
-								MyContext context = new MyContext(taskCluster);
+								MyEngineContext context = new MyEngineContext(taskCluster);
 
 								ITaskService.IExecutionResult executionResult = taskService.execute(context, task);
 								if (executionResult == null) {
@@ -442,8 +442,8 @@ public class TaskManagerEngine {
 
 	// Private Methods
 
-	private void executeContext(MyContext context) {
-
+	private void executeContext(MyEngineContext context) {
+		context.lock = true;
 	}
 
 	/*
@@ -732,14 +732,24 @@ public class TaskManagerEngine {
 
 	}
 
-	private static class MyContext implements ITaskService.IContext {
+	private static class MyEngineContext implements ITaskService.IEngineContext {
 
 		private final ITaskCluster currentTaskCluster;
 
-		public MyContext(ITaskCluster currentTaskCluster) {
+		private boolean lock;
+
+		public MyEngineContext(ITaskCluster currentTaskCluster) {
 			super();
 
 			this.currentTaskCluster = currentTaskCluster;
+
+			this.lock = false;
+		}
+
+		private void verifyBlock() {
+			if (lock) {
+				throw new LockedEngineContextException();
+			}
 		}
 
 		@Override
@@ -748,12 +758,13 @@ public class TaskManagerEngine {
 		}
 
 		@Override
-		public void startEngine(ITaskObject<?>... taskObjects) {
+		public void startEngine(TaskClusterCallback taskClusterCallback, ITaskObject<?>... taskObjects) {
+			verifyBlock();
 		}
 
 		@Override
 		public void startEngine(ITaskCluster... taskClusters) {
-
+			verifyBlock();
 		}
 
 		@Override
@@ -763,16 +774,17 @@ public class TaskManagerEngine {
 
 		@Override
 		public void addTaskObjectsToTaskCluster(ITaskCluster taskCluster, ITaskObject<?>... taskObjects) {
-
+			verifyBlock();
 		}
 
 		@Override
 		public void removeTaskObjectsFromTaskCluster(ITaskObject<?>... taskObjects) {
-
+			verifyBlock();
 		}
 
 		@Override
-		public void moveTaskObjectsToNewTaskCluster(ITaskObject<?>... taskObjects) {
+		public void moveTaskObjectsToNewTaskCluster(TaskClusterCallback taskClusterCallback, ITaskObject<?>... taskObjects) {
+			verifyBlock();
 		}
 
 		@Override
@@ -782,7 +794,7 @@ public class TaskManagerEngine {
 
 		@Override
 		public void moveTaskObjectsToTaskCluster(ITaskCluster dstTaskCluster, ITaskObject<?>... taskObjects) {
-
+			verifyBlock();
 		}
 	}
 }

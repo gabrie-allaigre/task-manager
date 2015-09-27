@@ -16,7 +16,7 @@ public class ChangeCodeTaskService extends AbstractTaskService {
 	}
 
 	@Override
-	public IExecutionResult execute(IContext context,AbstractTask task) {
+	public IExecutionResult execute(IEngineContext context,AbstractTask task) {
 		((SimpleNormalTask) task).<BusinessObject> getTaskObject().setCode(newCode);
 		return ExecutionResultBuilder.newBuilder().finished();
 	}

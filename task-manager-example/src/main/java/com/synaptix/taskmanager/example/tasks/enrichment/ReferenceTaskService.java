@@ -17,7 +17,7 @@ public class ReferenceTaskService extends AbstractTaskService {
 	}
 
 	@Override
-	public IExecutionResult execute(IContext context,AbstractTask task) {
+	public IExecutionResult execute(IEngineContext context,AbstractTask task) {
 		((SimpleNormalTask) task).<ICustomerOrder> getTaskObject().setReference(ref);
 		return ExecutionResultBuilder.newBuilder().finished();
 	}

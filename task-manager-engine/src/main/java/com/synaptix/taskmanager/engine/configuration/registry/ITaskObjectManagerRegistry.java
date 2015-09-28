@@ -5,8 +5,8 @@ import com.synaptix.taskmanager.model.ITaskObject;
 
 public interface ITaskObjectManagerRegistry {
 
-	<E extends Object,F extends ITaskObject<E>> ITaskObjectManager<E,F> getTaskObjectManager(F taskObject);
+	<E extends Object,F extends ITaskObject> ITaskObjectManager<E,F> getTaskObjectManager(F taskObject);
 
-	<E extends Object,F extends ITaskObject<E>> ITaskObjectManager<E,F> getTaskObjectManager(Class<F> taskObjectClass);
+	<E extends Object,F extends ITaskObject> ITaskObjectManager<E,F> getTaskObjectManager(Class<F> taskObjectClass);
 
 }

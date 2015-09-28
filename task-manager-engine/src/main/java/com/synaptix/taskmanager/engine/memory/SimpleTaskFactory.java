@@ -21,7 +21,7 @@ public class SimpleTaskFactory extends AbstractTaskFactory {
 	}
 
 	@Override
-	public UpdateStatusTask newUpdateStatusTask(IUpdateStatusTaskDefinition updateStatusTaskDefinition, Class<? extends ITaskObject<?>> taskObjectClass, Object currentStatus,
+	public UpdateStatusTask newUpdateStatusTask(IUpdateStatusTaskDefinition updateStatusTaskDefinition, Class<? extends ITaskObject> taskObjectClass, Object currentStatus,
 			UpdateStatusTask previousUpdateStatusTask) {
 		return new SimpleUpdateStatusTask(updateStatusTaskDefinition, taskObjectClass, currentStatus, previousUpdateStatusTask);
 	}

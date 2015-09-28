@@ -6,9 +6,20 @@ import com.synaptix.taskmanager.model.ITaskObject;
 
 import java.util.List;
 
-public interface ITaskObjectManager<E extends Object,F extends ITaskObject<E>> {
+public interface ITaskObjectManager<E extends Object,F extends ITaskObject> {
 
+	/**
+	 *
+	 * @return
+	 */
 	Class<F> getTaskObjectClass();
+
+	/**
+	 *
+	 * @param taskObject
+	 * @return
+	 */
+	E getInitialStatus(F taskObject);
 
 	/**
 	 * Get next status graphs for task object and current status
@@ -21,6 +32,14 @@ public interface ITaskObjectManager<E extends Object,F extends ITaskObject<E>> {
 	 */
 	List<IStatusGraph<E>> getNextStatusGraphsByTaskObjectType(UpdateStatusTask updateStatusTask, E currentStatus);
 
+	/**
+	 *
+	 * @param updateStatusTask
+	 * @param currentStatus
+	 * @param nextStatus
+	 * @return
+	 */
 	String getTaskChainCriteria(UpdateStatusTask updateStatusTask, E currentStatus, E nextStatus);
+
 
 }

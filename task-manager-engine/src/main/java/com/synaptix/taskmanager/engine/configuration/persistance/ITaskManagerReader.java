@@ -14,7 +14,7 @@ public interface ITaskManagerReader {
 	 * @param taskObject
 	 * @return
 	 */
-	public ITaskCluster findTaskClusterByTaskObject(ITaskObject<?> taskObject);
+	ITaskCluster findTaskClusterByTaskObject(ITaskObject taskObject);
 
 	/**
 	 * Find all taskObjects by task cluster
@@ -24,7 +24,7 @@ public interface ITaskManagerReader {
 	 * @param taskCluster
 	 * @return
 	 */
-	public List<ITaskObject<?>> findTaskObjectsByTaskCluster(ITaskCluster taskCluster);
+	List<ITaskObject> findTaskObjectsByTaskCluster(ITaskCluster taskCluster);
 
 	/**
 	 * Find all currents tasks for task cluster
@@ -32,6 +32,6 @@ public interface ITaskManagerReader {
 	 * @param taskCluster
 	 * @return
 	 */
-	public List<AbstractTask> findCurrentTasksByTaskCluster(ITaskCluster taskCluster);
+	List<AbstractTask> findCurrentTasksByTaskCluster(ITaskCluster taskCluster);
 
 }

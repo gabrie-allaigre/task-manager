@@ -41,14 +41,14 @@ public class MainExample10 {
 								.addNextStatusGraph(CustomerOrderStatus.CAN, "CAN"))
 				.addNextStatusGraph(CustomerOrderStatus.CAN, "CAN").build();
 
-		ITaskObjectManager<CustomerOrderStatus,ICustomerOrder> customerOrderTaskObjectManager = TaskObjectManagerBuilder.newBuilder(ICustomerOrder.class).statusGraphs(statusGraphs).addTaskChainCriteria(
+		ITaskObjectManager<CustomerOrderStatus,ICustomerOrder> customerOrderTaskObjectManager = TaskObjectManagerBuilder.<CustomerOrderStatus,ICustomerOrder>newBuilder(ICustomerOrder.class).statusGraphs(statusGraphs).addTaskChainCriteria(
 				null, CustomerOrderStatus.TCO, "REF")
 				.addTaskChainCriteria(CustomerOrderStatus.VAL, CustomerOrderStatus.CLO, "REF2=>DATE").addTaskChainCriteria(CustomerOrderStatus.VAL, CustomerOrderStatus.TCO, "NOT-VAL").build();
 
-		ITaskObjectManagerRegistry taskObjectManagerRegistry = TaskObjectManagerRegistryBuilder.newBuilder(new TaskObjectManagerRegistryBuilder.IGetClass() {
+		ITaskObjectManagerRegistry taskObjectManagerRegistry = TaskObjectManagerRegistryBuilder.newBuilder().getClass(new TaskObjectManagerRegistryBuilder.IGetClass() {
 			@SuppressWarnings("unchecked")
 			@Override
-			public <F extends ITaskObject<?>> Class<F> getClass(F taskObject) {
+			public <F extends ITaskObject> Class<F> getClass(F taskObject) {
 				if (taskObject instanceof IComponent) {
 					return (Class<F>) ((Proxy) taskObject).straightGetComponentClass();
 				}

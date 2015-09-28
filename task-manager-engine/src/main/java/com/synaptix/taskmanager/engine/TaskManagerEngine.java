@@ -70,14 +70,14 @@ public class TaskManagerEngine {
 	 * @param taskObjects
 	 * @return
 	 */
-	public ITaskCluster startEngine(ITaskObject<?>... taskObjects) {
+	public ITaskCluster startEngine(ITaskObject... taskObjects) {
 		if (taskObjects == null || taskObjects.length == 0) {
 			return null;
 		}
 
 		Set<ITaskCluster> taskClusters = new HashSet<ITaskCluster>();
-		Set<ITaskObject<?>> createClusters = new HashSet<ITaskObject<?>>();
-		for (ITaskObject<?> taskObject : taskObjects) {
+		Set<ITaskObject> createClusters = new HashSet<ITaskObject>();
+		for (ITaskObject taskObject : taskObjects) {
 			if (taskObject != null) {
 				// If cluster not existe, create
 				ITaskCluster taskCluster = getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(taskObject);
@@ -91,7 +91,7 @@ public class TaskManagerEngine {
 
 		ITaskCluster res = null;
 		if (!createClusters.isEmpty()) {
-			res = createTaskCluster(createClusters.toArray(new ITaskObject<?>[createClusters.size()]));
+			res = createTaskCluster(createClusters.toArray(new ITaskObject[createClusters.size()]));
 			taskClusters.add(res);
 		} else if (taskClusters.size() == 1) {
 			res = taskClusters.iterator().next();
@@ -264,7 +264,7 @@ public class TaskManagerEngine {
 	 * @param taskCluster
 	 * @param taskObjects
 	 */
-	public void addTaskObjectsToTaskCluster(ITaskCluster taskCluster, ITaskObject<?>... taskObjects) {
+	public void addTaskObjectsToTaskCluster(ITaskCluster taskCluster, ITaskObject... taskObjects) {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("TM - addTaskObjectsToTaskCluster");
 		}
@@ -282,8 +282,8 @@ public class TaskManagerEngine {
 			return;
 		}
 
-		List<ITaskObject<?>> adds = new ArrayList<ITaskObject<?>>();
-		for (ITaskObject<?> taskObject : taskObjects) {
+		List<ITaskObject> adds = new ArrayList<ITaskObject>();
+		for (ITaskObject taskObject : taskObjects) {
 			if (taskObject != null) {
 				ITaskCluster tc = getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(taskObject);
 				if (tc != null) {
@@ -296,7 +296,7 @@ public class TaskManagerEngine {
 			}
 		}
 
-		createTaskGraphForTaskCluster(taskCluster, adds.toArray(new ITaskObject<?>[adds.size()]));
+		createTaskGraphForTaskCluster(taskCluster, adds.toArray(new ITaskObject[adds.size()]));
 		startEngine(taskCluster);
 	}
 
@@ -305,7 +305,7 @@ public class TaskManagerEngine {
 	 *
 	 * @param taskObjects
 	 */
-	public void removeTaskObjectsFromTaskCluster(ITaskObject<?>... taskObjects) {
+	public void removeTaskObjectsFromTaskCluster(ITaskObject... taskObjects) {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("TM - removeTaskObjectsFromTaskCluster");
 		}
@@ -317,14 +317,14 @@ public class TaskManagerEngine {
 			return;
 		}
 
-		Map<ITaskCluster, List<ITaskObject<?>>> modifyClusterMap = new HashMap<ITaskCluster, List<ITaskObject<?>>>();
-		for (ITaskObject<?> taskObject : taskObjects) {
+		Map<ITaskCluster, List<ITaskObject>> modifyClusterMap = new HashMap<ITaskCluster, List<ITaskObject>>();
+		for (ITaskObject taskObject : taskObjects) {
 			if (taskObject != null) {
 				ITaskCluster tc = getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(taskObject);
 				if (tc != null) {
-					List<ITaskObject<?>> tos = modifyClusterMap.get(tc);
+					List<ITaskObject> tos = modifyClusterMap.get(tc);
 					if (tos == null) {
-						tos = new ArrayList<ITaskObject<?>>();
+						tos = new ArrayList<ITaskObject>();
 						modifyClusterMap.put(tc, tos);
 					}
 					if (!tos.contains(taskObject)) {
@@ -334,7 +334,7 @@ public class TaskManagerEngine {
 			}
 		}
 
-		for (Entry<ITaskCluster, List<ITaskObject<?>>> entry : modifyClusterMap.entrySet()) {
+		for (Entry<ITaskCluster, List<ITaskObject>> entry : modifyClusterMap.entrySet()) {
 			getTaskManagerConfiguration().getTaskManagerWriter().saveRemoveTaskObjectsFromTaskCluster(entry.getKey(), entry.getValue());
 		}
 
@@ -347,7 +347,7 @@ public class TaskManagerEngine {
 	 * @param taskObjects
 	 * @return
 	 */
-	public ITaskCluster moveTaskObjectsToNewTaskCluster(ITaskObject<?>... taskObjects) {
+	public ITaskCluster moveTaskObjectsToNewTaskCluster(ITaskObject... taskObjects) {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("TM - moveTaskObjectsToNewTaskCluster");
 		}
@@ -359,14 +359,14 @@ public class TaskManagerEngine {
 			return null;
 		}
 
-		Map<ITaskCluster, List<ITaskObject<?>>> modifyClusterMap = new HashMap<ITaskCluster, List<ITaskObject<?>>>();
-		for (ITaskObject<?> taskObject : taskObjects) {
+		Map<ITaskCluster, List<ITaskObject>> modifyClusterMap = new HashMap<ITaskCluster, List<ITaskObject>>();
+		for (ITaskObject taskObject : taskObjects) {
 			if (taskObject != null) {
 				ITaskCluster tc = getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(taskObject);
 				if (tc != null) {
-					List<ITaskObject<?>> tos = modifyClusterMap.get(tc);
+					List<ITaskObject> tos = modifyClusterMap.get(tc);
 					if (tos == null) {
-						tos = new ArrayList<ITaskObject<?>>();
+						tos = new ArrayList<ITaskObject>();
 						modifyClusterMap.put(tc, tos);
 					}
 					if (!tos.contains(taskObject)) {
@@ -396,7 +396,7 @@ public class TaskManagerEngine {
 	 * @param dstTaskCluster
 	 * @param taskObjects
 	 */
-	public void moveTaskObjectsToTaskCluster(ITaskCluster dstTaskCluster, ITaskObject<?>... taskObjects) {
+	public void moveTaskObjectsToTaskCluster(ITaskCluster dstTaskCluster, ITaskObject... taskObjects) {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("TM - addTaskObjectsToTaskCluster");
 		}
@@ -414,14 +414,14 @@ public class TaskManagerEngine {
 			return;
 		}
 
-		Map<ITaskCluster, List<ITaskObject<?>>> modifyClusterMap = new HashMap<ITaskCluster, List<ITaskObject<?>>>();
-		for (ITaskObject<?> taskObject : taskObjects) {
+		Map<ITaskCluster, List<ITaskObject>> modifyClusterMap = new HashMap<ITaskCluster, List<ITaskObject>>();
+		for (ITaskObject taskObject : taskObjects) {
 			if (taskObject != null) {
 				ITaskCluster tc = getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(taskObject);
 				if (tc != null && !tc.equals(dstTaskCluster)) {
-					List<ITaskObject<?>> tos = modifyClusterMap.get(tc);
+					List<ITaskObject> tos = modifyClusterMap.get(tc);
 					if (tos == null) {
-						tos = new ArrayList<ITaskObject<?>>();
+						tos = new ArrayList<ITaskObject>();
 						modifyClusterMap.put(tc, tos);
 					}
 					if (!tos.contains(taskObject)) {
@@ -472,7 +472,7 @@ public class TaskManagerEngine {
 		if (toDoneTask instanceof UpdateStatusTask) {
 			UpdateStatusTask updateStatusTask = (UpdateStatusTask) toDoneTask;
 
-			Class<? extends ITaskObject<Object>> taskObjectClass = (Class<? extends ITaskObject<Object>>) updateStatusTask.getTaskObjectClass();
+			Class<? extends ITaskObject> taskObjectClass = (Class<? extends ITaskObject>) updateStatusTask.getTaskObjectClass();
 
 			if (!updateStatusTask.getOtherStatusTasksMap().isEmpty()) {
 				for (Entry<Object, List<? extends AbstractTask>> entry : updateStatusTask.getOtherStatusTasksMap().entrySet()) {
@@ -480,7 +480,7 @@ public class TaskManagerEngine {
 				}
 			}
 
-			ITaskObjectManager<Object, ? extends ITaskObject<Object>> taskObjectManager = getTaskManagerConfiguration().getTaskObjectManagerRegistry().getTaskObjectManager(taskObjectClass);
+			ITaskObjectManager<Object, ? extends ITaskObject> taskObjectManager = getTaskManagerConfiguration().getTaskObjectManagerRegistry().getTaskObjectManager(taskObjectClass);
 			List<IStatusGraph<Object>> statusGraphs = taskObjectManager.getNextStatusGraphsByTaskObjectType(updateStatusTask, updateStatusTask.getCurrentStatus());
 			if (statusGraphs != null && !statusGraphs.isEmpty()) {
 				List<UpdateStatusTask> nextUpdateStatusTasks = new ArrayList<UpdateStatusTask>();
@@ -579,7 +579,7 @@ public class TaskManagerEngine {
 	/*
 	 * Create task cluster for taskobject, create new task
 	 */
-	private ITaskCluster createTaskCluster(ITaskObject<?>... taskObjects) {
+	private ITaskCluster createTaskCluster(ITaskObject... taskObjects) {
 		ITaskCluster taskCluster = getTaskManagerConfiguration().getTaskFactory().newTaskCluster();
 		taskCluster = getTaskManagerConfiguration().getTaskManagerWriter().saveNewTaskCluster(taskCluster);
 
@@ -589,12 +589,14 @@ public class TaskManagerEngine {
 	/*
 	 * Create status graph and tasks
 	 */
-	private <E extends Object, F extends ITaskObject<E>> UpdateStatusTask createInitTask(F taskObject) {
+	private <E extends Object, F extends ITaskObject> UpdateStatusTask createInitTask(F taskObject) {
 		ITaskObjectManager<E, F> taskObjectManager = getTaskManagerConfiguration().getTaskObjectManagerRegistry().getTaskObjectManager(taskObject);
 		Class<F> taskObjectClass = taskObjectManager.getTaskObjectClass();
 
+		E currentStatus = taskObjectManager.getInitialStatus(taskObject);
+
 		// Create a first task, it does nothing
-		UpdateStatusTask initTask = getTaskManagerConfiguration().getTaskFactory().newUpdateStatusTask(null, taskObjectClass, taskObject.getStatus(), null);
+		UpdateStatusTask initTask = getTaskManagerConfiguration().getTaskFactory().newUpdateStatusTask(null, taskObjectClass, currentStatus, null);
 
 		return initTask;
 	}
@@ -603,15 +605,15 @@ public class TaskManagerEngine {
 	 * Create Task graphs for task cluster
 	 */
 	private ITaskCluster createTaskGraphsForTaskCluster(ITaskCluster taskCluster) {
-		List<ITaskObject<?>> taskObjects = getTaskManagerConfiguration().getTaskManagerReader().findTaskObjectsByTaskCluster(taskCluster);
+		List<ITaskObject> taskObjects = getTaskManagerConfiguration().getTaskManagerReader().findTaskObjectsByTaskCluster(taskCluster);
 
 		List<UpdateStatusTask> updateStatusTasks = null;
-		List<Pair<ITaskObject<?>, UpdateStatusTask>> taskObjectNodes = new ArrayList<Pair<ITaskObject<?>, UpdateStatusTask>>();
+		List<Pair<ITaskObject, UpdateStatusTask>> taskObjectNodes = new ArrayList<Pair<ITaskObject, UpdateStatusTask>>();
 		if (taskObjects != null && !taskObjects.isEmpty()) {
 			updateStatusTasks = new ArrayList<UpdateStatusTask>();
-			for (ITaskObject<?> taskObject : taskObjects) {
+			for (ITaskObject taskObject : taskObjects) {
 				UpdateStatusTask initTask = createInitTask(taskObject);
-				taskObjectNodes.add(Pair.<ITaskObject<?>, UpdateStatusTask>of(taskObject, initTask));
+				taskObjectNodes.add(Pair.<ITaskObject, UpdateStatusTask>of(taskObject, initTask));
 			}
 		}
 
@@ -626,14 +628,14 @@ public class TaskManagerEngine {
 	/*
 	 * Create Task graph for task object and add in task cluster
 	 */
-	private ITaskCluster createTaskGraphForTaskCluster(ITaskCluster taskCluster, ITaskObject<?>... taskObjects) {
+	private ITaskCluster createTaskGraphForTaskCluster(ITaskCluster taskCluster, ITaskObject... taskObjects) {
 		List<UpdateStatusTask> updateStatusTasks = null;
-		List<Pair<ITaskObject<?>, UpdateStatusTask>> taskObjectNodes = new ArrayList<Pair<ITaskObject<?>, UpdateStatusTask>>();
+		List<Pair<ITaskObject, UpdateStatusTask>> taskObjectNodes = new ArrayList<Pair<ITaskObject, UpdateStatusTask>>();
 		if (taskObjects != null && taskObjects.length > 0) {
 			updateStatusTasks = new ArrayList<UpdateStatusTask>();
-			for (ITaskObject<?> taskObject : taskObjects) {
+			for (ITaskObject taskObject : taskObjects) {
 				UpdateStatusTask initTask = createInitTask(taskObject);
-				taskObjectNodes.add(Pair.<ITaskObject<?>, UpdateStatusTask>of(taskObject, initTask));
+				taskObjectNodes.add(Pair.<ITaskObject, UpdateStatusTask>of(taskObject, initTask));
 			}
 		}
 
@@ -758,7 +760,7 @@ public class TaskManagerEngine {
 		}
 
 		@Override
-		public void startEngine(TaskClusterCallback taskClusterCallback, ITaskObject<?>... taskObjects) {
+		public void startEngine(TaskClusterCallback taskClusterCallback, ITaskObject... taskObjects) {
 			verifyBlock();
 		}
 
@@ -768,32 +770,32 @@ public class TaskManagerEngine {
 		}
 
 		@Override
-		public void addTaskObjectsToTaskCluster(ITaskObject<?>... taskObjects) {
+		public void addTaskObjectsToTaskCluster(ITaskObject... taskObjects) {
 			addTaskObjectsToTaskCluster(currentTaskCluster, taskObjects);
 		}
 
 		@Override
-		public void addTaskObjectsToTaskCluster(ITaskCluster taskCluster, ITaskObject<?>... taskObjects) {
+		public void addTaskObjectsToTaskCluster(ITaskCluster taskCluster, ITaskObject... taskObjects) {
 			verifyBlock();
 		}
 
 		@Override
-		public void removeTaskObjectsFromTaskCluster(ITaskObject<?>... taskObjects) {
+		public void removeTaskObjectsFromTaskCluster(ITaskObject... taskObjects) {
 			verifyBlock();
 		}
 
 		@Override
-		public void moveTaskObjectsToNewTaskCluster(TaskClusterCallback taskClusterCallback, ITaskObject<?>... taskObjects) {
+		public void moveTaskObjectsToNewTaskCluster(TaskClusterCallback taskClusterCallback, ITaskObject... taskObjects) {
 			verifyBlock();
 		}
 
 		@Override
-		public void moveTaskObjectsToTaskCluster(ITaskObject<?>... taskObjects) {
+		public void moveTaskObjectsToTaskCluster(ITaskObject... taskObjects) {
 			moveTaskObjectsToTaskCluster(currentTaskCluster, taskObjects);
 		}
 
 		@Override
-		public void moveTaskObjectsToTaskCluster(ITaskCluster dstTaskCluster, ITaskObject<?>... taskObjects) {
+		public void moveTaskObjectsToTaskCluster(ITaskCluster dstTaskCluster, ITaskObject... taskObjects) {
 			verifyBlock();
 		}
 	}

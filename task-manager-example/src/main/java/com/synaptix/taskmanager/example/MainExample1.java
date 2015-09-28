@@ -27,12 +27,12 @@ public class MainExample1 {
 	public static void main(String[] args) {
 		List<IStatusGraph<CustomerOrderStatus>> statusGraphs = StatusGraphsBuilder.<CustomerOrderStatus>newBuilder().addNextStatusGraph(CustomerOrderStatus.TCO, "TCO_TASK").build();
 
-		ITaskObjectManager<CustomerOrderStatus,ICustomerOrder> customerOrderTaskObjectManager = TaskObjectManagerBuilder.newBuilder(ICustomerOrder.class).statusGraphs(statusGraphs).build();
+		ITaskObjectManager<CustomerOrderStatus,ICustomerOrder> customerOrderTaskObjectManager = TaskObjectManagerBuilder.<CustomerOrderStatus,ICustomerOrder>newBuilder(ICustomerOrder.class).statusGraphs(statusGraphs).build();
 
-		ITaskObjectManagerRegistry taskObjectManagerRegistry = TaskObjectManagerRegistryBuilder.newBuilder(new TaskObjectManagerRegistryBuilder.IGetClass() {
+		ITaskObjectManagerRegistry taskObjectManagerRegistry = TaskObjectManagerRegistryBuilder.newBuilder().getClass(new TaskObjectManagerRegistryBuilder.IGetClass() {
 			@SuppressWarnings("unchecked")
 			@Override
-			public <F extends ITaskObject<?>> Class<F> getClass(F taskObject) {
+			public <F extends ITaskObject> Class<F> getClass(F taskObject) {
 				if (taskObject instanceof IComponent) {
 					return (Class<F>) ((Proxy) taskObject).straightGetComponentClass();
 				}

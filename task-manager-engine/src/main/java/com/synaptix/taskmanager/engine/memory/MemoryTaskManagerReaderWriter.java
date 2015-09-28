@@ -18,14 +18,14 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 
 	private static final Log LOG = LogFactory.getLog(MemoryTaskManagerReaderWriter.class);
 
-	private Map<ITaskCluster, List<ITaskObject<?>>> taskClusterMap;
+	private Map<ITaskCluster, List<ITaskObject>> taskClusterMap;
 
 	private Map<ITaskCluster, List<AbstractTask>> taskNodeMap;
 
 	public MemoryTaskManagerReaderWriter() {
 		super();
 
-		this.taskClusterMap = new HashMap<ITaskCluster, List<ITaskObject<?>>>();
+		this.taskClusterMap = new HashMap<ITaskCluster, List<ITaskObject>>();
 		this.taskNodeMap = new HashMap<ITaskCluster, List<AbstractTask>>();
 	}
 
@@ -35,7 +35,7 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 	 * @param taskCluster
 	 * @param taskObjects
 	 */
-	public void addTaskObjectsInTaskCluster(ITaskCluster taskCluster, ITaskObject<?>... taskObjects) {
+	public void addTaskObjectsInTaskCluster(ITaskCluster taskCluster, ITaskObject... taskObjects) {
 		taskClusterMap.get(taskCluster).addAll(Arrays.asList(taskObjects));
 	}
 
@@ -44,21 +44,21 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 	@Override
 	public ITaskCluster saveNewTaskCluster(ITaskCluster taskCluster) {
 		LOG.info("MRW - saveNewTaskClusterForTaskObject");
-		taskClusterMap.put(taskCluster, new ArrayList<ITaskObject<?>>());
+		taskClusterMap.put(taskCluster, new ArrayList<ITaskObject>());
 		taskNodeMap.put(taskCluster, new ArrayList<AbstractTask>());
 		return taskCluster;
 	}
 
 	@Override
-	public ITaskCluster saveNewGraphFromTaskCluster(ITaskCluster taskCluster, List<Pair<ITaskObject<?>, UpdateStatusTask>> taskObjectTasks) {
+	public ITaskCluster saveNewGraphFromTaskCluster(ITaskCluster taskCluster, List<Pair<ITaskObject, UpdateStatusTask>> taskObjectTasks) {
 		LOG.info("MRW - saveNewTaskObjectInTaskCluster");
 
 		if (taskObjectTasks != null && !taskObjectTasks.isEmpty()) {
-			List<ITaskObject<?>> tos = taskClusterMap.get(taskCluster);
+			List<ITaskObject> tos = taskClusterMap.get(taskCluster);
 			List<AbstractTask> ats = taskNodeMap.get(taskCluster);
 
-			for (Pair<ITaskObject<?>, UpdateStatusTask> taskObjectNode : taskObjectTasks) {
-				ITaskObject<?> taskObject = taskObjectNode.getLeft();
+			for (Pair<ITaskObject, UpdateStatusTask> taskObjectNode : taskObjectTasks) {
+				ITaskObject taskObject = taskObjectNode.getLeft();
 				tos.add(taskObject);
 
 				UpdateStatusTask task = taskObjectNode.getRight();
@@ -75,14 +75,14 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 	}
 
 	@Override
-	public void saveRemoveTaskObjectsFromTaskCluster(ITaskCluster taskCluster, List<ITaskObject<?>> taskObjects) {
+	public void saveRemoveTaskObjectsFromTaskCluster(ITaskCluster taskCluster, List<ITaskObject> taskObjects) {
 		LOG.info("MRW - saveRemoveTaskObjectsFromTaskCluster");
 
 		if (taskObjects != null && !taskObjects.isEmpty()) {
-			List<ITaskObject<?>> tos = taskClusterMap.get(taskCluster);
+			List<ITaskObject> tos = taskClusterMap.get(taskCluster);
 			List<AbstractTask> ats = taskNodeMap.get(taskCluster);
 
-			for (ITaskObject<?> taskObject : taskObjects) {
+			for (ITaskObject taskObject : taskObjects) {
 				tos.remove(taskObject);
 
 				Iterator<AbstractTask> it = ats.iterator();
@@ -99,20 +99,20 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 	}
 
 	@Override
-	public ITaskCluster saveMoveTaskObjectsToTaskCluster(ITaskCluster dstTaskCluster, Map<ITaskCluster, List<ITaskObject<?>>> modifyClusterMap,boolean newTaskCluster) {
+	public ITaskCluster saveMoveTaskObjectsToTaskCluster(ITaskCluster dstTaskCluster, Map<ITaskCluster, List<ITaskObject>> modifyClusterMap,boolean newTaskCluster) {
 		if (modifyClusterMap != null && !modifyClusterMap.isEmpty()) {
-			List<ITaskObject<?>> dstTos = taskClusterMap.get(dstTaskCluster);
+			List<ITaskObject> dstTos = taskClusterMap.get(dstTaskCluster);
 			List<AbstractTask> dstAts= taskNodeMap.get(dstTaskCluster);
 
-			for (Entry<ITaskCluster, List<ITaskObject<?>>> entry : modifyClusterMap.entrySet()) {
+			for (Entry<ITaskCluster, List<ITaskObject>> entry : modifyClusterMap.entrySet()) {
 				ITaskCluster srcTaskCluster = entry.getKey();
-				List<ITaskObject<?>> taskObjects = entry.getValue();
+				List<ITaskObject> taskObjects = entry.getValue();
 
 				if (taskObjects != null && !taskObjects.isEmpty()) {
-					List<ITaskObject<?>> srcTos = taskClusterMap.get(srcTaskCluster);
+					List<ITaskObject> srcTos = taskClusterMap.get(srcTaskCluster);
 					List<AbstractTask> srcAts= taskNodeMap.get(srcTaskCluster);
 
-					for (ITaskObject<?> taskObject : taskObjects) {
+					for (ITaskObject taskObject : taskObjects) {
 						srcTos.remove(taskObject);
 						dstTos.add(taskObject);
 
@@ -156,7 +156,7 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 		taskNodeMap.get(taskCluster).addAll(newNextCurrentTasks);
 	}
 
-	private void update(ITaskObject<?> taskObject, List<AbstractTask> tasks) {
+	private void update(ITaskObject taskObject, List<AbstractTask> tasks) {
 		if (tasks != null && !tasks.isEmpty()) {
 			for (AbstractTask task : tasks) {
 				if (task instanceof SimpleUpdateStatusTask) {
@@ -186,8 +186,8 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 	// READER
 
 	@Override
-	public ITaskCluster findTaskClusterByTaskObject(ITaskObject<?> taskObject) {
-		for (Entry<ITaskCluster, List<ITaskObject<?>>> entry : taskClusterMap.entrySet()) {
+	public ITaskCluster findTaskClusterByTaskObject(ITaskObject taskObject) {
+		for (Entry<ITaskCluster, List<ITaskObject>> entry : taskClusterMap.entrySet()) {
 			if (entry.getValue().contains(taskObject)) {
 				return entry.getKey();
 			}
@@ -196,7 +196,7 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 	}
 
 	@Override
-	public List<ITaskObject<?>> findTaskObjectsByTaskCluster(ITaskCluster taskCluster) {
+	public List<ITaskObject> findTaskObjectsByTaskCluster(ITaskCluster taskCluster) {
 		return taskClusterMap.get(taskCluster);
 	}
 

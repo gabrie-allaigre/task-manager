@@ -20,21 +20,21 @@ public interface ITaskService extends ITaskCycleListener {
 
 		ITaskCluster getCurrentTaskCluster();
 
-		void startEngine(TaskClusterCallback taskClusterCallback,ITaskObject<?>... taskObjects);
+		void startEngine(TaskClusterCallback taskClusterCallback,ITaskObject... taskObjects);
 
 		void startEngine(ITaskCluster... taskClusters);
 
-		void addTaskObjectsToTaskCluster(ITaskObject<?>... taskObjects);
+		void addTaskObjectsToTaskCluster(ITaskObject... taskObjects);
 
-		void addTaskObjectsToTaskCluster(ITaskCluster taskCluster, ITaskObject<?>... taskObjects);
+		void addTaskObjectsToTaskCluster(ITaskCluster taskCluster, ITaskObject... taskObjects);
 
-		void removeTaskObjectsFromTaskCluster(ITaskObject<?>... taskObjects);
+		void removeTaskObjectsFromTaskCluster(ITaskObject... taskObjects);
 
-		void moveTaskObjectsToNewTaskCluster(TaskClusterCallback taskClusterCallback,ITaskObject<?>... taskObjects);
+		void moveTaskObjectsToNewTaskCluster(TaskClusterCallback taskClusterCallback,ITaskObject... taskObjects);
 
-		void moveTaskObjectsToTaskCluster(ITaskObject<?>... taskObjects);
+		void moveTaskObjectsToTaskCluster(ITaskObject... taskObjects);
 
-		void moveTaskObjectsToTaskCluster(ITaskCluster dstTaskCluster, ITaskObject<?>... taskObjects);
+		void moveTaskObjectsToTaskCluster(ITaskCluster dstTaskCluster, ITaskObject... taskObjects);
 
 		interface TaskClusterCallback {
 

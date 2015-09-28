@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import com.synaptix.component.IComponent;
 import com.synaptix.component.factory.Proxy;
+import com.synaptix.taskmanager.component.ComponentInstanceToClass;
 import com.synaptix.taskmanager.engine.TaskManagerEngine;
 import com.synaptix.taskmanager.engine.configuration.TaskManagerConfigurationBuilder;
 import com.synaptix.taskmanager.engine.configuration.registry.ITaskDefinitionRegistry;
@@ -45,16 +46,8 @@ public class MainExample10 {
 				null, CustomerOrderStatus.TCO, "REF")
 				.addTaskChainCriteria(CustomerOrderStatus.VAL, CustomerOrderStatus.CLO, "REF2=>DATE").addTaskChainCriteria(CustomerOrderStatus.VAL, CustomerOrderStatus.TCO, "NOT-VAL").build();
 
-		ITaskObjectManagerRegistry taskObjectManagerRegistry = TaskObjectManagerRegistryBuilder.newBuilder().getClass(new TaskObjectManagerRegistryBuilder.IGetClass() {
-			@SuppressWarnings("unchecked")
-			@Override
-			public <F extends ITaskObject> Class<F> getClass(F taskObject) {
-				if (taskObject instanceof IComponent) {
-					return (Class<F>) ((Proxy) taskObject).straightGetComponentClass();
-				}
-				return (Class<F>) taskObject.getClass();
-			}
-		}).addTaskObjectManager(customerOrderTaskObjectManager).build();
+		ITaskObjectManagerRegistry taskObjectManagerRegistry = TaskObjectManagerRegistryBuilder.newBuilder().instanceToClass(ComponentInstanceToClass.INSTANCE).addTaskObjectManager(
+				customerOrderTaskObjectManager).build();
 
 		ITaskDefinitionRegistry taskDefinitionRegistry = TaskDefinitionRegistryBuilder.newBuilder()
 				.addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("TCO", new TCOTaskService()).build())

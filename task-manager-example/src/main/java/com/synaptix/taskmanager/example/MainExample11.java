@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import com.synaptix.component.IComponent;
 import com.synaptix.component.factory.Proxy;
+import com.synaptix.taskmanager.component.ComponentInstanceToClass;
 import com.synaptix.taskmanager.engine.TaskManagerEngine;
 import com.synaptix.taskmanager.engine.configuration.TaskManagerConfigurationBuilder;
 import com.synaptix.taskmanager.engine.configuration.registry.TaskDefinitionRegistryBuilder;
@@ -25,16 +26,7 @@ public class MainExample11 {
 
 	public static void main(String[] args) {
 		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder()
-				.taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().getClass(new TaskObjectManagerRegistryBuilder.IGetClass() {
-					@SuppressWarnings("unchecked")
-					@Override
-					public <F extends ITaskObject> Class<F> getClass(F taskObject) {
-						if (taskObject instanceof IComponent) {
-							return (Class<F>) ((Proxy) taskObject).straightGetComponentClass();
-						}
-						return (Class<F>) taskObject.getClass();
-					}
-				}).addTaskObjectManager(TaskObjectManagerBuilder.<CustomerOrderStatus,ICustomerOrder>newBuilder(ICustomerOrder.class).statusGraphs(StatusGraphsBuilder.<CustomerOrderStatus> newBuilder()
+				.taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().instanceToClass(ComponentInstanceToClass.INSTANCE).addTaskObjectManager(TaskObjectManagerBuilder.<CustomerOrderStatus,ICustomerOrder>newBuilder(ICustomerOrder.class).statusGraphs(StatusGraphsBuilder.<CustomerOrderStatus> newBuilder()
 						.addNextStatusGraph(CustomerOrderStatus.TCO, "ATask",
 								StatusGraphsBuilder.<CustomerOrderStatus> newBuilder().addNextStatusGraph(CustomerOrderStatus.VAL, "BTask").addNextStatusGraph(CustomerOrderStatus.TCO,
 										"ATask"))

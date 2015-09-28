@@ -12,14 +12,14 @@ public class TaskObjectManagerRegistryBuilder {
 
 	private MyObjectManagerRegistry objectManagerRegistry;
 
-	private TaskObjectManagerRegistryBuilder(IGetClass getClass) {
+	private TaskObjectManagerRegistryBuilder() {
 		super();
 
 		this.objectManagerRegistry = new MyObjectManagerRegistry();
 	}
 
-	public TaskObjectManagerRegistryBuilder getClass(IGetClass getClass) {
-		objectManagerRegistry.getClass = getClass;
+	public TaskObjectManagerRegistryBuilder instanceToClass(IInstanceToClass instanceToClass) {
+		objectManagerRegistry.instanceToClass = instanceToClass;
 		return this;
 	}
 
@@ -33,12 +33,12 @@ public class TaskObjectManagerRegistryBuilder {
 	}
 
 	public static TaskObjectManagerRegistryBuilder newBuilder() {
-		return new TaskObjectManagerRegistryBuilder(null);
+		return new TaskObjectManagerRegistryBuilder();
 	}
 
-	public interface IGetClass {
+	public interface IInstanceToClass {
 
-		<F extends ITaskObject> Class<F> getClass(F taskObject);
+		<F extends ITaskObject> Class<F> instanceToClass(F taskObject);
 
 	}
 
@@ -46,7 +46,7 @@ public class TaskObjectManagerRegistryBuilder {
 
 		private final Map<Class<? extends ITaskObject>, ITaskObjectManager<?,?>> taskObjectManagerMap;
 
-		private IGetClass getClass;
+		private IInstanceToClass instanceToClass;
 
 		public MyObjectManagerRegistry() {
 			super();
@@ -57,8 +57,8 @@ public class TaskObjectManagerRegistryBuilder {
 		@SuppressWarnings("unchecked")
 		@Override
 		public <E extends Object,F extends ITaskObject> ITaskObjectManager<E,F> getTaskObjectManager(F taskObject) {
-			if (getClass != null) {
-				return getTaskObjectManager(getClass.getClass(taskObject));
+			if (instanceToClass != null) {
+				return getTaskObjectManager(instanceToClass.instanceToClass(taskObject));
 			}
 			return getTaskObjectManager((Class<F>) taskObject.getClass());
 		}

@@ -9,15 +9,17 @@ import java.util.List;
 public interface ITaskObjectManager<E extends Object,F extends ITaskObject> {
 
 	/**
+	 * Get a class of taskObject
 	 *
-	 * @return
+	 * @return a class
 	 */
 	Class<F> getTaskObjectClass();
 
 	/**
+	 * Get a initial status for task object
 	 *
-	 * @param taskObject
-	 * @return
+	 * @param taskObject a task object
+	 * @return a current status for task object
 	 */
 	E getInitialStatus(F taskObject);
 
@@ -27,17 +29,20 @@ public interface ITaskObjectManager<E extends Object,F extends ITaskObject> {
 	 * Ex : A->(B,C) currentStatus is A then next is B and C
 	 *
 	 * @param updateStatusTask
-	 * @param currentStatus
-	 * @return
+	 * @param currentStatus a current status
+	 * @return a graph for next status
 	 */
 	List<IStatusGraph<E>> getNextStatusGraphsByTaskObjectType(UpdateStatusTask updateStatusTask, E currentStatus);
 
 	/**
+	 * Get a rule with task definition between status for sub tasks
+	 *
+	 * ex : A=>(B,C)
 	 *
 	 * @param updateStatusTask
-	 * @param currentStatus
-	 * @param nextStatus
-	 * @return
+	 * @param currentStatus current status
+	 * @param nextStatus next status
+	 * @return a rule
 	 */
 	String getTaskChainCriteria(UpdateStatusTask updateStatusTask, E currentStatus, E nextStatus);
 

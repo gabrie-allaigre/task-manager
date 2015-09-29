@@ -1,7 +1,6 @@
 package com.synaptix.taskmanager.example.jpa.model;
 
 import com.synaptix.taskmanager.model.ITaskObject;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.*;
@@ -18,6 +17,10 @@ public class Todo implements ITaskObject {
 	private String status;
 	@ManyToOne
 	private Cluster cluster;
+
+	public final Long getId() {
+		return id;
+	}
 
 	public String getSummary() {
 		return summary;
@@ -63,6 +66,7 @@ public class Todo implements ITaskObject {
 
 	@Override
 	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
+		return new ToStringBuilder(this).append("id",id).append("version", version).append("summary", summary).append("description",description).append("status",status).append("cluster",
+				cluster != null ? cluster.getId() : null).build();
 	}
 }

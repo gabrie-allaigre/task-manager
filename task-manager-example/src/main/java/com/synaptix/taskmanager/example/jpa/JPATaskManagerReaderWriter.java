@@ -2,10 +2,12 @@ package com.synaptix.taskmanager.example.jpa;
 
 import com.synaptix.taskmanager.engine.configuration.persistance.ITaskManagerReader;
 import com.synaptix.taskmanager.engine.configuration.persistance.ITaskManagerWriter;
+import com.synaptix.taskmanager.engine.configuration.registry.ITaskDefinitionRegistry;
 import com.synaptix.taskmanager.engine.task.ICommonTask;
-import com.synaptix.taskmanager.engine.task.ISubTask;
 import com.synaptix.taskmanager.engine.task.IStatusTask;
+import com.synaptix.taskmanager.engine.task.ISubTask;
 import com.synaptix.taskmanager.example.jpa.model.Cluster;
+import com.synaptix.taskmanager.example.jpa.model.Task;
 import com.synaptix.taskmanager.example.jpa.model.Todo;
 import com.synaptix.taskmanager.model.ITaskCluster;
 import com.synaptix.taskmanager.model.ITaskObject;
@@ -13,6 +15,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import javax.persistence.Query;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -21,38 +24,12 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 
 	private static final Log LOG = LogFactory.getLog(JPATaskManagerReaderWriter.class);
 
-	// READER
+	private final ITaskDefinitionRegistry taskDefinitionRegistry;
 
-	@Override
-	public ITaskCluster findTaskClusterByTaskObject(ITaskObject taskObject) {
-		LOG.info("JPARW - findTaskClusterByTaskObject");
-		Todo todo = (Todo) taskObject;
-		return todo.getCluster();
-	}
+	public JPATaskManagerReaderWriter(ITaskDefinitionRegistry taskDefinitionRegistry) {
+		super();
 
-	@Override
-	public List<? extends ITaskObject> findTaskObjectsByTaskCluster(ITaskCluster taskCluster) {
-		LOG.info("JPARW - findTaskObjectsByTaskCluster");
-		return ((Cluster) taskCluster).getTodos();
-	}
-
-	@Override
-	public List<? extends ICommonTask> findCurrentTasksByTaskCluster(ITaskCluster taskCluster) {
-		LOG.info("JPARW - findCurrentTasksByTaskCluster");
-
-		return null;
-	}
-
-	@Override
-	public List<? extends ICommonTask> findNextTasksBySubTask(ISubTask subTask) {
-		LOG.info("JPARW - findNextTasksBySubTask");
-
-		return null;
-	}
-
-	@Override
-	public List<? extends ICommonTask> findOtherBranchFirstTasksByStatusTask(IStatusTask statusTask) {
-		return null;
+		this.taskDefinitionRegistry = taskDefinitionRegistry;
 	}
 
 	// WRITER
@@ -88,7 +65,18 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 				}
 				todos.add(todo);
 
-				IStatusTask task = taskObjectNode.getRight();
+				JPAStatusTask statusTask = (JPAStatusTask) taskObjectNode.getRight();
+
+				Task task = new Task();
+				task.setType("STATUS");
+				task.setStatus("CURRENT");
+				task.setServiceCode(statusTask.getTaskDefinition() != null ? statusTask.getTaskDefinition().getCode() : null);
+				task.setCurrentStatus(statusTask.<String>getCurrentStatus());
+				task.setCluster(cluster);
+				task.setTodo(todo);
+				JPAHelper.getInstance().getEntityManager().persist(task);
+
+				statusTask.setTask(task);
 			}
 		}
 
@@ -133,9 +121,52 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 	}
 
 	@Override
-	public void saveNewNextTasksInTaskCluster(ITaskCluster taskCluster, IStatusTask toDoneTask, Object taskServiceResult, List<ICommonTask> newTasks,
-			Map<ISubTask, List<ICommonTask>> linkNextTasksMap, Map<IStatusTask, List<ICommonTask>> otherBranchFirstTasksMap, List<ICommonTask> nextCurrentTasks,
-			List<ICommonTask> deleteTasks) {
+	public void saveNewNextTasksInTaskCluster(ITaskCluster taskCluster, IStatusTask toDoneTask, Object taskServiceResult, List<ICommonTask> newTasks, Map<ISubTask, List<ICommonTask>> linkNextTasksMap,
+			Map<IStatusTask, List<ICommonTask>> otherBranchFirstTasksMap, List<ICommonTask> nextCurrentTasks, List<ICommonTask> deleteTasks) {
 		LOG.info("JPARW - saveNewNextTasksInTaskCluster");
 	}
+
+	// READER
+
+	@Override
+	public ITaskCluster findTaskClusterByTaskObject(ITaskObject taskObject) {
+		LOG.info("JPARW - findTaskClusterByTaskObject");
+		Todo todo = (Todo) taskObject;
+		return todo.getCluster();
+	}
+
+	@Override
+	public List<? extends ITaskObject> findTaskObjectsByTaskCluster(ITaskCluster taskCluster) {
+		LOG.info("JPARW - findTaskObjectsByTaskCluster");
+		return ((Cluster) taskCluster).getTodos();
+	}
+
+	@Override
+	public List<? extends ICommonTask> findCurrentTasksByTaskCluster(ITaskCluster taskCluster) {
+		LOG.info("JPARW - findCurrentTasksByTaskCluster");
+
+		Cluster cluster = (Cluster) taskCluster;
+
+		Query q = JPAHelper.getInstance().getEntityManager().createQuery("select t from Task t where t.status = 'CURRENT' and t.cluster.id = " + cluster.getId());
+		List<Task> tasks = q.getResultList();
+		if (tasks != null && !tasks.isEmpty()) {
+			for (Task task : tasks) {
+
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public List<? extends ICommonTask> findNextTasksBySubTask(ISubTask subTask) {
+		LOG.info("JPARW - findNextTasksBySubTask");
+
+		return null;
+	}
+
+	@Override
+	public List<? extends ICommonTask> findOtherBranchFirstTasksByStatusTask(IStatusTask statusTask) {
+		return null;
+	}
+
 }

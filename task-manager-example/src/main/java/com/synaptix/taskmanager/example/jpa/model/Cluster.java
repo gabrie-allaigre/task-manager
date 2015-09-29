@@ -19,6 +19,10 @@ public class Cluster implements ITaskCluster {
 	@OneToMany(mappedBy = "cluster")
 	private List<Todo> todos;
 
+	public final Long getId() {
+		return id;
+	}
+
 	@Override
 	public boolean isCheckGraphCreated() {
 		return checkGraphCreated;
@@ -57,6 +61,6 @@ public class Cluster implements ITaskCluster {
 
 	@Override
 	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
+		return new ToStringBuilder(this).append("id", id).append("version", version).append("checkGraphCreated", checkGraphCreated).append("checkArchived",checkArchived).append("todos",todos != null ? todos.size() : 0).build();
 	}
 }

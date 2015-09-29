@@ -22,6 +22,6 @@ public class JPATaskFactory implements ITaskFactory {
 
 	@Override
 	public IStatusTask newStatusTask(IStatusTaskDefinition statusTaskDefinition, Class<? extends ITaskObject> taskObjectClass, Object currentStatus) {
-		return new JPAStatusTask(statusTaskDefinition,taskObjectClass,currentStatus);
+		return new JPAStatusTask(statusTaskDefinition,currentStatus);
 	}
 }

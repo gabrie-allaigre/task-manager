@@ -1,17 +1,13 @@
 package com.synaptix.taskmanager.component.test.data;
 
-import java.util.Date;
-
+import com.synaptix.component.IComponent;
 import com.synaptix.component.annotation.SynaptixComponent;
-import com.synaptix.entity.IEntity;
 import com.synaptix.taskmanager.model.ITaskObject;
 
+import java.util.Date;
+
 @SynaptixComponent
-public interface ICustomerOrder extends IEntity, ITaskObject {
-
-	public CustomerOrderStatus getStatus();
-
-	public void setStatus(CustomerOrderStatus status);
+public interface ICustomerOrder extends IComponent,ITaskObject {
 
 	public String getCustomerOrderNo();
 

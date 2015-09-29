@@ -7,7 +7,7 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-public class Cluster implements ITaskCluster {
+public class Cluster implements IEntity,ITaskCluster {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -17,8 +17,9 @@ public class Cluster implements ITaskCluster {
 	private boolean checkGraphCreated;
 	private boolean checkArchived;
 	@OneToMany(mappedBy = "cluster")
-	private List<Todo> todos;
+	private List<ClusterDependency> clusterDependencies;
 
+	@Override
 	public final Long getId() {
 		return id;
 	}
@@ -41,12 +42,12 @@ public class Cluster implements ITaskCluster {
 		this.checkArchived = checkArchived;
 	}
 
-	public List<Todo> getTodos() {
-		return todos;
+	public List<ClusterDependency> getClusterDependencies() {
+		return clusterDependencies;
 	}
 
-	public void setTodos(List<Todo> todos) {
-		this.todos = todos;
+	public void setClusterDependencies(List<ClusterDependency> clusterDependencies) {
+		this.clusterDependencies = clusterDependencies;
 	}
 
 	@Override
@@ -61,6 +62,7 @@ public class Cluster implements ITaskCluster {
 
 	@Override
 	public String toString() {
-		return new ToStringBuilder(this).append("id", id).append("version", version).append("checkGraphCreated", checkGraphCreated).append("checkArchived",checkArchived).append("todos",todos != null ? todos.size() : 0).build();
+		return new ToStringBuilder(this).append("id", id).append("version", version).append("checkGraphCreated", checkGraphCreated).append("checkArchived",checkArchived).append("clusterDependencies",
+				clusterDependencies != null ? clusterDependencies.size() : 0).build();
 	}
 }

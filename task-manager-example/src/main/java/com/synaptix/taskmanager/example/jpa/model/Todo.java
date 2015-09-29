@@ -6,7 +6,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import javax.persistence.*;
 
 @Entity
-public class Todo implements ITaskObject {
+public class Todo implements IBusinessTaskObject {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
@@ -18,6 +18,7 @@ public class Todo implements ITaskObject {
 	@ManyToOne
 	private Cluster cluster;
 
+	@Override
 	public final Long getId() {
 		return id;
 	}
@@ -46,10 +47,12 @@ public class Todo implements ITaskObject {
 		this.status = status;
 	}
 
+	@Override
 	public Cluster getCluster() {
 		return cluster;
 	}
 
+	@Override
 	public void setCluster(Cluster cluster) {
 		this.cluster = cluster;
 	}

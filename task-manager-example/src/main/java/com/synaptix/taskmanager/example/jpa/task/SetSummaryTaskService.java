@@ -18,8 +18,10 @@ public class SetSummaryTaskService extends AbstractTaskService {
 	}
 
 	@Override
-	public IExecutionResult execute(IEngineContext context,ICommonTask task) {
-		Todo todo = ((Task) task).getTodo();
+	public IExecutionResult execute(IEngineContext context,ICommonTask commonTask) {
+		Task task = (Task)commonTask;
+
+		Todo todo = JPAHelper.getInstance().findById(Todo.class,task.getBusinessTaskObjectId());
 
 		JPAHelper.getInstance().getEntityManager().getTransaction().begin();
 

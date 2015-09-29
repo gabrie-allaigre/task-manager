@@ -5,6 +5,7 @@ import com.synaptix.taskmanager.engine.task.ICommonTask;
 import com.synaptix.taskmanager.engine.task.IStatusTask;
 import com.synaptix.taskmanager.engine.task.ISubTask;
 import com.synaptix.taskmanager.example.jpa.model.Cluster;
+import com.synaptix.taskmanager.example.jpa.model.IBusinessTaskObject;
 import com.synaptix.taskmanager.example.jpa.model.Task;
 import com.synaptix.taskmanager.model.ITaskCluster;
 import com.synaptix.taskmanager.model.ITaskObject;
@@ -34,7 +35,7 @@ public class JPATaskFactory extends AbstractTaskFactory {
 		Task task = new Task();
 		task.setType("STATUS");
 		task.setCodeTaskDefinition(codeStatusTaskDefinition);
-		task.setTaskObjectClass(taskObjectClass);
+		task.setBusinessTaskObjectClass((Class<? extends IBusinessTaskObject>) taskObjectClass);
 		task.setCurrentStatus((String)currentStatus);
 		return task;
 	}

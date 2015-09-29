@@ -21,13 +21,12 @@ public class Task implements IStatusTask, ISubTask {
 	private String codeTaskDefinition;
 	@ManyToOne
 	private Cluster cluster;
-	@ManyToOne
-	private Todo todo;
+	private Long businessTaskObjectId;
 	@OneToMany
 	private List<Task> nextTasks;
+	private Class<? extends IBusinessTaskObject> businessTaskObjectClass;
 
 	//StatusTask
-	private Class<? extends ITaskObject> taskObjectClass;
 	private String currentStatus;
 	@OneToMany
 	@JoinColumn(name = "otherBranchFirstTasks")
@@ -70,12 +69,12 @@ public class Task implements IStatusTask, ISubTask {
 		this.cluster = cluster;
 	}
 
-	public Todo getTodo() {
-		return todo;
+	public Long getBusinessTaskObjectId() {
+		return businessTaskObjectId;
 	}
 
-	public void setTodo(Todo todo) {
-		this.todo = todo;
+	public void setBusinessTaskObjectId(Long businessTaskObjectId) {
+		this.businessTaskObjectId = businessTaskObjectId;
 	}
 
 	public List<Task> getNextTasks() {
@@ -86,16 +85,20 @@ public class Task implements IStatusTask, ISubTask {
 		this.nextTasks = nextTasks;
 	}
 
-	// StatusTask
-
 	@Override
 	public Class<? extends ITaskObject> getTaskObjectClass() {
-		return taskObjectClass;
+		return businessTaskObjectClass;
 	}
 
-	public void setTaskObjectClass(Class<? extends ITaskObject> taskObjectClass) {
-		this.taskObjectClass = taskObjectClass;
+	public Class<? extends IBusinessTaskObject> getBusinessTaskObjectClass() {
+		return businessTaskObjectClass;
 	}
+
+	public void setBusinessTaskObjectClass(Class<? extends IBusinessTaskObject> businessTaskObjectClass) {
+		this.businessTaskObjectClass = businessTaskObjectClass;
+	}
+
+	// StatusTask
 
 	@Override
 	public String getCurrentStatus() {
@@ -127,8 +130,8 @@ public class Task implements IStatusTask, ISubTask {
 	@Override
 	public String toString() {
 		return new ToStringBuilder(this).append("id", id).append("version", version).append("type", type).append("status", status).append("codeTaskDefinition", codeTaskDefinition)
-				.append("taskObjectClass", taskObjectClass).append("currentStatus", currentStatus).append("cluster", cluster != null ? cluster.getId() : null)
-				.append("todo", todo != null ? todo.getId() : null).append("nextTasks", nextTasks != null ? nextTasks.size() : 0)
+				.append("businessTaskObjectClass", businessTaskObjectClass).append("currentStatus", currentStatus).append("cluster", cluster != null ? cluster.getId() : null)
+				.append("businessTaskObjectId", businessTaskObjectId).append("nextTasks", nextTasks != null ? nextTasks.size() : 0)
 				.append("otherBranchFirstTasks", otherBranchFirstTasks != null ? otherBranchFirstTasks.size() : 0).build();
 	}
 }

@@ -27,13 +27,13 @@ public class StatusGraphsBuilder<F extends Object> {
 		this.statusGraphs = new ArrayList<IStatusGraph<F>>();
 	}
 
-	public StatusGraphsBuilder<F> addNextStatusGraph(F nextStatus, String nextUpdateStatusTaskServiceCode) {
-		this.pairs.add(Pair.of(nextStatus, nextUpdateStatusTaskServiceCode));
+	public StatusGraphsBuilder<F> addNextStatusGraph(F nextStatus, String nextGeneralTaskServiceCode) {
+		this.pairs.add(Pair.of(nextStatus, nextGeneralTaskServiceCode));
 		return this;
 	}
 
-	public StatusGraphsBuilder<F> addNextStatusGraph(F nextStatus, String nextUpdateStatusTaskServiceCode, StatusGraphsBuilder<F> statusGraphsBuilder) {
-		this.pairs.add(Pair.of(nextStatus, nextUpdateStatusTaskServiceCode));
+	public StatusGraphsBuilder<F> addNextStatusGraph(F nextStatus, String nextGeneralTaskServiceCode, StatusGraphsBuilder<F> statusGraphsBuilder) {
+		this.pairs.add(Pair.of(nextStatus, nextGeneralTaskServiceCode));
 		if (statusGraphsBuilder.pairs != null && !statusGraphsBuilder.pairs.isEmpty()) {
 			for (Pair<F, String> pair : statusGraphsBuilder.pairs) {
 				this.statusGraphs.add(new MyStatusGraph<F>(nextStatus, pair.getLeft(), pair.getRight()));
@@ -66,14 +66,14 @@ public class StatusGraphsBuilder<F extends Object> {
 
 		private final F currentStatus;
 
-		private final String updateStatusTaskServiceCode;
+		private final String generalTaskServiceCode;
 
-		public MyStatusGraph(F previousStatus, F currentStatus, String updateStatusTaskServiceCode) {
+		public MyStatusGraph(F previousStatus, F currentStatus, String generalTaskServiceCode) {
 			super();
 
 			this.previousStatus = previousStatus;
 			this.currentStatus = currentStatus;
-			this.updateStatusTaskServiceCode = updateStatusTaskServiceCode;
+			this.generalTaskServiceCode = generalTaskServiceCode;
 		}
 
 		@Override
@@ -87,8 +87,8 @@ public class StatusGraphsBuilder<F extends Object> {
 		}
 
 		@Override
-		public String getUpdateStatusTaskServiceCode() {
-			return this.updateStatusTaskServiceCode;
+		public String getGeneralTaskServiceCode() {
+			return this.generalTaskServiceCode;
 		}
 
 		@Override

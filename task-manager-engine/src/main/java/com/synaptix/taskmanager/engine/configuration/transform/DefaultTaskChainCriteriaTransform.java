@@ -1,8 +1,6 @@
 package com.synaptix.taskmanager.engine.configuration.transform;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -18,13 +16,13 @@ import com.synaptix.taskmanager.antlr.NextGraphNode;
 import com.synaptix.taskmanager.antlr.ParallelGraphNode;
 import com.synaptix.taskmanager.antlr.ThrowingErrorListener;
 import com.synaptix.taskmanager.engine.configuration.ITaskManagerConfiguration;
-import com.synaptix.taskmanager.engine.task.NormalTask;
-import com.synaptix.taskmanager.engine.taskdefinition.INormalTaskDefinition;
+import com.synaptix.taskmanager.engine.task.ISubTask;
+import com.synaptix.taskmanager.engine.taskdefinition.ISubTaskDefinition;
 
 public class DefaultTaskChainCriteriaTransform extends AbstractTaskChainCriteriaTransform {
 
 	@Override
-	public List<NormalTask> transformeToTasks(ITaskManagerConfiguration taskManagerConfiguration, String taskChainCriteria) {
+	public IResult transformeToTasks(ITaskManagerConfiguration taskManagerConfiguration, String taskChainCriteria) {
 		if (taskChainCriteria != null && !taskChainCriteria.isEmpty()) {
 			try {
 				AbstractGraphNode graphNode = new EvalGraphCalcVisitor().visit(compile(taskChainCriteria));
@@ -47,37 +45,74 @@ public class DefaultTaskChainCriteriaTransform extends AbstractTaskChainCriteria
 		return parser.compile();
 	}
 
-	private List<NormalTask> _createTasks(ITaskManagerConfiguration taskManagerConfiguration, AbstractGraphNode node) {
+	private IResult _createTasks(ITaskManagerConfiguration taskManagerConfiguration, AbstractGraphNode node) {
 		if (node instanceof IdGraphNode) {
 			IdGraphNode ign = (IdGraphNode) node;
-			INormalTaskDefinition normalTaskDefinition = taskManagerConfiguration.getTaskDefinitionRegistry().getNormalTaskDefinition(ign.getId());
-			NormalTask task = taskManagerConfiguration.getTaskFactory().newNormalTask(normalTaskDefinition);
-			return Arrays.asList(task);
+			ISubTaskDefinition subTaskDefinition = taskManagerConfiguration.getTaskDefinitionRegistry().getSubTaskDefinition(ign.getId());
+			ISubTask task = taskManagerConfiguration.getTaskFactory().newSubTask(subTaskDefinition);
+
+			MyResult result = new MyResult();
+			result.newSubTasks.add(task);
+			result.nextSubTasks.add(task);
+			return result;
 		} else if (node instanceof ParallelGraphNode) {
 			ParallelGraphNode pgn = (ParallelGraphNode) node;
 
-			List<NormalTask> taskNodes = new ArrayList<NormalTask>();
+
+			MyResult result = new MyResult();
 			for (AbstractGraphNode subNode : pgn.getNodes()) {
-				taskNodes.addAll(_createTasks(taskManagerConfiguration, subNode));
+				IResult subResult = _createTasks(taskManagerConfiguration, subNode);
+				result.newSubTasks.addAll(subResult.getNewSubTasks());
+				result.nextSubTasks.addAll(subResult.getNextSubTasks());
+				result.linkNextTasksMap.putAll(subResult.getLinkNextTasksMap());
 			}
 
-			return taskNodes;
+			return result;
 		} else if (node instanceof NextGraphNode) {
 			NextGraphNode ngn = (NextGraphNode) node;
 
-			List<NormalTask> firstCr = _createTasks(taskManagerConfiguration, ngn.getFirstNode());
-			List<NormalTask> nextCr = _createTasks(taskManagerConfiguration, ngn.getNextNode());
+			IResult firstCr = _createTasks(taskManagerConfiguration, ngn.getFirstNode());
+			IResult nextCr = _createTasks(taskManagerConfiguration, ngn.getNextNode());
 
-			if (firstCr != null && nextCr != null) {
-				for (NormalTask firstTask : firstCr) {
-					for (NormalTask nextTask : nextCr) {
-						firstTask.getNextTasks().add(nextTask);
+			MyResult result = new MyResult();
+			result.newSubTasks.addAll(firstCr.getNewSubTasks());
+			result.nextSubTasks.addAll(firstCr.getNextSubTasks());
+			result.linkNextTasksMap.putAll(firstCr.getLinkNextTasksMap());
+			result.newSubTasks.addAll(nextCr.getNewSubTasks());
+			result.linkNextTasksMap.putAll(nextCr.getLinkNextTasksMap());
+
+				for (ISubTask firstTask : firstCr.getNewSubTasks()) {
+					if (!firstCr.getLinkNextTasksMap().containsKey(firstTask)) {
+						result.linkNextTasksMap.put(firstTask,nextCr.getNewSubTasks());
 					}
 				}
-			}
 
-			return firstCr;
+			return result;
 		}
 		return null;
+	}
+
+	private class MyResult implements IResult {
+
+		List<ISubTask> newSubTasks = new ArrayList<ISubTask>();
+
+		List<ISubTask> nextSubTasks = new ArrayList<ISubTask>();
+
+		Map<ISubTask, List<ISubTask>> linkNextTasksMap = new HashMap<ISubTask, List<ISubTask>>();
+
+		@Override
+		public List<ISubTask> getNewSubTasks() {
+			return newSubTasks;
+		}
+
+		@Override
+		public List<ISubTask> getNextSubTasks() {
+			return nextSubTasks;
+		}
+
+		@Override
+		public Map<ISubTask, List<ISubTask>> getLinkNextTasksMap() {
+			return linkNextTasksMap;
+		}
 	}
 }

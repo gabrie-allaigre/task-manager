@@ -1,26 +1,26 @@
 package com.synaptix.taskmanager.engine.listener;
 
-import com.synaptix.taskmanager.engine.task.AbstractTask;
+import com.synaptix.taskmanager.engine.task.ICommonTask;
 
 public abstract class AbstractTaskCycleListener implements ITaskCycleListener {
 
 	@Override
-	public void onTodo(AbstractTask task) {
+	public void onTodo(ICommonTask task) {
 	}
 
 	@Override
-	public void onCurrent(AbstractTask task) {
+	public void onCurrent(ICommonTask task) {
 	}
 
 	@Override
-	public void onNothing(AbstractTask task) {
+	public void onNothing(ICommonTask task) {
 	}
 
 	@Override
-	public void onDone(AbstractTask task) {
+	public void onDone(ICommonTask task) {
 	}
 
 	@Override
-	public void onDelete(AbstractTask task) {
+	public void onDelete(ICommonTask task) {
 	}
 }

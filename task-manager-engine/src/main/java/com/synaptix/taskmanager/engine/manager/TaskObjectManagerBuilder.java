@@ -9,7 +9,7 @@ import com.synaptix.taskmanager.engine.graph.IStatusGraph;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.tuple.Pair;
 
-import com.synaptix.taskmanager.engine.task.UpdateStatusTask;
+import com.synaptix.taskmanager.engine.task.IGeneralTask;
 import com.synaptix.taskmanager.model.ITaskObject;
 
 public class TaskObjectManagerBuilder<E extends Object, F extends ITaskObject> {
@@ -81,7 +81,7 @@ public class TaskObjectManagerBuilder<E extends Object, F extends ITaskObject> {
 		}
 
 		@Override
-		public List<IStatusGraph<E>> getNextStatusGraphsByTaskObjectType(UpdateStatusTask updateStatusTask, E currentStatus) {
+		public List<IStatusGraph<E>> getNextStatusGraphsByTaskObjectType(IGeneralTask generalTask, E currentStatus) {
 			List<IStatusGraph<E>> res = new ArrayList<IStatusGraph<E>>();
 			if (statusGraphs != null && !statusGraphs.isEmpty()) {
 				for (IStatusGraph<E> statusGraph : statusGraphs) {
@@ -94,7 +94,7 @@ public class TaskObjectManagerBuilder<E extends Object, F extends ITaskObject> {
 		}
 
 		@Override
-		public String getTaskChainCriteria(UpdateStatusTask updateStatusTask, Object currentStatus, Object nextStatus) {
+		public String getTaskChainCriteria(IGeneralTask generalTask, Object currentStatus, Object nextStatus) {
 			return taskChainCriteriaMap.get(Pair.of(currentStatus, nextStatus));
 		}
 

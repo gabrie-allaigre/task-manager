@@ -1,10 +1,10 @@
 package com.synaptix.taskmanager.engine.configuration.registry;
 
+import com.synaptix.taskmanager.engine.taskdefinition.IGeneralTaskDefinition;
+import com.synaptix.taskmanager.engine.taskdefinition.ISubTaskDefinition;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import com.synaptix.taskmanager.engine.taskdefinition.INormalTaskDefinition;
-import com.synaptix.taskmanager.engine.taskdefinition.IUpdateStatusTaskDefinition;
 
 public class TaskDefinitionRegistryBuilder {
 
@@ -16,13 +16,13 @@ public class TaskDefinitionRegistryBuilder {
 		this.taskDefinitionRegistry = new MyTaskDefinitionRegistry();
 	}
 
-	public TaskDefinitionRegistryBuilder addUpdateStatusTaskDefinition(IUpdateStatusTaskDefinition taskDefinition) {
-		taskDefinitionRegistry.updateStatusTaskDefinitionMap.put(taskDefinition.getCode(), taskDefinition);
+	public TaskDefinitionRegistryBuilder addGeneralTaskDefinition(IGeneralTaskDefinition taskDefinition) {
+		taskDefinitionRegistry.generalTaskDefinitionMap.put(taskDefinition.getCode(), taskDefinition);
 		return this;
 	}
 
-	public TaskDefinitionRegistryBuilder addNormalTaskDefinition(INormalTaskDefinition taskDefinition) {
-		taskDefinitionRegistry.normalTaskDefinitionMap.put(taskDefinition.getCode(), taskDefinition);
+	public TaskDefinitionRegistryBuilder addSubTaskDefinition(ISubTaskDefinition taskDefinition) {
+		taskDefinitionRegistry.subTaskDefinitionMap.put(taskDefinition.getCode(), taskDefinition);
 		return this;
 	}
 
@@ -36,25 +36,25 @@ public class TaskDefinitionRegistryBuilder {
 
 	private static class MyTaskDefinitionRegistry extends AbstractTaskDefinitionRegistry {
 
-		private Map<String, IUpdateStatusTaskDefinition> updateStatusTaskDefinitionMap;
+		private Map<String, IGeneralTaskDefinition> generalTaskDefinitionMap;
 
-		private Map<String, INormalTaskDefinition> normalTaskDefinitionMap;
+		private Map<String, ISubTaskDefinition> subTaskDefinitionMap;
 
 		public MyTaskDefinitionRegistry() {
 			super();
 
-			this.updateStatusTaskDefinitionMap = new HashMap<String, IUpdateStatusTaskDefinition>();
-			this.normalTaskDefinitionMap = new HashMap<String, INormalTaskDefinition>();
+			this.generalTaskDefinitionMap = new HashMap<String, IGeneralTaskDefinition>();
+			this.subTaskDefinitionMap = new HashMap<String, ISubTaskDefinition>();
 		}
 
 		@Override
-		public IUpdateStatusTaskDefinition getUpdateStatusTaskDefinition(String code) {
-			return updateStatusTaskDefinitionMap.get(code);
+		public IGeneralTaskDefinition getGeneralTaskDefinition(String code) {
+			return generalTaskDefinitionMap.get(code);
 		}
 
 		@Override
-		public INormalTaskDefinition getNormalTaskDefinition(String code) {
-			return normalTaskDefinitionMap.get(code);
+		public ISubTaskDefinition getSubTaskDefinition(String code) {
+			return subTaskDefinitionMap.get(code);
 		}
 	}
 }

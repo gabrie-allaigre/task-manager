@@ -1,7 +1,7 @@
 package com.synaptix.taskmanager.engine.test.data;
 
-import com.synaptix.taskmanager.engine.memory.SimpleNormalTask;
-import com.synaptix.taskmanager.engine.task.AbstractTask;
+import com.synaptix.taskmanager.engine.memory.SimpleSubTask;
+import com.synaptix.taskmanager.engine.task.ICommonTask;
 import com.synaptix.taskmanager.engine.taskservice.AbstractTaskService;
 import com.synaptix.taskmanager.engine.taskservice.ExecutionResultBuilder;
 
@@ -16,8 +16,8 @@ public class VerifyCodeTaskService extends AbstractTaskService {
 	}
 
 	@Override
-	public IExecutionResult execute(IEngineContext context,AbstractTask task) {
-		if (code != null && code.equals(((SimpleNormalTask) task).<BusinessObject> getTaskObject().getCode())) {
+	public IExecutionResult execute(IEngineContext context,ICommonTask task) {
+		if (code != null && code.equals(((SimpleSubTask) task).<BusinessObject> getTaskObject().getCode())) {
 			return ExecutionResultBuilder.newBuilder().noChanges().finished();
 		}
 		return ExecutionResultBuilder.newBuilder().notFinished();

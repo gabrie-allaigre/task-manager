@@ -6,6 +6,6 @@ public interface IStatusGraph<E extends Object> {
 
 	public E getCurrentStatus();
 
-	public String getUpdateStatusTaskServiceCode();
+	public String getGeneralTaskServiceCode();
 
 }

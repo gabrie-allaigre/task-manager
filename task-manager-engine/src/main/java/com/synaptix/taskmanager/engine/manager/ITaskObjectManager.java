@@ -1,7 +1,7 @@
 package com.synaptix.taskmanager.engine.manager;
 
 import com.synaptix.taskmanager.engine.graph.IStatusGraph;
-import com.synaptix.taskmanager.engine.task.UpdateStatusTask;
+import com.synaptix.taskmanager.engine.task.IGeneralTask;
 import com.synaptix.taskmanager.model.ITaskObject;
 
 import java.util.List;
@@ -28,23 +28,22 @@ public interface ITaskObjectManager<E extends Object,F extends ITaskObject> {
 	 *
 	 * Ex : A->(B,C) currentStatus is A then next is B and C
 	 *
-	 * @param updateStatusTask
+	 * @param generalTask
 	 * @param currentStatus a current status
 	 * @return a graph for next status
 	 */
-	List<IStatusGraph<E>> getNextStatusGraphsByTaskObjectType(UpdateStatusTask updateStatusTask, E currentStatus);
+	List<IStatusGraph<E>> getNextStatusGraphsByTaskObjectType(IGeneralTask generalTask, E currentStatus);
 
 	/**
 	 * Get a rule with task definition between status for sub tasks
 	 *
 	 * ex : A=>(B,C)
 	 *
-	 * @param updateStatusTask
+	 * @param generalTask
 	 * @param currentStatus current status
 	 * @param nextStatus next status
 	 * @return a rule
 	 */
-	String getTaskChainCriteria(UpdateStatusTask updateStatusTask, E currentStatus, E nextStatus);
-
+	String getTaskChainCriteria(IGeneralTask generalTask, E currentStatus, E nextStatus);
 
 }

@@ -1,7 +1,7 @@
 package com.synaptix.taskmanager.engine.taskservice;
 
 import com.synaptix.taskmanager.engine.listener.ITaskCycleListener;
-import com.synaptix.taskmanager.engine.task.AbstractTask;
+import com.synaptix.taskmanager.engine.task.ICommonTask;
 import com.synaptix.taskmanager.model.ITaskCluster;
 import com.synaptix.taskmanager.model.ITaskObject;
 
@@ -14,7 +14,7 @@ public interface ITaskService extends ITaskCycleListener {
 	 * @param task task link with service
 	 * @return result of execution, <use>ExecutionResultBuilder</use>
 	 */
-	IExecutionResult execute(IEngineContext context,AbstractTask task);
+	IExecutionResult execute(IEngineContext context,ICommonTask task);
 
 	interface IEngineContext {
 

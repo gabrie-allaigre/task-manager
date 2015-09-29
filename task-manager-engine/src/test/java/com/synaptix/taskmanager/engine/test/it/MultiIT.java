@@ -6,8 +6,8 @@ import com.synaptix.taskmanager.engine.configuration.registry.TaskDefinitionRegi
 import com.synaptix.taskmanager.engine.configuration.registry.TaskObjectManagerRegistryBuilder;
 import com.synaptix.taskmanager.engine.graph.StatusGraphsBuilder;
 import com.synaptix.taskmanager.engine.manager.TaskObjectManagerBuilder;
-import com.synaptix.taskmanager.engine.taskdefinition.NormalTaskDefinitionBuilder;
-import com.synaptix.taskmanager.engine.taskdefinition.UpdateStatusTaskDefinitionBuilder;
+import com.synaptix.taskmanager.engine.taskdefinition.SubTaskDefinitionBuilder;
+import com.synaptix.taskmanager.engine.taskdefinition.GeneralTaskDefinitionBuilder;
 import com.synaptix.taskmanager.engine.test.data.*;
 import com.synaptix.taskmanager.model.ITaskCluster;
 import org.junit.Assert;
@@ -36,12 +36,12 @@ public class MultiIT {
 										.addTaskChainCriteria("B", "D", "STOP").addTaskChainCriteria("C", "D", "STOP").build())
 								.build())
 				.taskDefinitionRegistry(
-						TaskDefinitionRegistryBuilder.newBuilder().addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-								.addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
-								.addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("CTask", new MultiUpdateStatusTaskService("C")).build())
-								.addNormalTaskDefinition(NormalTaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build())
-								.addNormalTaskDefinition(NormalTaskDefinitionBuilder.newBuilder("VERSC", new VerifyCodeTaskService("VersC")).build())
-								.addNormalTaskDefinition(NormalTaskDefinitionBuilder.newBuilder("STOP", new StopTaskService()).build()).build())
+						TaskDefinitionRegistryBuilder.newBuilder().addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+								.addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+								.addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("CTask", new MultiUpdateStatusTaskService("C")).build())
+								.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build())
+								.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("VERSC", new VerifyCodeTaskService("VersC")).build())
+								.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("STOP", new StopTaskService()).build()).build())
 						.build());
 
 		BusinessObject firstBusinessObject = new BusinessObject();
@@ -77,9 +77,9 @@ public class MultiIT {
 								"A", "B", "VERSB").build())
 						.build())
 				.taskDefinitionRegistry(
-						TaskDefinitionRegistryBuilder.newBuilder().addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-								.addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
-								.addNormalTaskDefinition(NormalTaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build())
+						TaskDefinitionRegistryBuilder.newBuilder().addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+								.addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+								.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build())
 				.build());
 
 		BusinessObject businessObject = new BusinessObject();
@@ -115,9 +115,9 @@ public class MultiIT {
 								"A", "B", "VERSB").build())
 						.build())
 				.taskDefinitionRegistry(
-						TaskDefinitionRegistryBuilder.newBuilder().addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-								.addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
-								.addNormalTaskDefinition(NormalTaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build())
+						TaskDefinitionRegistryBuilder.newBuilder().addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+								.addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+								.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build())
 				.build());
 
 		BusinessObject businessObject = new BusinessObject();
@@ -155,9 +155,9 @@ public class MultiIT {
 								"A", "B", "VERSB").build())
 						.build())
 				.taskDefinitionRegistry(
-						TaskDefinitionRegistryBuilder.newBuilder().addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-								.addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
-								.addNormalTaskDefinition(NormalTaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build())
+						TaskDefinitionRegistryBuilder.newBuilder().addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+								.addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+								.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build())
 				.build());
 
 		BusinessObject businessObject = new BusinessObject();
@@ -198,9 +198,9 @@ public class MultiIT {
 								"A", "B", "VERSB").build())
 						.build())
 				.taskDefinitionRegistry(
-						TaskDefinitionRegistryBuilder.newBuilder().addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-								.addUpdateStatusTaskDefinition(UpdateStatusTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
-								.addNormalTaskDefinition(NormalTaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build())
+						TaskDefinitionRegistryBuilder.newBuilder().addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+								.addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+								.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build())
 				.build());
 
 		BusinessObject businessObject = new BusinessObject();

@@ -1,6 +1,6 @@
 package com.synaptix.taskmanager.engine.test.data;
 
-import com.synaptix.taskmanager.engine.task.AbstractTask;
+import com.synaptix.taskmanager.engine.task.ICommonTask;
 import com.synaptix.taskmanager.engine.taskservice.AbstractTaskService;
 import com.synaptix.taskmanager.engine.taskservice.ExecutionResultBuilder;
 
@@ -11,7 +11,7 @@ public class StopTaskService extends AbstractTaskService {
 	}
 
 	@Override
-	public IExecutionResult execute(IEngineContext context,AbstractTask task) {
+	public IExecutionResult execute(IEngineContext context,ICommonTask task) {
 		return ExecutionResultBuilder.newBuilder().notFinished();
 	}
 

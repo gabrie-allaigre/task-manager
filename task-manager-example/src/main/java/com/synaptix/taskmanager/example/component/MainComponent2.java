@@ -12,8 +12,7 @@ import com.synaptix.taskmanager.engine.graph.StatusGraphsBuilder;
 import com.synaptix.taskmanager.engine.listener.LogTaskCycleListener;
 import com.synaptix.taskmanager.engine.manager.ITaskObjectManager;
 import com.synaptix.taskmanager.engine.manager.TaskObjectManagerBuilder;
-import com.synaptix.taskmanager.engine.taskdefinition.SubTaskDefinitionBuilder;
-import com.synaptix.taskmanager.engine.taskdefinition.StatusTaskDefinitionBuilder;
+import com.synaptix.taskmanager.engine.taskdefinition.TaskDefinitionBuilder;
 import com.synaptix.taskmanager.example.component.business.CustomerOrderBuilder;
 import com.synaptix.taskmanager.example.component.business.CustomerOrderStatus;
 import com.synaptix.taskmanager.example.component.business.ICustomerOrder;
@@ -47,14 +46,14 @@ public class MainComponent2 {
 				customerOrderTaskObjectManager).build();
 
 		ITaskDefinitionRegistry taskDefinitionRegistry = TaskDefinitionRegistryBuilder.newBuilder()
-				.addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("TCO", new TCOTaskService()).build())
-				.addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("VAL", new VALTaskService()).build())
-				.addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("CLO", new CLOTaskService()).build())
-				.addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("CAN", new CANTaskService()).build())
-				.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("DATE", new DateClosedTaskService()).build())
-				.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("REF", new ReferenceTaskService("Ma ref 1")).build())
-				.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("REF2", new ReferenceTaskService("Ma ref 2")).build())
-				.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("NOT-VAL", new NotConfirmedTaskService()).build()).build();
+				.addTaskDefinition(TaskDefinitionBuilder.newBuilder("TCO", new TCOTaskService()).build())
+				.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VAL", new VALTaskService()).build())
+				.addTaskDefinition(TaskDefinitionBuilder.newBuilder("CLO", new CLOTaskService()).build())
+				.addTaskDefinition(TaskDefinitionBuilder.newBuilder("CAN", new CANTaskService()).build())
+				.addTaskDefinition(TaskDefinitionBuilder.newBuilder("DATE", new DateClosedTaskService()).build())
+				.addTaskDefinition(TaskDefinitionBuilder.newBuilder("REF", new ReferenceTaskService("Ma ref 1")).build())
+				.addTaskDefinition(TaskDefinitionBuilder.newBuilder("REF2", new ReferenceTaskService("Ma ref 2")).build())
+				.addTaskDefinition(TaskDefinitionBuilder.newBuilder("NOT-VAL", new NotConfirmedTaskService()).build()).build();
 
 		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(taskObjectManagerRegistry)
 				.taskDefinitionRegistry(taskDefinitionRegistry).build());

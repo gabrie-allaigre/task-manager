@@ -4,31 +4,31 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.synaptix.taskmanager.engine.taskservice.ITaskService;
 
-public class SubTaskDefinitionBuilder {
+public class TaskDefinitionBuilder {
 
-	private TaskDefinitionImpl taskDefinition;
+	private MyTaskDefinition taskDefinition;
 
-	private SubTaskDefinitionBuilder(String code, ITaskService taskService) {
+	private TaskDefinitionBuilder(String code, ITaskService taskService) {
 		super();
 
-		this.taskDefinition = new TaskDefinitionImpl(code, taskService);
+		this.taskDefinition = new MyTaskDefinition(code, taskService);
 	}
 
-	public ISubTaskDefinition build() {
+	public ITaskDefinition build() {
 		return taskDefinition;
 	}
 
-	public static SubTaskDefinitionBuilder newBuilder(String code, ITaskService taskService) {
-		return new SubTaskDefinitionBuilder(code, taskService);
+	public static TaskDefinitionBuilder newBuilder(String code, ITaskService taskService) {
+		return new TaskDefinitionBuilder(code, taskService);
 	}
 
-	private static class TaskDefinitionImpl implements ISubTaskDefinition {
+	private static class MyTaskDefinition implements ITaskDefinition {
 
 		private final String code;
 
 		private final ITaskService taskService;
 
-		public TaskDefinitionImpl(String code, ITaskService taskService) {
+		public MyTaskDefinition(String code, ITaskService taskService) {
 			super();
 
 			this.code = code;

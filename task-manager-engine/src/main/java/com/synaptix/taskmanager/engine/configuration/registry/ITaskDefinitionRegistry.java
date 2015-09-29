@@ -1,24 +1,15 @@
 package com.synaptix.taskmanager.engine.configuration.registry;
 
-import com.synaptix.taskmanager.engine.taskdefinition.ISubTaskDefinition;
-import com.synaptix.taskmanager.engine.taskdefinition.IStatusTaskDefinition;
+import com.synaptix.taskmanager.engine.taskdefinition.ITaskDefinition;
 
 public interface ITaskDefinitionRegistry {
 
 	/**
-	 * Return TaskDefinition for update status
+	 * Return TaskDefinition
 	 * 
 	 * @param code
 	 * @return
 	 */
-	IStatusTaskDefinition getStatusTaskDefinition(String code);
-
-	/**
-	 * Return TaskDefinition with service code
-	 * 
-	 * @param code
-	 * @return
-	 */
-	ISubTaskDefinition getSubTaskDefinition(String code);
+	ITaskDefinition getTaskDefinition(String code);
 
 }

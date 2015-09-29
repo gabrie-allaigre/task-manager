@@ -11,7 +11,7 @@ import com.synaptix.taskmanager.engine.graph.IStatusGraph;
 import com.synaptix.taskmanager.engine.graph.StatusGraphsBuilder;
 import com.synaptix.taskmanager.engine.manager.ITaskObjectManager;
 import com.synaptix.taskmanager.engine.manager.TaskObjectManagerBuilder;
-import com.synaptix.taskmanager.engine.taskdefinition.StatusTaskDefinitionBuilder;
+import com.synaptix.taskmanager.engine.taskdefinition.TaskDefinitionBuilder;
 import com.synaptix.taskmanager.example.component.business.CustomerOrderBuilder;
 import com.synaptix.taskmanager.example.component.business.CustomerOrderStatus;
 import com.synaptix.taskmanager.example.component.business.ICustomerOrder;
@@ -30,7 +30,7 @@ public class MainComponent1 {
 		ITaskObjectManagerRegistry taskObjectManagerRegistry = TaskObjectManagerRegistryBuilder.newBuilder().instanceToClass(ComponentInstanceToClass.INSTANCE).addTaskObjectManager(customerOrderTaskObjectManager).build();
 
 		ITaskDefinitionRegistry taskDefinitionRegistry = TaskDefinitionRegistryBuilder.newBuilder()
-				.addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("TCO_TASK", new MultiUpdateStatusTaskService(CustomerOrderStatus.TCO)).build()).build();
+				.addTaskDefinition(TaskDefinitionBuilder.newBuilder("TCO_TASK", new MultiUpdateStatusTaskService(CustomerOrderStatus.TCO)).build()).build();
 
 		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(taskObjectManagerRegistry)
 				.taskDefinitionRegistry(taskDefinitionRegistry).build());

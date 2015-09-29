@@ -4,6 +4,8 @@ import com.synaptix.taskmanager.engine.task.ICommonTask;
 import com.synaptix.taskmanager.engine.taskservice.AbstractTaskService;
 import com.synaptix.taskmanager.engine.taskservice.ExecutionResultBuilder;
 import com.synaptix.taskmanager.example.jpa.JPAHelper;
+import com.synaptix.taskmanager.example.jpa.model.Task;
+import com.synaptix.taskmanager.example.jpa.model.Todo;
 
 public class SetSummaryTaskService extends AbstractTaskService {
 
@@ -17,12 +19,12 @@ public class SetSummaryTaskService extends AbstractTaskService {
 
 	@Override
 	public IExecutionResult execute(IEngineContext context,ICommonTask task) {
-		//Todo todo = ((JPASubTask) task).get.getTodo();
+		Todo todo = ((Task) task).getTodo();
 
 		JPAHelper.getInstance().getEntityManager().getTransaction().begin();
 
-		//todo.setSummary(summary);
-		//JPAHelper.getInstance().getEntityManager().persist(todo);
+		todo.setSummary(summary);
+		JPAHelper.getInstance().getEntityManager().persist(todo);
 
 		JPAHelper.getInstance().getEntityManager().getTransaction().commit();
 

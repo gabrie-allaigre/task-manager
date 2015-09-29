@@ -1,23 +1,17 @@
 package com.synaptix.taskmanager.engine.configuration.transform;
 
-import java.util.*;
-
+import com.synaptix.taskmanager.antlr.*;
+import com.synaptix.taskmanager.antlr.GraphCalcParser.CompileContext;
+import com.synaptix.taskmanager.engine.configuration.ITaskManagerConfiguration;
+import com.synaptix.taskmanager.engine.task.ISubTask;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 
-import com.synaptix.taskmanager.antlr.AbstractGraphNode;
-import com.synaptix.taskmanager.antlr.EvalGraphCalcVisitor;
-import com.synaptix.taskmanager.antlr.GraphCalcLexer;
-import com.synaptix.taskmanager.antlr.GraphCalcParser;
-import com.synaptix.taskmanager.antlr.GraphCalcParser.CompileContext;
-import com.synaptix.taskmanager.antlr.IdGraphNode;
-import com.synaptix.taskmanager.antlr.NextGraphNode;
-import com.synaptix.taskmanager.antlr.ParallelGraphNode;
-import com.synaptix.taskmanager.antlr.ThrowingErrorListener;
-import com.synaptix.taskmanager.engine.configuration.ITaskManagerConfiguration;
-import com.synaptix.taskmanager.engine.task.ISubTask;
-import com.synaptix.taskmanager.engine.taskdefinition.ISubTaskDefinition;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DefaultTaskChainCriteriaTransform extends AbstractTaskChainCriteriaTransform {
 
@@ -48,8 +42,7 @@ public class DefaultTaskChainCriteriaTransform extends AbstractTaskChainCriteria
 	private IResult _createTasks(ITaskManagerConfiguration taskManagerConfiguration, AbstractGraphNode node) {
 		if (node instanceof IdGraphNode) {
 			IdGraphNode ign = (IdGraphNode) node;
-			ISubTaskDefinition subTaskDefinition = taskManagerConfiguration.getTaskDefinitionRegistry().getSubTaskDefinition(ign.getId());
-			ISubTask task = taskManagerConfiguration.getTaskFactory().newSubTask(subTaskDefinition);
+			ISubTask task = taskManagerConfiguration.getTaskFactory().newSubTask(ign.getId());
 
 			MyResult result = new MyResult();
 			result.newSubTasks.add(task);

@@ -6,10 +6,9 @@ import com.synaptix.taskmanager.engine.graph.IStatusGraph;
 import com.synaptix.taskmanager.engine.listener.ITaskCycleListener;
 import com.synaptix.taskmanager.engine.manager.ITaskObjectManager;
 import com.synaptix.taskmanager.engine.task.ICommonTask;
-import com.synaptix.taskmanager.engine.task.ISubTask;
 import com.synaptix.taskmanager.engine.task.IStatusTask;
+import com.synaptix.taskmanager.engine.task.ISubTask;
 import com.synaptix.taskmanager.engine.taskdefinition.ITaskDefinition;
-import com.synaptix.taskmanager.engine.taskdefinition.IStatusTaskDefinition;
 import com.synaptix.taskmanager.engine.taskservice.ITaskService;
 import com.synaptix.taskmanager.model.ITaskCluster;
 import com.synaptix.taskmanager.model.ITaskObject;
@@ -144,20 +143,20 @@ public class TaskManagerEngine {
 					ITaskService taskService = null;
 					Object taskServiceResult = null;
 					boolean noChanges = false;
-					if (task.getTaskDefinition() != null) {
-						ITaskDefinition taskDefinition = task.getTaskDefinition();
-						taskService = taskDefinition.getTaskService();
-						if (taskService == null) {
+					if (task.getCodeTaskDefinition() != null) {
+						ITaskDefinition taskDefinition = getTaskManagerConfiguration().getTaskDefinitionRegistry().getTaskDefinition(task.getCodeTaskDefinition());
+						if (taskDefinition == null || taskDefinition.getTaskService() == null) {
 							if (LOG.isDebugEnabled()) {
-								LOG.debug("TM - TaskService does not exist");
+								LOG.debug("TM - TaskService does not exist code=" + task.getCodeTaskDefinition());
 							}
 							errorMessage = new NotFoundTaskDefinitionException();
 						} else {
 							if (LOG.isDebugEnabled()) {
-								LOG.debug("TM - Execute taskService = " + taskDefinition.getCode());
+								LOG.debug("TM - Execute taskService code=" + task.getCodeTaskDefinition());
 							}
+							taskService = getTaskService(task);
 							try {
-								MyEngineContext context = new MyEngineContext(taskCluster);
+								MyEngineContext context = new MyEngineContext(taskCluster, taskDefinition);
 
 								ITaskService.IExecutionResult executionResult = taskService.execute(context, task);
 								if (executionResult == null) {
@@ -175,13 +174,13 @@ public class TaskManagerEngine {
 									}
 								}
 							} catch (Throwable t) {
-								LOG.error("TM - Error taskService = " + taskDefinition.getCode(), t);
+								LOG.error("TM - Error taskService code=" + task.getCodeTaskDefinition(), t);
 								errorMessage = t;
 								done = false;
 							}
 
 							if (LOG.isDebugEnabled()) {
-								LOG.debug("TM - Finish " + taskDefinition.getCode() + (done ? " - Success" : " - Failure"));
+								LOG.debug("TM - Finish code=" + task.getCodeTaskDefinition() + (done ? " - Success" : " - Failure"));
 							}
 						}
 					} else {
@@ -460,7 +459,7 @@ public class TaskManagerEngine {
 		List<ICommonTask> nextTodoTasks = new ArrayList<ICommonTask>();
 		List<ICommonTask> nextCurrentTasks = new ArrayList<ICommonTask>();
 		List<ICommonTask> toDeleteTasks = new ArrayList<ICommonTask>();
-		if (toDoneTask instanceof IStatusTask) {
+		if (getTaskManagerConfiguration().getTaskFactory().isStatusTask(toDoneTask)) {
 			IStatusTask statusTask = (IStatusTask) toDoneTask;
 
 			Class<? extends ITaskObject> taskObjectClass = (Class<? extends ITaskObject>) statusTask.getTaskObjectClass();
@@ -488,10 +487,7 @@ public class TaskManagerEngine {
 					String taskChainCriteria = taskObjectManager.getTaskChainCriteria(statusTask, statusGraph.getPreviousStatus(), statusGraph.getCurrentStatus());
 					ITaskChainCriteriaTransform.IResult result = getTaskManagerConfiguration().getTaskChainCriteriaBuilder().transformeToTasks(getTaskManagerConfiguration(), taskChainCriteria);
 
-					IStatusTaskDefinition statusTaskDefinition = getTaskManagerConfiguration().getTaskDefinitionRegistry()
-							.getStatusTaskDefinition(statusGraph.getStatusTaskServiceCode());
-					IStatusTask nextstatusTask = getTaskManagerConfiguration().getTaskFactory()
-							.newStatusTask(statusTaskDefinition, taskObjectClass, statusGraph.getCurrentStatus());
+					IStatusTask nextstatusTask = getTaskManagerConfiguration().getTaskFactory().newStatusTask(statusGraph.getStatusTaskServiceCode(), taskObjectClass, statusGraph.getCurrentStatus());
 
 					newTasks.add(nextstatusTask);
 
@@ -533,8 +529,8 @@ public class TaskManagerEngine {
 			}
 
 			getTaskManagerConfiguration().getTaskManagerWriter()
-					.saveNewNextTasksInTaskCluster(taskCluster, statusTask, taskServiceResult, newTasks, linkNextTasksMap, otherBranchFirstTasksMap,nextCurrentTasks, toDeleteTasks);
-		} else if (toDoneTask instanceof ISubTask) {
+					.saveNewNextTasksInTaskCluster(taskCluster, statusTask, taskServiceResult, newTasks, linkNextTasksMap, otherBranchFirstTasksMap, nextCurrentTasks, toDeleteTasks);
+		} else if (getTaskManagerConfiguration().getTaskFactory().isSubTask(toDoneTask)) {
 			List<? extends ICommonTask> nextTasks = getTaskManagerConfiguration().getTaskManagerReader().findNextTasksBySubTask((ISubTask) toDoneTask);
 
 			if (nextTasks != null && !nextTasks.isEmpty()) {
@@ -646,6 +642,16 @@ public class TaskManagerEngine {
 		return taskCluster;
 	}
 
+	private ITaskService getTaskService(ICommonTask task) {
+		if (task.getCodeTaskDefinition() != null) {
+			ITaskDefinition taskDefinition = getTaskManagerConfiguration().getTaskDefinitionRegistry().getTaskDefinition(task.getCodeTaskDefinition());
+			if (taskDefinition != null) {
+				return taskDefinition.getTaskService();
+			}
+		}
+		return null;
+	}
+
 	// Listener
 
 	private void onTasks(List<? extends ICommonTask> tasks, ExecuteTaskListener executeTaskListener) {
@@ -655,8 +661,9 @@ public class TaskManagerEngine {
 				for (ITaskCycleListener l : ls) {
 					executeTaskListener.execute(l, task);
 				}
-				if (task.getTaskDefinition() != null && task.getTaskDefinition().getTaskService() != null) {
-					executeTaskListener.execute(task.getTaskDefinition().getTaskService(), task);
+				ITaskService taskService = getTaskService(task);
+				if (taskService != null) {
+					executeTaskListener.execute(taskService, task);
 				}
 			}
 		}
@@ -737,12 +744,15 @@ public class TaskManagerEngine {
 
 		private final ITaskCluster currentTaskCluster;
 
+		private final ITaskDefinition taskDefinition;
+
 		private boolean lock;
 
-		public MyEngineContext(ITaskCluster currentTaskCluster) {
+		public MyEngineContext(ITaskCluster currentTaskCluster, ITaskDefinition taskDefinition) {
 			super();
 
 			this.currentTaskCluster = currentTaskCluster;
+			this.taskDefinition = taskDefinition;
 
 			this.lock = false;
 		}
@@ -756,6 +766,11 @@ public class TaskManagerEngine {
 		@Override
 		public ITaskCluster getCurrentTaskCluster() {
 			return currentTaskCluster;
+		}
+
+		@Override
+		public ITaskDefinition getTaskDefinition() {
+			return taskDefinition;
 		}
 
 		@Override

@@ -1,24 +1,23 @@
 package com.synaptix.taskmanager.engine.memory;
 
 import com.synaptix.taskmanager.engine.task.ICommonTask;
-import com.synaptix.taskmanager.engine.taskdefinition.ITaskDefinition;
 import com.synaptix.taskmanager.model.ITaskObject;
 
 public abstract class AbstractSimpleCommonTask implements ICommonTask {
 
-	private final ITaskDefinition taskDefinition;
+	private final String codeTaskDefinition;
 
 	private ITaskObject taskObject;
 
-	public AbstractSimpleCommonTask(ITaskDefinition taskDefinition) {
+	public AbstractSimpleCommonTask(String codeTaskDefinition) {
 		super();
 
-		this.taskDefinition = taskDefinition;
+		this.codeTaskDefinition = codeTaskDefinition;
 	}
 
 	@Override
-	public final ITaskDefinition getTaskDefinition() {
-		return taskDefinition;
+	public final String getCodeTaskDefinition() {
+		return codeTaskDefinition;
 	}
 
 	public void setTaskObject(ITaskObject taskObject) {

@@ -65,18 +65,11 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 				}
 				todos.add(todo);
 
-				JPAStatusTask statusTask = (JPAStatusTask) taskObjectNode.getRight();
-
-				Task task = new Task();
-				task.setType("STATUS");
-				task.setStatus("CURRENT");
-				task.setServiceCode(statusTask.getTaskDefinition() != null ? statusTask.getTaskDefinition().getCode() : null);
-				task.setCurrentStatus(statusTask.<String>getCurrentStatus());
-				task.setCluster(cluster);
-				task.setTodo(todo);
-				JPAHelper.getInstance().getEntityManager().persist(task);
-
-				statusTask.setTask(task);
+				Task statusTask = (Task) taskObjectNode.getRight();
+				statusTask.setStatus("CURRENT");
+				statusTask.setCluster(cluster);
+				statusTask.setTodo(todo);
+				JPAHelper.getInstance().getEntityManager().persist(statusTask);
 			}
 		}
 
@@ -113,6 +106,24 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 	@Override
 	public void saveNextTasksInTaskCluster(ITaskCluster taskCluster, ICommonTask toDoneTask, Object taskServiceResult, List<ICommonTask> nextCurrentTasks) {
 		LOG.info("JPARW - saveNextTasksInTaskCluster");
+
+		JPAHelper.getInstance().getEntityManager().getTransaction().begin();
+
+		Cluster cluster = (Cluster) taskCluster;
+
+		Task tdt = (Task)toDoneTask;
+		tdt.setStatus("DONE");
+		JPAHelper.getInstance().getEntityManager().persist(tdt);
+
+		if (nextCurrentTasks != null && !nextCurrentTasks.isEmpty()) {
+			for(ICommonTask nextCurrentTask : nextCurrentTasks) {
+				Task nct = (Task)nextCurrentTask;
+				nct.setStatus("CURRENT");
+				JPAHelper.getInstance().getEntityManager().persist(nct);
+			}
+		}
+
+		JPAHelper.getInstance().getEntityManager().getTransaction().commit();
 	}
 
 	@Override
@@ -124,6 +135,84 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 	public void saveNewNextTasksInTaskCluster(ITaskCluster taskCluster, IStatusTask toDoneTask, Object taskServiceResult, List<ICommonTask> newTasks, Map<ISubTask, List<ICommonTask>> linkNextTasksMap,
 			Map<IStatusTask, List<ICommonTask>> otherBranchFirstTasksMap, List<ICommonTask> nextCurrentTasks, List<ICommonTask> deleteTasks) {
 		LOG.info("JPARW - saveNewNextTasksInTaskCluster");
+
+		JPAHelper.getInstance().getEntityManager().getTransaction().begin();
+
+		Cluster cluster = (Cluster) taskCluster;
+		Task tdt = (Task)toDoneTask;
+		tdt.setStatus("DONE");
+		JPAHelper.getInstance().getEntityManager().persist(tdt);
+
+		if (newTasks != null && !newTasks.isEmpty()) {
+			for(ICommonTask newTask : newTasks) {
+				Task nct = (Task)newTask;
+				nct.setStatus("TODO");
+				nct.setCluster(cluster);
+				nct.setTodo(tdt.getTodo());
+
+				JPAHelper.getInstance().getEntityManager().persist(nct);
+			}
+		}
+
+		if (linkNextTasksMap != null && !linkNextTasksMap.isEmpty()) {
+			for(Map.Entry<ISubTask, List<ICommonTask>> entry : linkNextTasksMap.entrySet()) {
+				Task nct = (Task)entry.getKey();
+
+				List<Task> childs = new ArrayList<Task>();
+				List<ICommonTask> ts = entry.getValue();
+				if (ts != null && !ts.isEmpty()) {
+					for(ICommonTask t : ts) {
+						childs.add((Task)t);
+					}
+				}
+				nct.setNextTasks(childs);
+
+				JPAHelper.getInstance().getEntityManager().persist(nct);
+			}
+		}
+
+		if (otherBranchFirstTasksMap != null && !otherBranchFirstTasksMap.isEmpty()) {
+			for(Map.Entry<IStatusTask, List<ICommonTask>> entry : otherBranchFirstTasksMap.entrySet()) {
+				Task nct = (Task)entry.getKey();
+
+				List<Task> childs = new ArrayList<Task>();
+				List<ICommonTask> ts = entry.getValue();
+				if (ts != null && !ts.isEmpty()) {
+					for(ICommonTask t : ts) {
+						childs.add((Task)t);
+					}
+				}
+				nct.setOtherBranchFirstTasks(childs);
+
+				JPAHelper.getInstance().getEntityManager().persist(nct);
+			}
+		}
+
+		if (nextCurrentTasks != null && !nextCurrentTasks.isEmpty()) {
+			List<Task> childs = new ArrayList<Task>();
+			for (ICommonTask nextCurrentTask : nextCurrentTasks) {
+				Task nct = (Task) nextCurrentTask;
+				nct.setStatus("CURRENT");
+
+				JPAHelper.getInstance().getEntityManager().persist(nct);
+
+				childs.add(nct);
+			}
+
+			tdt.setNextTasks(childs);
+			JPAHelper.getInstance().getEntityManager().persist(tdt);
+		}
+
+		if (deleteTasks != null && !deleteTasks.isEmpty()) {
+			for (ICommonTask deleteTask : deleteTasks) {
+				Task nct = (Task) deleteTask;
+				nct.setStatus("DELETE");
+
+				JPAHelper.getInstance().getEntityManager().persist(nct);
+			}
+		}
+
+		JPAHelper.getInstance().getEntityManager().getTransaction().commit();
 	}
 
 	// READER
@@ -148,25 +237,17 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 		Cluster cluster = (Cluster) taskCluster;
 
 		Query q = JPAHelper.getInstance().getEntityManager().createQuery("select t from Task t where t.status = 'CURRENT' and t.cluster.id = " + cluster.getId());
-		List<Task> tasks = q.getResultList();
-		if (tasks != null && !tasks.isEmpty()) {
-			for (Task task : tasks) {
-
-			}
-		}
-		return null;
+		return q.getResultList();
 	}
 
 	@Override
 	public List<? extends ICommonTask> findNextTasksBySubTask(ISubTask subTask) {
 		LOG.info("JPARW - findNextTasksBySubTask");
-
-		return null;
+		return ((Task)subTask).getNextTasks();
 	}
 
 	@Override
 	public List<? extends ICommonTask> findOtherBranchFirstTasksByStatusTask(IStatusTask statusTask) {
-		return null;
+		return ((Task)statusTask).getOtherBranchFirstTasks();
 	}
-
 }

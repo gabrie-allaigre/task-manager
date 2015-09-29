@@ -2,13 +2,12 @@ package com.synaptix.taskmanager.engine.memory;
 
 import com.synaptix.taskmanager.engine.task.ICommonTask;
 import com.synaptix.taskmanager.engine.task.IStatusTask;
-import com.synaptix.taskmanager.engine.taskdefinition.IStatusTaskDefinition;
 import com.synaptix.taskmanager.model.ITaskObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SimpleStatusTask extends AbstractSimpleCommonTask implements IStatusTask  {
+public class SimpleStatusTask extends AbstractSimpleCommonTask implements IStatusTask {
 
 	private final List<ICommonTask> otherBranchFirstTasks;
 
@@ -16,8 +15,8 @@ public class SimpleStatusTask extends AbstractSimpleCommonTask implements IStatu
 
 	private final Object currentStatus;
 
-	public SimpleStatusTask(IStatusTaskDefinition statusTaskDefinition, Class<? extends ITaskObject> taskObjectClass, Object currentStatus) {
-		super(statusTaskDefinition);
+	public SimpleStatusTask(String codeTaskDefinition, Class<? extends ITaskObject> taskObjectClass, Object currentStatus) {
+		super(codeTaskDefinition);
 
 		this.taskObjectClass = taskObjectClass;
 		this.currentStatus = currentStatus;
@@ -27,12 +26,12 @@ public class SimpleStatusTask extends AbstractSimpleCommonTask implements IStatu
 
 	@Override
 	public <F extends ITaskObject> Class<F> getTaskObjectClass() {
-		return (Class<F>)taskObjectClass;
+		return (Class<F>) taskObjectClass;
 	}
 
 	@Override
 	public <E extends Object> E getCurrentStatus() {
-		return (E)currentStatus;
+		return (E) currentStatus;
 	}
 
 	public final List<ICommonTask> getOtherBranchFirstTasks() {
@@ -41,6 +40,6 @@ public class SimpleStatusTask extends AbstractSimpleCommonTask implements IStatu
 
 	@Override
 	public String toString() {
-		return "SimpleStatusTask -> " + getCurrentStatus();
+		return "SimpleStatusTask -> " + getCodeTaskDefinition() + " " + getCurrentStatus();
 	}
 }

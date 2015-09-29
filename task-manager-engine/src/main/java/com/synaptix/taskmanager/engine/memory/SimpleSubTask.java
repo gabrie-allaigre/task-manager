@@ -2,7 +2,6 @@ package com.synaptix.taskmanager.engine.memory;
 
 import com.synaptix.taskmanager.engine.task.ICommonTask;
 import com.synaptix.taskmanager.engine.task.ISubTask;
-import com.synaptix.taskmanager.engine.taskdefinition.ISubTaskDefinition;
 import com.synaptix.taskmanager.model.ITaskObject;
 
 import java.util.ArrayList;
@@ -14,8 +13,8 @@ public class SimpleSubTask extends AbstractSimpleCommonTask  implements ISubTask
 
 	private ITaskObject taskObject;
 
-	public SimpleSubTask(ISubTaskDefinition subTaskDefinition) {
-		super(subTaskDefinition);
+	public SimpleSubTask(String codeTaskDefinition) {
+		super(codeTaskDefinition);
 
 		this.nextTasks = new ArrayList<ICommonTask>();
 	}
@@ -37,6 +36,6 @@ public class SimpleSubTask extends AbstractSimpleCommonTask  implements ISubTask
 
 	@Override
 	public String toString() {
-		return "SimpleSubTask -> " + getTaskDefinition().getCode();
+		return "SimpleSubTask -> " + getCodeTaskDefinition();
 	}
 }

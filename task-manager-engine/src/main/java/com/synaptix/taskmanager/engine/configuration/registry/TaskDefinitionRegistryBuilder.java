@@ -1,7 +1,6 @@
 package com.synaptix.taskmanager.engine.configuration.registry;
 
-import com.synaptix.taskmanager.engine.taskdefinition.IStatusTaskDefinition;
-import com.synaptix.taskmanager.engine.taskdefinition.ISubTaskDefinition;
+import com.synaptix.taskmanager.engine.taskdefinition.ITaskDefinition;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,13 +15,8 @@ public class TaskDefinitionRegistryBuilder {
 		this.taskDefinitionRegistry = new MyTaskDefinitionRegistry();
 	}
 
-	public TaskDefinitionRegistryBuilder addStatusTaskDefinition(IStatusTaskDefinition taskDefinition) {
-		taskDefinitionRegistry.statusTaskDefinitionMap.put(taskDefinition.getCode(), taskDefinition);
-		return this;
-	}
-
-	public TaskDefinitionRegistryBuilder addSubTaskDefinition(ISubTaskDefinition taskDefinition) {
-		taskDefinitionRegistry.subTaskDefinitionMap.put(taskDefinition.getCode(), taskDefinition);
+	public TaskDefinitionRegistryBuilder addTaskDefinition(ITaskDefinition taskDefinition) {
+		taskDefinitionRegistry.taskDefinitionMap.put(taskDefinition.getCode(), taskDefinition);
 		return this;
 	}
 
@@ -36,25 +30,18 @@ public class TaskDefinitionRegistryBuilder {
 
 	private static class MyTaskDefinitionRegistry extends AbstractTaskDefinitionRegistry {
 
-		private Map<String, IStatusTaskDefinition> statusTaskDefinitionMap;
-
-		private Map<String, ISubTaskDefinition> subTaskDefinitionMap;
+		private Map<String, ITaskDefinition> taskDefinitionMap;
 
 		public MyTaskDefinitionRegistry() {
 			super();
 
-			this.statusTaskDefinitionMap = new HashMap<String, IStatusTaskDefinition>();
-			this.subTaskDefinitionMap = new HashMap<String, ISubTaskDefinition>();
+			this.taskDefinitionMap = new HashMap<String, ITaskDefinition>();
 		}
 
 		@Override
-		public IStatusTaskDefinition getStatusTaskDefinition(String code) {
-			return statusTaskDefinitionMap.get(code);
+		public ITaskDefinition getTaskDefinition(String code) {
+			return taskDefinitionMap.get(code);
 		}
 
-		@Override
-		public ISubTaskDefinition getSubTaskDefinition(String code) {
-			return subTaskDefinitionMap.get(code);
-		}
 	}
 }

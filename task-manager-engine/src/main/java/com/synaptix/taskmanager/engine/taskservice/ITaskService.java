@@ -2,6 +2,7 @@ package com.synaptix.taskmanager.engine.taskservice;
 
 import com.synaptix.taskmanager.engine.listener.ITaskCycleListener;
 import com.synaptix.taskmanager.engine.task.ICommonTask;
+import com.synaptix.taskmanager.engine.taskdefinition.ITaskDefinition;
 import com.synaptix.taskmanager.model.ITaskCluster;
 import com.synaptix.taskmanager.model.ITaskObject;
 
@@ -19,6 +20,8 @@ public interface ITaskService extends ITaskCycleListener {
 	interface IEngineContext {
 
 		ITaskCluster getCurrentTaskCluster();
+
+		ITaskDefinition getTaskDefinition();
 
 		void startEngine(TaskClusterCallback taskClusterCallback,ITaskObject... taskObjects);
 

@@ -18,4 +18,6 @@ target/
 # SVN
 .svn/
 
-*.log
+# Gradle
+build/
+.gradle/

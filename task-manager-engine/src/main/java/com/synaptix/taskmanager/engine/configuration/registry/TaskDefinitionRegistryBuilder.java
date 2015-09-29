@@ -1,6 +1,6 @@
 package com.synaptix.taskmanager.engine.configuration.registry;
 
-import com.synaptix.taskmanager.engine.taskdefinition.IGeneralTaskDefinition;
+import com.synaptix.taskmanager.engine.taskdefinition.IStatusTaskDefinition;
 import com.synaptix.taskmanager.engine.taskdefinition.ISubTaskDefinition;
 
 import java.util.HashMap;
@@ -16,8 +16,8 @@ public class TaskDefinitionRegistryBuilder {
 		this.taskDefinitionRegistry = new MyTaskDefinitionRegistry();
 	}
 
-	public TaskDefinitionRegistryBuilder addGeneralTaskDefinition(IGeneralTaskDefinition taskDefinition) {
-		taskDefinitionRegistry.generalTaskDefinitionMap.put(taskDefinition.getCode(), taskDefinition);
+	public TaskDefinitionRegistryBuilder addStatusTaskDefinition(IStatusTaskDefinition taskDefinition) {
+		taskDefinitionRegistry.statusTaskDefinitionMap.put(taskDefinition.getCode(), taskDefinition);
 		return this;
 	}
 
@@ -36,20 +36,20 @@ public class TaskDefinitionRegistryBuilder {
 
 	private static class MyTaskDefinitionRegistry extends AbstractTaskDefinitionRegistry {
 
-		private Map<String, IGeneralTaskDefinition> generalTaskDefinitionMap;
+		private Map<String, IStatusTaskDefinition> statusTaskDefinitionMap;
 
 		private Map<String, ISubTaskDefinition> subTaskDefinitionMap;
 
 		public MyTaskDefinitionRegistry() {
 			super();
 
-			this.generalTaskDefinitionMap = new HashMap<String, IGeneralTaskDefinition>();
+			this.statusTaskDefinitionMap = new HashMap<String, IStatusTaskDefinition>();
 			this.subTaskDefinitionMap = new HashMap<String, ISubTaskDefinition>();
 		}
 
 		@Override
-		public IGeneralTaskDefinition getGeneralTaskDefinition(String code) {
-			return generalTaskDefinitionMap.get(code);
+		public IStatusTaskDefinition getStatusTaskDefinition(String code) {
+			return statusTaskDefinitionMap.get(code);
 		}
 
 		@Override

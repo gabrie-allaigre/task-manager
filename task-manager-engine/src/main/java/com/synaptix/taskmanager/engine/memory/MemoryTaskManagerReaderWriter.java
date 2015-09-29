@@ -4,7 +4,7 @@ import com.synaptix.taskmanager.engine.configuration.persistance.ITaskManagerRea
 import com.synaptix.taskmanager.engine.configuration.persistance.ITaskManagerWriter;
 import com.synaptix.taskmanager.engine.task.ICommonTask;
 import com.synaptix.taskmanager.engine.task.ISubTask;
-import com.synaptix.taskmanager.engine.task.IGeneralTask;
+import com.synaptix.taskmanager.engine.task.IStatusTask;
 import com.synaptix.taskmanager.model.ITaskCluster;
 import com.synaptix.taskmanager.model.ITaskObject;
 import org.apache.commons.lang3.tuple.Pair;
@@ -50,18 +50,18 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 	}
 
 	@Override
-	public ITaskCluster saveNewGraphFromTaskCluster(ITaskCluster taskCluster, List<Pair<ITaskObject, IGeneralTask>> taskObjectTasks) {
+	public ITaskCluster saveNewGraphFromTaskCluster(ITaskCluster taskCluster, List<Pair<ITaskObject, IStatusTask>> taskObjectTasks) {
 		LOG.info("MRW - saveNewTaskObjectInTaskCluster");
 
 		if (taskObjectTasks != null && !taskObjectTasks.isEmpty()) {
 			List<ITaskObject> tos = taskClusterMap.get(taskCluster);
 			List<ICommonTask> ats = currentTasksMap.get(taskCluster);
 
-			for (Pair<ITaskObject, IGeneralTask> taskObjectNode : taskObjectTasks) {
+			for (Pair<ITaskObject, IStatusTask> taskObjectNode : taskObjectTasks) {
 				ITaskObject taskObject = taskObjectNode.getLeft();
 				tos.add(taskObject);
 
-				IGeneralTask task = taskObjectNode.getRight();
+				IStatusTask task = taskObjectNode.getRight();
 
 				((AbstractSimpleCommonTask) task).setTaskObject(taskObject);
 
@@ -146,8 +146,8 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 	}
 
 	@Override
-	public void saveNewNextTasksInTaskCluster(ITaskCluster taskCluster, IGeneralTask toDoneTask, Object taskServiceResult, List<ICommonTask> newTasks,
-			Map<ISubTask, List<ICommonTask>> linkNextTasksMap, Map<IGeneralTask, List<ICommonTask>> otherBranchFirstTasksMap, List<ICommonTask> nextCurrentTasks,
+	public void saveNewNextTasksInTaskCluster(ITaskCluster taskCluster, IStatusTask toDoneTask, Object taskServiceResult, List<ICommonTask> newTasks,
+			Map<ISubTask, List<ICommonTask>> linkNextTasksMap, Map<IStatusTask, List<ICommonTask>> otherBranchFirstTasksMap, List<ICommonTask> nextCurrentTasks,
 			List<ICommonTask> deleteTasks) {
 		LOG.info("MRW - saveNewNextTasksInTaskCluster");
 
@@ -157,7 +157,7 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 			currentTasksMap.get(taskCluster).removeAll(deleteTasks);
 		}
 
-		ITaskObject taskObject = ((SimpleGeneralTask) toDoneTask).getTaskObject();
+		ITaskObject taskObject = ((SimpleStatusTask) toDoneTask).getTaskObject();
 		if (newTasks != null && !newTasks.isEmpty()) {
 			for (ICommonTask task : newTasks) {
 				if (task instanceof AbstractSimpleCommonTask) {
@@ -169,11 +169,11 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 					if (nextTasks != null && !nextTasks.isEmpty()) {
 						simpleSubTask.getNextTasks().addAll(nextTasks);
 					}
-				} if (task instanceof SimpleGeneralTask) {
-					SimpleGeneralTask simpleGeneralTask = (SimpleGeneralTask) task;
-					List<ICommonTask> otherPreviousNextTasks = otherBranchFirstTasksMap.get(simpleGeneralTask);
+				} if (task instanceof SimpleStatusTask) {
+					SimpleStatusTask simpleStatusTask = (SimpleStatusTask) task;
+					List<ICommonTask> otherPreviousNextTasks = otherBranchFirstTasksMap.get(simpleStatusTask);
 					if (otherPreviousNextTasks != null && !otherPreviousNextTasks.isEmpty()) {
-						simpleGeneralTask.getOtherBranchFirstTasks().addAll(otherPreviousNextTasks);
+						simpleStatusTask.getOtherBranchFirstTasks().addAll(otherPreviousNextTasks);
 					}
 				}
 			}
@@ -224,7 +224,7 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 	}
 
 	@Override
-	public List<? extends ICommonTask> findOtherBranchFirstTasksByStatusTask(IGeneralTask statusTask) {
-		return ((SimpleGeneralTask) statusTask).getOtherBranchFirstTasks();
+	public List<? extends ICommonTask> findOtherBranchFirstTasksByStatusTask(IStatusTask statusTask) {
+		return ((SimpleStatusTask) statusTask).getOtherBranchFirstTasks();
 	}
 }

@@ -7,7 +7,7 @@ import com.synaptix.taskmanager.engine.configuration.registry.TaskObjectManagerR
 import com.synaptix.taskmanager.engine.graph.StatusGraphsBuilder;
 import com.synaptix.taskmanager.engine.manager.TaskObjectManagerBuilder;
 import com.synaptix.taskmanager.engine.taskdefinition.SubTaskDefinitionBuilder;
-import com.synaptix.taskmanager.engine.taskdefinition.GeneralTaskDefinitionBuilder;
+import com.synaptix.taskmanager.engine.taskdefinition.StatusTaskDefinitionBuilder;
 import com.synaptix.taskmanager.engine.test.data.*;
 import com.synaptix.taskmanager.model.ITaskCluster;
 import org.junit.Assert;
@@ -36,9 +36,9 @@ public class MultiIT {
 										.addTaskChainCriteria("B", "D", "STOP").addTaskChainCriteria("C", "D", "STOP").build())
 								.build())
 				.taskDefinitionRegistry(
-						TaskDefinitionRegistryBuilder.newBuilder().addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-								.addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
-								.addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("CTask", new MultiUpdateStatusTaskService("C")).build())
+						TaskDefinitionRegistryBuilder.newBuilder().addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+								.addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+								.addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("CTask", new MultiUpdateStatusTaskService("C")).build())
 								.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build())
 								.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("VERSC", new VerifyCodeTaskService("VersC")).build())
 								.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("STOP", new StopTaskService()).build()).build())
@@ -77,8 +77,8 @@ public class MultiIT {
 								"A", "B", "VERSB").build())
 						.build())
 				.taskDefinitionRegistry(
-						TaskDefinitionRegistryBuilder.newBuilder().addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-								.addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+						TaskDefinitionRegistryBuilder.newBuilder().addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+								.addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
 								.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build())
 				.build());
 
@@ -115,8 +115,8 @@ public class MultiIT {
 								"A", "B", "VERSB").build())
 						.build())
 				.taskDefinitionRegistry(
-						TaskDefinitionRegistryBuilder.newBuilder().addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-								.addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+						TaskDefinitionRegistryBuilder.newBuilder().addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+								.addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
 								.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build())
 				.build());
 
@@ -155,8 +155,8 @@ public class MultiIT {
 								"A", "B", "VERSB").build())
 						.build())
 				.taskDefinitionRegistry(
-						TaskDefinitionRegistryBuilder.newBuilder().addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-								.addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+						TaskDefinitionRegistryBuilder.newBuilder().addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+								.addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
 								.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build())
 				.build());
 
@@ -198,8 +198,8 @@ public class MultiIT {
 								"A", "B", "VERSB").build())
 						.build())
 				.taskDefinitionRegistry(
-						TaskDefinitionRegistryBuilder.newBuilder().addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-								.addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+						TaskDefinitionRegistryBuilder.newBuilder().addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+								.addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
 								.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build())
 				.build());
 

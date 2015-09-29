@@ -1,7 +1,7 @@
 package com.synaptix.taskmanager.engine.configuration.registry;
 
 import com.synaptix.taskmanager.engine.taskdefinition.ISubTaskDefinition;
-import com.synaptix.taskmanager.engine.taskdefinition.IGeneralTaskDefinition;
+import com.synaptix.taskmanager.engine.taskdefinition.IStatusTaskDefinition;
 
 public interface ITaskDefinitionRegistry {
 
@@ -11,7 +11,7 @@ public interface ITaskDefinitionRegistry {
 	 * @param code
 	 * @return
 	 */
-	IGeneralTaskDefinition getGeneralTaskDefinition(String code);
+	IStatusTaskDefinition getStatusTaskDefinition(String code);
 
 	/**
 	 * Return TaskDefinition with service code

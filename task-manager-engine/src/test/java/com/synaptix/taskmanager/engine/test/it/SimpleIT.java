@@ -12,7 +12,7 @@ import com.synaptix.taskmanager.engine.manager.TaskObjectManagerBuilder;
 import com.synaptix.taskmanager.engine.memory.MemoryTaskManagerReaderWriter;
 import com.synaptix.taskmanager.engine.memory.SimpleTaskCluster;
 import com.synaptix.taskmanager.engine.taskdefinition.SubTaskDefinitionBuilder;
-import com.synaptix.taskmanager.engine.taskdefinition.GeneralTaskDefinitionBuilder;
+import com.synaptix.taskmanager.engine.taskdefinition.StatusTaskDefinitionBuilder;
 import com.synaptix.taskmanager.engine.test.data.BugTaskService;
 import com.synaptix.taskmanager.engine.test.data.BusinessObject;
 import com.synaptix.taskmanager.engine.test.data.ChangeCodeTaskService;
@@ -34,7 +34,7 @@ public class SimpleIT {
 		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder()
 				.addTaskObjectManager(TaskObjectManagerBuilder.<String,BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask").build()).build())
 				.build()).taskDefinitionRegistry(
-				TaskDefinitionRegistryBuilder.newBuilder().addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build()).build())
+				TaskDefinitionRegistryBuilder.newBuilder().addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build()).build())
 				.build());
 
 		BusinessObject businessObject = new BusinessObject();
@@ -55,8 +55,8 @@ public class SimpleIT {
 				TaskObjectManagerBuilder.<String,BusinessObject>newBuilder(BusinessObject.class)
 						.statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
 						.build()).build()).taskDefinitionRegistry(
-				TaskDefinitionRegistryBuilder.newBuilder().addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-						.addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build()).build()).build());
+				TaskDefinitionRegistryBuilder.newBuilder().addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+						.addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build()).build()).build());
 
 		BusinessObject businessObject = new BusinessObject();
 
@@ -77,9 +77,9 @@ public class SimpleIT {
 				TaskObjectManagerBuilder.<String,BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder()
 						.addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask").addNextStatusGraph("C", "CTask")).build())
 						.addTaskChainCriteria("A", "B", "STOP").build()).build()).taskDefinitionRegistry(
-				TaskDefinitionRegistryBuilder.newBuilder().addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-						.addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
-						.addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("CTask", new MultiUpdateStatusTaskService("C")).build())
+				TaskDefinitionRegistryBuilder.newBuilder().addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+						.addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+						.addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("CTask", new MultiUpdateStatusTaskService("C")).build())
 						.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("STOP", new StopTaskService()).build()).build()).build());
 
 		BusinessObject businessObject = new BusinessObject();
@@ -101,9 +101,9 @@ public class SimpleIT {
 				TaskObjectManagerBuilder.<String,BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder()
 						.addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask").addNextStatusGraph("C", "CTask")).build())
 						.addTaskChainCriteria("A", "C", "STOP").build()).build()).taskDefinitionRegistry(
-				TaskDefinitionRegistryBuilder.newBuilder().addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-						.addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
-						.addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("CTask", new MultiUpdateStatusTaskService("C")).build())
+				TaskDefinitionRegistryBuilder.newBuilder().addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+						.addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+						.addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("CTask", new MultiUpdateStatusTaskService("C")).build())
 						.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("STOP", new StopTaskService()).build()).build()).build());
 
 		BusinessObject businessObject = new BusinessObject();
@@ -123,8 +123,8 @@ public class SimpleIT {
 				TaskObjectManagerBuilder.<String,BusinessObject>newBuilder(BusinessObject.class)
 						.statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
 						.addTaskChainCriteria("A", "B", "VERSB").build()).build()).taskDefinitionRegistry(
-				TaskDefinitionRegistryBuilder.newBuilder().addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-						.addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+				TaskDefinitionRegistryBuilder.newBuilder().addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+						.addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
 						.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build()).build());
 
 		BusinessObject businessObject = new BusinessObject();
@@ -153,8 +153,8 @@ public class SimpleIT {
 				TaskObjectManagerBuilder.<String,BusinessObject>newBuilder(BusinessObject.class)
 						.statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
 						.addTaskChainCriteria("A", "B", "VERSB").build()).build()).taskDefinitionRegistry(
-				TaskDefinitionRegistryBuilder.newBuilder().addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-						.addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+				TaskDefinitionRegistryBuilder.newBuilder().addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+						.addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
 						.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build()).build());
 
 		BusinessObject businessObject = new BusinessObject();
@@ -185,9 +185,9 @@ public class SimpleIT {
 				TaskObjectManagerBuilder.<String,BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder()
 						.addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask").addNextStatusGraph("C", "CTask")).build())
 						.addTaskChainCriteria("A", "B", "VERSB").addTaskChainCriteria("A", "C", "VERSC").build()).build()).taskDefinitionRegistry(
-				TaskDefinitionRegistryBuilder.newBuilder().addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-						.addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
-						.addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("CTask", new MultiUpdateStatusTaskService("C")).build())
+				TaskDefinitionRegistryBuilder.newBuilder().addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+						.addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+						.addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("CTask", new MultiUpdateStatusTaskService("C")).build())
 						.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build())
 						.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("VERSC", new VerifyCodeTaskService("VersC")).build()).build()).build());
 
@@ -220,8 +220,8 @@ public class SimpleIT {
 				TaskObjectManagerBuilder.<String,BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder()
 						.addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask").addNextStatusGraph("A", "ATask")).build())
 						.addTaskChainCriteria("A", "B", "VERSB").addTaskChainCriteria("A", "A", "VERSA=>CHANGE").build()).build()).taskDefinitionRegistry(
-				TaskDefinitionRegistryBuilder.newBuilder().addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-						.addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+				TaskDefinitionRegistryBuilder.newBuilder().addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+						.addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
 						.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("CHANGE", new ChangeCodeTaskService("VersB")).build())
 						.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("VERSA", new VerifyCodeTaskService("VersA")).build())
 						.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build()).build());
@@ -246,8 +246,8 @@ public class SimpleIT {
 				TaskObjectManagerBuilder.<String,BusinessObject>newBuilder(BusinessObject.class)
 						.statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
 						.addTaskChainCriteria("A", "B", "(CHANGE,DATE)=>VERSB").build()).build()).taskDefinitionRegistry(
-				TaskDefinitionRegistryBuilder.newBuilder().addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-						.addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+				TaskDefinitionRegistryBuilder.newBuilder().addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+						.addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
 						.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("CHANGE", new ChangeCodeTaskService("VersB")).build())
 						.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build())
 						.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("DATE", new SetNowDateTaskService()).build()).build()).build());
@@ -270,7 +270,7 @@ public class SimpleIT {
 		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder()
 				.addTaskObjectManager(TaskObjectManagerBuilder.<String,BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask").build()).build())
 				.build()).taskDefinitionRegistry(
-				TaskDefinitionRegistryBuilder.newBuilder().addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build()).build())
+				TaskDefinitionRegistryBuilder.newBuilder().addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build()).build())
 				.build());
 
 		ITaskCluster taskCluster = engine.startEngine((ITaskObject) null);
@@ -283,7 +283,7 @@ public class SimpleIT {
 		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder()
 				.addTaskObjectManager(TaskObjectManagerBuilder.<String,BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask").build()).build())
 				.build()).taskDefinitionRegistry(
-				TaskDefinitionRegistryBuilder.newBuilder().addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build()).build())
+				TaskDefinitionRegistryBuilder.newBuilder().addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build()).build())
 				.build());
 
 		engine.startEngine((ITaskCluster) null);
@@ -298,7 +298,7 @@ public class SimpleIT {
 		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder()
 				.addTaskObjectManager(TaskObjectManagerBuilder.<String,BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask").build()).build())
 				.build()).taskDefinitionRegistry(
-				TaskDefinitionRegistryBuilder.newBuilder().addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build()).build())
+				TaskDefinitionRegistryBuilder.newBuilder().addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build()).build())
 				.taskManagerReader(memoryTaskManagerReaderWriter).taskManagerWriter(memoryTaskManagerReaderWriter).build());
 
 		SimpleTaskCluster taskCluster = new SimpleTaskCluster();
@@ -325,7 +325,7 @@ public class SimpleIT {
 		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
 						TaskObjectManagerBuilder.<String,BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask").build())
 								.addTaskChainCriteria(null, "A", "BUG").build()).build()).taskDefinitionRegistry(
-				TaskDefinitionRegistryBuilder.newBuilder().addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+				TaskDefinitionRegistryBuilder.newBuilder().addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
 						.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("BUG", new BugTaskService()).build()).build()).build());
 
 		BusinessObject businessObject = new BusinessObject();
@@ -345,7 +345,7 @@ public class SimpleIT {
 		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
 						TaskObjectManagerBuilder.<String,BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask").build())
 								.addTaskChainCriteria(null, "A", "NULL").build()).build()).taskDefinitionRegistry(
-				TaskDefinitionRegistryBuilder.newBuilder().addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+				TaskDefinitionRegistryBuilder.newBuilder().addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
 						.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("NULL", new NullTaskService()).build()).build()).build());
 
 		BusinessObject businessObject = new BusinessObject();

@@ -27,13 +27,13 @@ public class StatusGraphsBuilder<F extends Object> {
 		this.statusGraphs = new ArrayList<IStatusGraph<F>>();
 	}
 
-	public StatusGraphsBuilder<F> addNextStatusGraph(F nextStatus, String nextGeneralTaskServiceCode) {
-		this.pairs.add(Pair.of(nextStatus, nextGeneralTaskServiceCode));
+	public StatusGraphsBuilder<F> addNextStatusGraph(F nextStatus, String nextStatusTaskServiceCode) {
+		this.pairs.add(Pair.of(nextStatus, nextStatusTaskServiceCode));
 		return this;
 	}
 
-	public StatusGraphsBuilder<F> addNextStatusGraph(F nextStatus, String nextGeneralTaskServiceCode, StatusGraphsBuilder<F> statusGraphsBuilder) {
-		this.pairs.add(Pair.of(nextStatus, nextGeneralTaskServiceCode));
+	public StatusGraphsBuilder<F> addNextStatusGraph(F nextStatus, String nextStatusTaskServiceCode, StatusGraphsBuilder<F> statusGraphsBuilder) {
+		this.pairs.add(Pair.of(nextStatus, nextStatusTaskServiceCode));
 		if (statusGraphsBuilder.pairs != null && !statusGraphsBuilder.pairs.isEmpty()) {
 			for (Pair<F, String> pair : statusGraphsBuilder.pairs) {
 				this.statusGraphs.add(new MyStatusGraph<F>(nextStatus, pair.getLeft(), pair.getRight()));
@@ -66,14 +66,14 @@ public class StatusGraphsBuilder<F extends Object> {
 
 		private final F currentStatus;
 
-		private final String generalTaskServiceCode;
+		private final String statusTaskServiceCode;
 
-		public MyStatusGraph(F previousStatus, F currentStatus, String generalTaskServiceCode) {
+		public MyStatusGraph(F previousStatus, F currentStatus, String statusTaskServiceCode) {
 			super();
 
 			this.previousStatus = previousStatus;
 			this.currentStatus = currentStatus;
-			this.generalTaskServiceCode = generalTaskServiceCode;
+			this.statusTaskServiceCode = statusTaskServiceCode;
 		}
 
 		@Override
@@ -87,8 +87,8 @@ public class StatusGraphsBuilder<F extends Object> {
 		}
 
 		@Override
-		public String getGeneralTaskServiceCode() {
-			return this.generalTaskServiceCode;
+		public String getStatusTaskServiceCode() {
+			return this.statusTaskServiceCode;
 		}
 
 		@Override

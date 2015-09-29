@@ -4,7 +4,7 @@ import com.synaptix.taskmanager.engine.configuration.persistance.ITaskManagerRea
 import com.synaptix.taskmanager.engine.configuration.persistance.ITaskManagerWriter;
 import com.synaptix.taskmanager.engine.task.ICommonTask;
 import com.synaptix.taskmanager.engine.task.ISubTask;
-import com.synaptix.taskmanager.engine.task.IGeneralTask;
+import com.synaptix.taskmanager.engine.task.IStatusTask;
 import com.synaptix.taskmanager.example.jpa.model.Cluster;
 import com.synaptix.taskmanager.example.jpa.model.Todo;
 import com.synaptix.taskmanager.model.ITaskCluster;
@@ -51,7 +51,7 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 	}
 
 	@Override
-	public List<? extends ICommonTask> findOtherBranchFirstTasksByStatusTask(IGeneralTask statusTask) {
+	public List<? extends ICommonTask> findOtherBranchFirstTasksByStatusTask(IStatusTask statusTask) {
 		return null;
 	}
 
@@ -69,7 +69,7 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 	}
 
 	@Override
-	public ITaskCluster saveNewGraphFromTaskCluster(ITaskCluster taskCluster, List<Pair<ITaskObject, IGeneralTask>> taskObjectTasks) {
+	public ITaskCluster saveNewGraphFromTaskCluster(ITaskCluster taskCluster, List<Pair<ITaskObject, IStatusTask>> taskObjectTasks) {
 		LOG.info("JPARW - saveNewTaskClusterForTaskObject");
 
 		JPAHelper.getInstance().getEntityManager().getTransaction().begin();
@@ -77,7 +77,7 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 		Cluster cluster = (Cluster) taskCluster;
 
 		if (taskObjectTasks != null && !taskObjectTasks.isEmpty()) {
-			for (Pair<ITaskObject, IGeneralTask> taskObjectNode : taskObjectTasks) {
+			for (Pair<ITaskObject, IStatusTask> taskObjectNode : taskObjectTasks) {
 				Todo todo = (Todo) taskObjectNode.getLeft();
 				todo.setCluster(cluster);
 
@@ -88,7 +88,7 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 				}
 				todos.add(todo);
 
-				IGeneralTask task = taskObjectNode.getRight();
+				IStatusTask task = taskObjectNode.getRight();
 			}
 		}
 
@@ -133,8 +133,8 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 	}
 
 	@Override
-	public void saveNewNextTasksInTaskCluster(ITaskCluster taskCluster, IGeneralTask toDoneTask, Object taskServiceResult, List<ICommonTask> newTasks,
-			Map<ISubTask, List<ICommonTask>> linkNextTasksMap, Map<IGeneralTask, List<ICommonTask>> otherBranchFirstTasksMap, List<ICommonTask> nextCurrentTasks,
+	public void saveNewNextTasksInTaskCluster(ITaskCluster taskCluster, IStatusTask toDoneTask, Object taskServiceResult, List<ICommonTask> newTasks,
+			Map<ISubTask, List<ICommonTask>> linkNextTasksMap, Map<IStatusTask, List<ICommonTask>> otherBranchFirstTasksMap, List<ICommonTask> nextCurrentTasks,
 			List<ICommonTask> deleteTasks) {
 		LOG.info("JPARW - saveNewNextTasksInTaskCluster");
 	}

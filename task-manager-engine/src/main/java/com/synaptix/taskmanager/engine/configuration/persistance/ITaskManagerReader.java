@@ -2,7 +2,7 @@ package com.synaptix.taskmanager.engine.configuration.persistance;
 
 import com.synaptix.taskmanager.engine.task.ICommonTask;
 import com.synaptix.taskmanager.engine.task.ISubTask;
-import com.synaptix.taskmanager.engine.task.IGeneralTask;
+import com.synaptix.taskmanager.engine.task.IStatusTask;
 import com.synaptix.taskmanager.model.ITaskCluster;
 import com.synaptix.taskmanager.model.ITaskObject;
 
@@ -49,6 +49,6 @@ public interface ITaskManagerReader {
 	 * @param statusTask
 	 * @return
 	 */
-	List<? extends ICommonTask> findOtherBranchFirstTasksByStatusTask(IGeneralTask statusTask);
+	List<? extends ICommonTask> findOtherBranchFirstTasksByStatusTask(IStatusTask statusTask);
 
 }

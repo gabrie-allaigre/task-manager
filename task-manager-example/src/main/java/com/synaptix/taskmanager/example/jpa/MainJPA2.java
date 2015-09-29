@@ -12,7 +12,7 @@ import com.synaptix.taskmanager.engine.graph.StatusGraphsBuilder;
 import com.synaptix.taskmanager.engine.manager.ITaskObjectManager;
 import com.synaptix.taskmanager.engine.manager.TaskObjectManagerBuilder;
 import com.synaptix.taskmanager.engine.taskdefinition.SubTaskDefinitionBuilder;
-import com.synaptix.taskmanager.engine.taskdefinition.GeneralTaskDefinitionBuilder;
+import com.synaptix.taskmanager.engine.taskdefinition.StatusTaskDefinitionBuilder;
 import com.synaptix.taskmanager.example.jpa.model.Cluster;
 import com.synaptix.taskmanager.example.jpa.model.Todo;
 import com.synaptix.taskmanager.example.jpa.task.MultiUpdateStatusTaskService;
@@ -32,8 +32,8 @@ public class MainJPA2 {
 		ITaskObjectManagerRegistry taskObjectManagerRegistry = TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(todoTaskObjectManager).build();
 
 		ITaskDefinitionRegistry taskDefinitionRegistry = TaskDefinitionRegistryBuilder.newBuilder()
-				.addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("A_TASK", new MultiUpdateStatusTaskService("A")).build())
-				.addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("B_TASK", new MultiUpdateStatusTaskService("B")).build())
+				.addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("A_TASK", new MultiUpdateStatusTaskService("A")).build())
+				.addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("B_TASK", new MultiUpdateStatusTaskService("B")).build())
 				.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("GABY", new SetSummaryTaskService("GABY")).build())
 				.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("SANDRA", new SetSummaryTaskService("SANDRA")).build())
 				.build();

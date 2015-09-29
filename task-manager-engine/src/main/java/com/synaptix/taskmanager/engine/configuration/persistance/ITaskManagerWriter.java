@@ -2,7 +2,7 @@ package com.synaptix.taskmanager.engine.configuration.persistance;
 
 import com.synaptix.taskmanager.engine.task.ICommonTask;
 import com.synaptix.taskmanager.engine.task.ISubTask;
-import com.synaptix.taskmanager.engine.task.IGeneralTask;
+import com.synaptix.taskmanager.engine.task.IStatusTask;
 import com.synaptix.taskmanager.model.ITaskCluster;
 import com.synaptix.taskmanager.model.ITaskObject;
 import org.apache.commons.lang3.tuple.Pair;
@@ -25,7 +25,7 @@ public interface ITaskManagerWriter {
 	 * @param taskCluster
 	 * @param taskObjectTasks
 	 */
-	ITaskCluster saveNewGraphFromTaskCluster(ITaskCluster taskCluster, List<Pair<ITaskObject, IGeneralTask>> taskObjectTasks);
+	ITaskCluster saveNewGraphFromTaskCluster(ITaskCluster taskCluster, List<Pair<ITaskObject, IStatusTask>> taskObjectTasks);
 
 	/**
 	 * Save remove taskObjects to task cluster
@@ -72,8 +72,8 @@ public interface ITaskManagerWriter {
 	 * @param nextCurrentTasks
 	 * @param deleteTasks
 	 */
-	void saveNewNextTasksInTaskCluster(ITaskCluster taskCluster, IGeneralTask toDoneTask, Object taskServiceResult, List<ICommonTask> newTasks,
-			Map<ISubTask, List<ICommonTask>> linkNextTasksMap,  Map<IGeneralTask, List<ICommonTask>> otherBranchFirstTasksMap,List<ICommonTask> nextCurrentTasks,
+	void saveNewNextTasksInTaskCluster(ITaskCluster taskCluster, IStatusTask toDoneTask, Object taskServiceResult, List<ICommonTask> newTasks,
+			Map<ISubTask, List<ICommonTask>> linkNextTasksMap,  Map<IStatusTask, List<ICommonTask>> otherBranchFirstTasksMap,List<ICommonTask> nextCurrentTasks,
 			List<ICommonTask> deleteTasks);
 
 	/**

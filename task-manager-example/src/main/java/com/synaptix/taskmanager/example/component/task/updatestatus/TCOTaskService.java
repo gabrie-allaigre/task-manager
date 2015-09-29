@@ -1,6 +1,6 @@
 package com.synaptix.taskmanager.example.component.task.updatestatus;
 
-import com.synaptix.taskmanager.engine.memory.SimpleGeneralTask;
+import com.synaptix.taskmanager.engine.memory.SimpleStatusTask;
 import com.synaptix.taskmanager.engine.task.ICommonTask;
 import com.synaptix.taskmanager.engine.taskservice.AbstractTaskService;
 import com.synaptix.taskmanager.engine.taskservice.ExecutionResultBuilder;
@@ -15,7 +15,7 @@ public class TCOTaskService extends AbstractTaskService {
 
 	@Override
 	public IExecutionResult execute(IEngineContext context,ICommonTask task) {
-		((SimpleGeneralTask) task).<ICustomerOrder> getTaskObject().setStatus(CustomerOrderStatus.TCO);
+		((SimpleStatusTask) task).<ICustomerOrder> getTaskObject().setStatus(CustomerOrderStatus.TCO);
 		return ExecutionResultBuilder.newBuilder().finished();
 	}
 }

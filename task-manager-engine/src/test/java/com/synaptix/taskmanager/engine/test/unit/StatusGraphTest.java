@@ -68,20 +68,20 @@ public class StatusGraphTest {
 		assertUniqueContains(statusGraphs, null, "B", "BTask");
 	}
 
-	public static <E extends Object> void assertUniqueContains(List<IStatusGraph<E>> statusGraphs, E previousStatus, E currentStatus, String generalTaskServiceCode) {
+	public static <E extends Object> void assertUniqueContains(List<IStatusGraph<E>> statusGraphs, E previousStatus, E currentStatus, String statusTaskServiceCode) {
 		int i = 0;
 		if (statusGraphs != null && !statusGraphs.isEmpty()) {
 			for (IStatusGraph<E> statusGraph : statusGraphs) {
 				if (Objects.equals(statusGraph.getPreviousStatus(), previousStatus) && Objects.equals(statusGraph.getCurrentStatus(), currentStatus)
-						&& Objects.equals(statusGraph.getGeneralTaskServiceCode(), generalTaskServiceCode)) {
+						&& Objects.equals(statusGraph.getStatusTaskServiceCode(), statusTaskServiceCode)) {
 					i++;
 				}
 			}
 		}
 		if (i == 0) {
-			Assert.assertTrue("Not contains " + previousStatus + " " + currentStatus + " " + generalTaskServiceCode, false);
+			Assert.assertTrue("Not contains " + previousStatus + " " + currentStatus + " " + statusTaskServiceCode, false);
 		} else  if (i>1) {
-			Assert.assertTrue("Not unique " + previousStatus + " " + currentStatus + " " + generalTaskServiceCode, false);
+			Assert.assertTrue("Not unique " + previousStatus + " " + currentStatus + " " + statusTaskServiceCode, false);
 		}
 	}
 }

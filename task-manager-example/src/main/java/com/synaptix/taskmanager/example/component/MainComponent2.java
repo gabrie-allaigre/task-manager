@@ -13,7 +13,7 @@ import com.synaptix.taskmanager.engine.listener.LogTaskCycleListener;
 import com.synaptix.taskmanager.engine.manager.ITaskObjectManager;
 import com.synaptix.taskmanager.engine.manager.TaskObjectManagerBuilder;
 import com.synaptix.taskmanager.engine.taskdefinition.SubTaskDefinitionBuilder;
-import com.synaptix.taskmanager.engine.taskdefinition.GeneralTaskDefinitionBuilder;
+import com.synaptix.taskmanager.engine.taskdefinition.StatusTaskDefinitionBuilder;
 import com.synaptix.taskmanager.example.component.business.CustomerOrderBuilder;
 import com.synaptix.taskmanager.example.component.business.CustomerOrderStatus;
 import com.synaptix.taskmanager.example.component.business.ICustomerOrder;
@@ -47,10 +47,10 @@ public class MainComponent2 {
 				customerOrderTaskObjectManager).build();
 
 		ITaskDefinitionRegistry taskDefinitionRegistry = TaskDefinitionRegistryBuilder.newBuilder()
-				.addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("TCO", new TCOTaskService()).build())
-				.addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("VAL", new VALTaskService()).build())
-				.addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("CLO", new CLOTaskService()).build())
-				.addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("CAN", new CANTaskService()).build())
+				.addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("TCO", new TCOTaskService()).build())
+				.addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("VAL", new VALTaskService()).build())
+				.addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("CLO", new CLOTaskService()).build())
+				.addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("CAN", new CANTaskService()).build())
 				.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("DATE", new DateClosedTaskService()).build())
 				.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("REF", new ReferenceTaskService("Ma ref 1")).build())
 				.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("REF2", new ReferenceTaskService("Ma ref 2")).build())

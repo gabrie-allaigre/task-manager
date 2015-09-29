@@ -11,7 +11,7 @@ import com.synaptix.taskmanager.engine.graph.StatusGraphsBuilder;
 import com.synaptix.taskmanager.engine.listener.LogTaskCycleListener;
 import com.synaptix.taskmanager.engine.manager.TaskObjectManagerBuilder;
 import com.synaptix.taskmanager.engine.taskdefinition.SubTaskDefinitionBuilder;
-import com.synaptix.taskmanager.engine.taskdefinition.GeneralTaskDefinitionBuilder;
+import com.synaptix.taskmanager.engine.taskdefinition.StatusTaskDefinitionBuilder;
 import com.synaptix.taskmanager.example.component.business.CustomerOrderBuilder;
 import com.synaptix.taskmanager.example.component.business.CustomerOrderStatus;
 import com.synaptix.taskmanager.example.component.business.ICustomerOrder;
@@ -30,8 +30,8 @@ public class MainComponent3 {
 								.build()).addTaskChainCriteria(CustomerOrderStatus.TCO, CustomerOrderStatus.VAL, "VERSB")
 								.addTaskChainCriteria(CustomerOrderStatus.TCO, CustomerOrderStatus.TCO, "VERSA=>CHANGE").build()).build()).taskDefinitionRegistry(
 				TaskDefinitionRegistryBuilder.newBuilder()
-						.addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService(CustomerOrderStatus.TCO)).build())
-						.addGeneralTaskDefinition(GeneralTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService(CustomerOrderStatus.VAL)).build())
+						.addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService(CustomerOrderStatus.TCO)).build())
+						.addStatusTaskDefinition(StatusTaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService(CustomerOrderStatus.VAL)).build())
 						.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("CHANGE", new ChangeCodeTaskService("VersB")).build())
 						.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("VERSA", new VerifyCodeTaskService("VersA")).build())
 						.addSubTaskDefinition(SubTaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build()).build());

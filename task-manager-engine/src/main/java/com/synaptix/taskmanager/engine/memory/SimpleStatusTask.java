@@ -1,14 +1,14 @@
 package com.synaptix.taskmanager.engine.memory;
 
 import com.synaptix.taskmanager.engine.task.ICommonTask;
-import com.synaptix.taskmanager.engine.task.IGeneralTask;
-import com.synaptix.taskmanager.engine.taskdefinition.IGeneralTaskDefinition;
+import com.synaptix.taskmanager.engine.task.IStatusTask;
+import com.synaptix.taskmanager.engine.taskdefinition.IStatusTaskDefinition;
 import com.synaptix.taskmanager.model.ITaskObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SimpleGeneralTask extends AbstractSimpleCommonTask implements IGeneralTask  {
+public class SimpleStatusTask extends AbstractSimpleCommonTask implements IStatusTask  {
 
 	private final List<ICommonTask> otherBranchFirstTasks;
 
@@ -16,8 +16,8 @@ public class SimpleGeneralTask extends AbstractSimpleCommonTask implements IGene
 
 	private final Object currentStatus;
 
-	public SimpleGeneralTask(IGeneralTaskDefinition generalTaskDefinition, Class<? extends ITaskObject> taskObjectClass, Object currentStatus) {
-		super(generalTaskDefinition);
+	public SimpleStatusTask(IStatusTaskDefinition statusTaskDefinition, Class<? extends ITaskObject> taskObjectClass, Object currentStatus) {
+		super(statusTaskDefinition);
 
 		this.taskObjectClass = taskObjectClass;
 		this.currentStatus = currentStatus;
@@ -26,13 +26,13 @@ public class SimpleGeneralTask extends AbstractSimpleCommonTask implements IGene
 	}
 
 	@Override
-	public Class<? extends ITaskObject> getTaskObjectClass() {
-		return taskObjectClass;
+	public <F extends ITaskObject> Class<F> getTaskObjectClass() {
+		return (Class<F>)taskObjectClass;
 	}
 
 	@Override
-	public Object getCurrentStatus() {
-		return currentStatus;
+	public <E extends Object> E getCurrentStatus() {
+		return (E)currentStatus;
 	}
 
 	public final List<ICommonTask> getOtherBranchFirstTasks() {
@@ -41,6 +41,6 @@ public class SimpleGeneralTask extends AbstractSimpleCommonTask implements IGene
 
 	@Override
 	public String toString() {
-		return "SimpleGeneralTask -> " + getCurrentStatus();
+		return "SimpleStatusTask -> " + getCurrentStatus();
 	}
 }

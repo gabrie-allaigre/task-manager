@@ -19,7 +19,7 @@ import org.junit.Test;
 import javax.persistence.Query;
 import java.util.List;
 
-public class JPAIt {
+public class JPAIT {
 
 	/**
 	 * null -> A
@@ -44,8 +44,6 @@ public class JPAIt {
 		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
 
 		Assert.assertNull(businessObject.getStatus());
-
-
 
 		ITaskCluster taskCluster = engine.startEngine(businessObject);
 

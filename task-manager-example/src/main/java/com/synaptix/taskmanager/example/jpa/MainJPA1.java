@@ -63,7 +63,9 @@ public class MainJPA1 {
 
 		engine.startEngine(todo);
 
+		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
 		todo.setName("Laureline");
+		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
 
 		engine.startEngine(todo);
 

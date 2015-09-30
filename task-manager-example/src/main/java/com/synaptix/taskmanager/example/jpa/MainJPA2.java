@@ -53,9 +53,13 @@ public class MainJPA2 {
 				.taskDefinitionRegistry(taskDefinitionRegistry).taskFactory(new JPATaskFactory()).taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build();
 		TaskManagerEngine engine = new TaskManagerEngine(taskManagerConfiguration);
 
+		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
+
 		Todo todo = new Todo();
 		todo.setSummary("Fiche de bug");
 		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(todo);
+
+		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
 
 		engine.startEngine(todo);
 

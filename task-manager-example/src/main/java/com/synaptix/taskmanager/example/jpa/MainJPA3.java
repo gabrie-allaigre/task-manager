@@ -53,6 +53,8 @@ public class MainJPA3 {
 				.taskDefinitionRegistry(taskDefinitionRegistry).taskFactory(new JPATaskFactory()).taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build();
 		TaskManagerEngine engine = new TaskManagerEngine(taskManagerConfiguration);
 
+		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
+
 		Query q = JPAHelper.getInstance().getJpaAccess().getEntityManager().createQuery("select t from Todo t");
 		List<Todo> todos = q.getResultList();
 		int i = 0;
@@ -64,6 +66,8 @@ public class MainJPA3 {
 
 			engine.startEngine(todo);
 		}
+
+		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
 
 		showClusters();
 		showTodos();

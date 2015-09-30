@@ -56,6 +56,8 @@ public class MainJPA5 {
 				.taskDefinitionRegistry(taskDefinitionRegistry).taskFactory(new JPATaskFactory()).taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build();
 		TaskManagerEngine engine = new TaskManagerEngine(taskManagerConfiguration);
 
+		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
+
 		Todo todo1 = new Todo();
 		todo1.setSummary("Fiche de bug");
 		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(todo1);
@@ -63,6 +65,8 @@ public class MainJPA5 {
 		Todo todo2 = new Todo();
 		todo2.setSummary("Fiche de story");
 		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(todo2);
+
+		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
 
 		engine.startEngine(todo1,todo2);
 

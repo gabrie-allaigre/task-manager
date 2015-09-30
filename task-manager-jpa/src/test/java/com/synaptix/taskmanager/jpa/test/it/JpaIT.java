@@ -118,9 +118,6 @@ public class JpaIT {
 		Assert.assertEquals(getClusters().size(), 1);
 		Assert.assertEquals(getTasks().size(), 12);
 
-		showTasks();
-
-
 		JPAHelper.getInstance().getJpaAccess().stop();
 	}
 

@@ -20,20 +20,20 @@ public class JPATaskFactory extends AbstractTaskFactory {
 	@Override
 	public ISubTask newSubTask(String codeSubTaskDefinition) {
 		Task task = new Task();
-		task.setType("SUB");
+		task.setType(Task.Type.subTask);
 		task.setCodeTaskDefinition(codeSubTaskDefinition);
 		return task;
 	}
 
 	@Override
 	public boolean isSubTask(ICommonTask task) {
-		return "SUB".equals(((Task) task).getType());
+		return Task.Type.subTask.equals(((Task) task).getType());
 	}
 
 	@Override
 	public IStatusTask newStatusTask(String codeStatusTaskDefinition, Class<? extends ITaskObject> taskObjectClass, Object currentStatus) {
 		Task task = new Task();
-		task.setType("STATUS");
+		task.setType(Task.Type.statusTask);
 		task.setCodeTaskDefinition(codeStatusTaskDefinition);
 		task.setBusinessTaskObjectClass((Class<? extends IBusinessTaskObject>) taskObjectClass);
 		task.setCurrentStatus((String)currentStatus);
@@ -42,6 +42,6 @@ public class JPATaskFactory extends AbstractTaskFactory {
 
 	@Override
 	public boolean isStatusTask(ICommonTask task) {
-		return "STATUS".equals(((Task)task).getType());
+		return Task.Type.statusTask.equals(((Task) task).getType());
 	}
 }

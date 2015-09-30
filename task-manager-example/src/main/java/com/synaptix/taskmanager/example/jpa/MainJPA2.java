@@ -16,8 +16,9 @@ import com.synaptix.taskmanager.example.jpa.model.Cluster;
 import com.synaptix.taskmanager.example.jpa.model.Task;
 import com.synaptix.taskmanager.example.jpa.model.Todo;
 import com.synaptix.taskmanager.example.jpa.task.MultiUpdateStatusTaskService;
-import com.synaptix.taskmanager.example.jpa.task.SetSummaryTaskService;
+import com.synaptix.taskmanager.example.jpa.task.SetNameTaskService;
 import com.synaptix.taskmanager.example.jpa.task.StopTaskService;
+import com.synaptix.taskmanager.example.jpa.task.VerifyNameTaskService;
 
 import javax.persistence.Query;
 import java.util.List;
@@ -26,10 +27,11 @@ public class MainJPA2 {
 
 	public static void main(String[] args) throws Exception {
 		List<IStatusGraph<String>> statusGraphs = StatusGraphsBuilder.<String>newBuilder()
-				.addNextStatusGraph("A", "A_TASK", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "B_TASK").addNextStatusGraph("C", "C_TASK")).build();
+				.addNextStatusGraph("A", "A_TASK", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "B_TASK").addNextStatusGraph("C", "C_TASK").addNextStatusGraph("D", "D_TASK"))
+				.build();
 
 		ITaskObjectManager<String, Todo> todoTaskObjectManager = TaskObjectManagerBuilder.<String, Todo>newBuilder(Todo.class).statusGraphs(statusGraphs).addTaskChainCriteria(null, "A", "GABY")
-				.addTaskChainCriteria("A", "B", "SANDRA").addTaskChainCriteria("A", "C", "STOP").build();
+				.addTaskChainCriteria("A", "B", "SANDRA=>VERIFY_LAURELINE").addTaskChainCriteria("A", "C", "STOP").addTaskChainCriteria("A", "D", "STOP").build();
 
 		ITaskObjectManagerRegistry taskObjectManagerRegistry = TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(todoTaskObjectManager).build();
 
@@ -37,17 +39,20 @@ public class MainJPA2 {
 				.addTaskDefinition(TaskDefinitionBuilder.newBuilder("A_TASK", new MultiUpdateStatusTaskService("A")).build())
 				.addTaskDefinition(TaskDefinitionBuilder.newBuilder("B_TASK", new MultiUpdateStatusTaskService("B")).build())
 				.addTaskDefinition(TaskDefinitionBuilder.newBuilder("C_TASK", new MultiUpdateStatusTaskService("C")).build())
-				.addTaskDefinition(TaskDefinitionBuilder.newBuilder("GABY", new SetSummaryTaskService("GABY")).build())
-				.addTaskDefinition(TaskDefinitionBuilder.newBuilder("SANDRA", new SetSummaryTaskService("SANDRA")).build())
-				.addTaskDefinition(TaskDefinitionBuilder.newBuilder("STOP", new StopTaskService()).build()).build();
+				.addTaskDefinition(TaskDefinitionBuilder.newBuilder("D_TASK", new MultiUpdateStatusTaskService("D")).build())
+				.addTaskDefinition(TaskDefinitionBuilder.newBuilder("GABY", new SetNameTaskService("Gaby")).build())
+				.addTaskDefinition(TaskDefinitionBuilder.newBuilder("SANDRA", new SetNameTaskService("Sandra")).build())
+				.addTaskDefinition(TaskDefinitionBuilder.newBuilder("STOP", new StopTaskService()).build())
+				.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERIFY_LAURELINE", new VerifyNameTaskService("Laureline")).build()).build();
 
-		JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(taskDefinitionRegistry);
+		JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance());
 
 		ITaskManagerConfiguration taskManagerConfiguration = TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(taskObjectManagerRegistry)
 				.taskDefinitionRegistry(taskDefinitionRegistry).taskFactory(new JPATaskFactory()).taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build();
 		TaskManagerEngine engine = new TaskManagerEngine(taskManagerConfiguration);
 
 		Todo todo = new Todo();
+		todo.setSummary("Fiche de bug");
 		JPAHelper.getInstance().getEntityManager().persist(todo);
 
 		engine.startEngine(todo);
@@ -55,8 +60,6 @@ public class MainJPA2 {
 		showClusters();
 		showTodos();
 		showTasks();
-
-		// read the existing entries and write to console
 
 		JPAHelper.getInstance().getEntityManager().close();
 	}

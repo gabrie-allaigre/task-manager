@@ -2,7 +2,6 @@ package com.synaptix.taskmanager.example.jpa;
 
 import com.synaptix.taskmanager.engine.configuration.persistance.ITaskManagerReader;
 import com.synaptix.taskmanager.engine.configuration.persistance.ITaskManagerWriter;
-import com.synaptix.taskmanager.engine.configuration.registry.ITaskDefinitionRegistry;
 import com.synaptix.taskmanager.engine.task.ICommonTask;
 import com.synaptix.taskmanager.engine.task.IStatusTask;
 import com.synaptix.taskmanager.engine.task.ISubTask;
@@ -16,7 +15,10 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,12 +27,16 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 
 	private static final Log LOG = LogFactory.getLog(JPATaskManagerReaderWriter.class);
 
-	private final ITaskDefinitionRegistry taskDefinitionRegistry;
+	private final IJPAAccess jpaAccess;
 
-	public JPATaskManagerReaderWriter(ITaskDefinitionRegistry taskDefinitionRegistry) {
+	public JPATaskManagerReaderWriter(IJPAAccess jpaAccess) {
 		super();
 
-		this.taskDefinitionRegistry = taskDefinitionRegistry;
+		this.jpaAccess = jpaAccess;
+	}
+
+	public IJPAAccess getJpaAccess() {
+		return jpaAccess;
 	}
 
 	// WRITER
@@ -41,7 +47,7 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 
 		Cluster cluster = (Cluster) taskCluster;
 
-		JPAHelper.getInstance().getEntityManager().persist(cluster);
+		getJpaAccess().getEntityManager().persist(cluster);
 
 		return cluster;
 	}
@@ -50,7 +56,7 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 	public ITaskCluster saveNewGraphFromTaskCluster(ITaskCluster taskCluster, List<Pair<ITaskObject, IStatusTask>> taskObjectTasks) {
 		LOG.info("JPARW - saveNewTaskClusterForTaskObject");
 
-		JPAHelper.getInstance().getEntityManager().getTransaction().begin();
+		getJpaAccess().getEntityManager().getTransaction().begin();
 
 		Cluster cluster = (Cluster) taskCluster;
 		List<ClusterDependency> cds = cluster.getClusterDependencies();
@@ -62,28 +68,27 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 		if (taskObjectTasks != null && !taskObjectTasks.isEmpty()) {
 			for (Pair<ITaskObject, IStatusTask> taskObjectNode : taskObjectTasks) {
 				IBusinessTaskObject bto = (IBusinessTaskObject) taskObjectNode.getLeft();
-				bto.setCluster(cluster);
+				bto.setClusterId(cluster.getId());
 
 				Task statusTask = (Task) taskObjectNode.getRight();
-				statusTask.setStatus("CURRENT");
+				statusTask.setStatus(Task.Status.CURRENT);
 				statusTask.setCluster(cluster);
 				statusTask.setBusinessTaskObjectId(bto.getId());
-				JPAHelper.getInstance().getEntityManager().persist(statusTask);
+				getJpaAccess().getEntityManager().persist(statusTask);
 
 				ClusterDependency cd = new ClusterDependency();
-				cd.setCluster(cluster);
 				cd.setBusinessTaskObjectClass(bto.getClass());
 				cd.setBusinessTaskObjectId(bto.getId());
-				JPAHelper.getInstance().getEntityManager().persist(cd);
+				getJpaAccess().getEntityManager().persist(cd);
 
 				cds.add(cd);
 			}
 		}
 
 		cluster.setCheckGraphCreated(true);
-		JPAHelper.getInstance().getEntityManager().persist(cluster);
+		getJpaAccess().getEntityManager().persist(cluster);
 
-		JPAHelper.getInstance().getEntityManager().getTransaction().commit();
+		getJpaAccess().getEntityManager().getTransaction().commit();
 
 		return cluster;
 	}
@@ -91,6 +96,11 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 	@Override
 	public void saveRemoveTaskObjectsFromTaskCluster(ITaskCluster taskCluster, List<ITaskObject> taskObjects) {
 		LOG.info("JPARW - saveRemoveTaskObjectsFromTaskCluster");
+
+		Cluster cluster = (Cluster) taskCluster;
+		List<ClusterDependency> cds = cluster.getClusterDependencies();
+
+
 	}
 
 	@Override
@@ -105,7 +115,7 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 
 		Cluster cluster = (Cluster) taskCluster;
 		cluster.setCheckArchived(true);
-		JPAHelper.getInstance().getEntityManager().persist(cluster);
+		getJpaAccess().getEntityManager().persist(cluster);
 
 		return cluster;
 	}
@@ -114,23 +124,23 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 	public void saveNextTasksInTaskCluster(ITaskCluster taskCluster, ICommonTask toDoneTask, Object taskServiceResult, List<ICommonTask> nextCurrentTasks) {
 		LOG.info("JPARW - saveNextTasksInTaskCluster");
 
-		JPAHelper.getInstance().getEntityManager().getTransaction().begin();
+		getJpaAccess().getEntityManager().getTransaction().begin();
 
 		Cluster cluster = (Cluster) taskCluster;
 
 		Task tdt = (Task) toDoneTask;
-		tdt.setStatus("DONE");
-		JPAHelper.getInstance().getEntityManager().persist(tdt);
+		tdt.setStatus(Task.Status.DONE);
+		getJpaAccess().getEntityManager().persist(tdt);
 
 		if (nextCurrentTasks != null && !nextCurrentTasks.isEmpty()) {
 			for (ICommonTask nextCurrentTask : nextCurrentTasks) {
 				Task nct = (Task) nextCurrentTask;
-				nct.setStatus("CURRENT");
-				JPAHelper.getInstance().getEntityManager().persist(nct);
+				nct.setStatus(Task.Status.CURRENT);
+				getJpaAccess().getEntityManager().persist(nct);
 			}
 		}
 
-		JPAHelper.getInstance().getEntityManager().getTransaction().commit();
+		getJpaAccess().getEntityManager().getTransaction().commit();
 	}
 
 	@Override
@@ -143,22 +153,22 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 			Map<IStatusTask, List<ICommonTask>> otherBranchFirstTasksMap, List<ICommonTask> nextCurrentTasks, List<ICommonTask> deleteTasks) {
 		LOG.info("JPARW - saveNewNextTasksInTaskCluster");
 
-		JPAHelper.getInstance().getEntityManager().getTransaction().begin();
+		getJpaAccess().getEntityManager().getTransaction().begin();
 
 		Cluster cluster = (Cluster) taskCluster;
 		Task tdt = (Task) toDoneTask;
-		tdt.setStatus("DONE");
-		JPAHelper.getInstance().getEntityManager().persist(tdt);
+		tdt.setStatus(Task.Status.DONE);
+		getJpaAccess().getEntityManager().persist(tdt);
 
 		if (newTasks != null && !newTasks.isEmpty()) {
 			for (ICommonTask newTask : newTasks) {
 				Task nct = (Task) newTask;
-				nct.setStatus("TODO");
+				nct.setStatus(Task.Status.TODO);
 				nct.setCluster(cluster);
 				nct.setBusinessTaskObjectClass(tdt.getBusinessTaskObjectClass());
 				nct.setBusinessTaskObjectId(tdt.getBusinessTaskObjectId());
 
-				JPAHelper.getInstance().getEntityManager().persist(nct);
+				getJpaAccess().getEntityManager().persist(nct);
 			}
 		}
 
@@ -175,7 +185,7 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 				}
 				nct.setNextTasks(childs);
 
-				JPAHelper.getInstance().getEntityManager().persist(nct);
+				getJpaAccess().getEntityManager().persist(nct);
 			}
 		}
 
@@ -192,7 +202,7 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 				}
 				nct.setOtherBranchFirstTasks(childs);
 
-				JPAHelper.getInstance().getEntityManager().persist(nct);
+				getJpaAccess().getEntityManager().persist(nct);
 			}
 		}
 
@@ -200,27 +210,27 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 			List<Task> childs = new ArrayList<Task>();
 			for (ICommonTask nextCurrentTask : nextCurrentTasks) {
 				Task nct = (Task) nextCurrentTask;
-				nct.setStatus("CURRENT");
+				nct.setStatus(Task.Status.CURRENT);
 
-				JPAHelper.getInstance().getEntityManager().persist(nct);
+				getJpaAccess().getEntityManager().persist(nct);
 
 				childs.add(nct);
 			}
 
 			tdt.setNextTasks(childs);
-			JPAHelper.getInstance().getEntityManager().persist(tdt);
+			getJpaAccess().getEntityManager().persist(tdt);
 		}
 
 		if (deleteTasks != null && !deleteTasks.isEmpty()) {
 			for (ICommonTask deleteTask : deleteTasks) {
 				Task nct = (Task) deleteTask;
-				nct.setStatus("DELETE");
+				nct.setStatus(Task.Status.DELETE);
 
-				JPAHelper.getInstance().getEntityManager().persist(nct);
+				getJpaAccess().getEntityManager().persist(nct);
 			}
 		}
 
-		JPAHelper.getInstance().getEntityManager().getTransaction().commit();
+		getJpaAccess().getEntityManager().getTransaction().commit();
 	}
 
 	// READER
@@ -228,7 +238,8 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 	@Override
 	public ITaskCluster findTaskClusterByTaskObject(ITaskObject taskObject) {
 		LOG.info("JPARW - findTaskClusterByTaskObject");
-		return ((IBusinessTaskObject)taskObject).getCluster();
+		Long clusterId = ((IBusinessTaskObject) taskObject).getClusterId();
+		return clusterId != null ? getJpaAccess().getEntityManager().find(Cluster.class, clusterId) : null;
 	}
 
 	@Override
@@ -240,8 +251,8 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 		Cluster cluster = (Cluster) taskCluster;
 		List<ClusterDependency> cds = cluster.getClusterDependencies();
 		if (cds != null && !cds.isEmpty()) {
-			for(ClusterDependency cd : cds) {
-				res.add(JPAHelper.getInstance().findById(cd.getBusinessTaskObjectClass(), cd.getBusinessTaskObjectId()));
+			for (ClusterDependency cd : cds) {
+				getJpaAccess().find(cd.getBusinessTaskObjectClass(), cd.getBusinessTaskObjectId());
 			}
 		}
 
@@ -255,7 +266,11 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 
 		Cluster cluster = (Cluster) taskCluster;
 
-		Query q = JPAHelper.getInstance().getEntityManager().createQuery("select t from Task t where t.status = 'CURRENT' and t.cluster.id = " + cluster.getId());
+		CriteriaBuilder cb = getJpaAccess().getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<Task> cq = cb.createQuery(Task.class);
+		Root<Task> root = cq.from(Task.class);
+		cq.where(cb.and(cb.equal(root.get("status"), Task.Status.CURRENT), cb.equal(root.get("cluster").get("id"), cluster.getId())));
+		TypedQuery<Task> q = getJpaAccess().getEntityManager().createQuery(cq);
 		return q.getResultList();
 	}
 

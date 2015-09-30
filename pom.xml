@@ -54,6 +54,7 @@
 		<module>task-manager-engine</module>
 		<module>task-manager-example</module>
 		<module>task-manager-component</module>
+		<module>task-manager-jpa</module>
 	</modules>
 	<build>
 		<finalName>${project.artifactId}-${project.version}

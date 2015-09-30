@@ -7,29 +7,25 @@ import com.synaptix.taskmanager.example.jpa.JPAHelper;
 import com.synaptix.taskmanager.example.jpa.model.Task;
 import com.synaptix.taskmanager.example.jpa.model.Todo;
 
-public class SetSummaryTaskService extends AbstractTaskService {
+public class VerifyNameTaskService extends AbstractTaskService {
 
-	private final String summary;
+	private final String name;
 
-	public SetSummaryTaskService(String summary) {
+	public VerifyNameTaskService(String name) {
 		super();
 
-		this.summary = summary;
+		this.name = name;
 	}
 
 	@Override
 	public IExecutionResult execute(IEngineContext context,ICommonTask commonTask) {
 		Task task = (Task)commonTask;
 
-		Todo todo = JPAHelper.getInstance().findById(Todo.class,task.getBusinessTaskObjectId());
-
-		JPAHelper.getInstance().getEntityManager().getTransaction().begin();
-
-		todo.setSummary(summary);
-		JPAHelper.getInstance().getEntityManager().persist(todo);
-
-		JPAHelper.getInstance().getEntityManager().getTransaction().commit();
-
-		return ExecutionResultBuilder.newBuilder().finished();
+		Todo todo = JPAHelper.getInstance().getEntityManager().find(Todo.class,task.getBusinessTaskObjectId());
+		if (name != null && name.equals(todo.getName())) {
+			return ExecutionResultBuilder.newBuilder().noChanges().finished();
+		}
+		return ExecutionResultBuilder.newBuilder().notFinished();
 	}
+
 }

@@ -2,6 +2,7 @@ package com.synaptix.taskmanager.example.jpa.model;
 
 import com.synaptix.taskmanager.engine.task.IStatusTask;
 import com.synaptix.taskmanager.engine.task.ISubTask;
+import com.synaptix.taskmanager.example.jpa.ClassConverter;
 import com.synaptix.taskmanager.model.ITaskObject;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
@@ -11,44 +12,69 @@ import java.util.List;
 @Entity
 public class Task implements IStatusTask, ISubTask {
 
+	public enum Type {
+		statusTask,subTask;
+	}
+
+	public enum Status {
+		TODO,CURRENT,DONE,DELETE;
+	}
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	@Version
 	private int version;
-	private String type;
-	private String status;
+	@Column(name = "TYPE")
+	@Enumerated(value = EnumType.STRING)
+	private Type type;
+	@Column(name = "STATUS")
+	@Enumerated(value = EnumType.STRING)
+	private Status status;
+	@Column(name = "TASK_DEFINITION_CODE")
 	private String codeTaskDefinition;
 	@ManyToOne
 	private Cluster cluster;
+	@Column(name = "BUSINESS_TASK_OBJECT_ID")
 	private Long businessTaskObjectId;
-	@OneToMany
-	private List<Task> nextTasks;
+	@Column(name = "BUSINESS_TASK_OBJECT_CLASS",length = 512)
+	@Convert(converter = ClassConverter.class)
 	private Class<? extends IBusinessTaskObject> businessTaskObjectClass;
+	@ManyToMany
+	@JoinTable(
+			name="TASK_NEXT_TASK",
+			joinColumns={@JoinColumn(name="TASK_ID", referencedColumnName="ID")},
+			inverseJoinColumns={@JoinColumn(name="NEXT_TASK_ID", referencedColumnName="ID")})
+	private List<Task> nextTasks;
+
 
 	//StatusTask
+	@Column(name = "CURRENT_STATUS")
 	private String currentStatus;
-	@OneToMany
-	@JoinColumn(name = "otherBranchFirstTasks")
+	@ManyToMany
+	@JoinTable(
+			name="TASK_OTHER_BRANCH_TASK",
+			joinColumns={@JoinColumn(name="TASK_ID", referencedColumnName="ID")},
+			inverseJoinColumns={@JoinColumn(name="OTHER_TASK_ID", referencedColumnName="ID")})
 	private List<Task> otherBranchFirstTasks;
 
 	public final Long getId() {
 		return id;
 	}
 
-	public String getType() {
+	public Type getType() {
 		return type;
 	}
 
-	public void setType(String type) {
+	public void setType(Type type) {
 		this.type = type;
 	}
 
-	public String getStatus() {
+	public Status getStatus() {
 		return status;
 	}
 
-	public void setStatus(String status) {
+	public void setStatus(Status status) {
 		this.status = status;
 	}
 

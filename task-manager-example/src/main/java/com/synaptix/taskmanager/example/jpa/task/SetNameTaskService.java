@@ -7,25 +7,25 @@ import com.synaptix.taskmanager.example.jpa.JPAHelper;
 import com.synaptix.taskmanager.example.jpa.model.Task;
 import com.synaptix.taskmanager.example.jpa.model.Todo;
 
-public class MultiUpdateStatusTaskService extends AbstractTaskService {
+public class SetNameTaskService extends AbstractTaskService {
 
-	private final String status;
+	private final String name;
 
-	public MultiUpdateStatusTaskService(String status) {
+	public SetNameTaskService(String name) {
 		super();
 
-		this.status = status;
+		this.name = name;
 	}
 
 	@Override
-	public IExecutionResult execute(IEngineContext context, ICommonTask commonTask) {
+	public IExecutionResult execute(IEngineContext context,ICommonTask commonTask) {
 		Task task = (Task)commonTask;
 
-		Todo todo = JPAHelper.getInstance().getEntityManager().find(Todo.class, task.getBusinessTaskObjectId());
+		Todo todo = JPAHelper.getInstance().getEntityManager().find(Todo.class,task.getBusinessTaskObjectId());
 
 		JPAHelper.getInstance().getEntityManager().getTransaction().begin();
 
-		todo.setStatus(status);
+		todo.setName(name);
 		JPAHelper.getInstance().getEntityManager().persist(todo);
 
 		JPAHelper.getInstance().getEntityManager().getTransaction().commit();

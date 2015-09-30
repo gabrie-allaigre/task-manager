@@ -23,7 +23,7 @@ import com.synaptix.taskmanager.example.jpa.task.VerifyNameTaskService;
 import javax.persistence.Query;
 import java.util.List;
 
-public class MainJPA1 {
+public class MainJPA3 {
 
 	public static void main(String[] args) throws Exception {
 		List<IStatusGraph<String>> statusGraphs = StatusGraphsBuilder.<String>newBuilder()
@@ -51,19 +51,23 @@ public class MainJPA1 {
 				.taskDefinitionRegistry(taskDefinitionRegistry).taskFactory(new JPATaskFactory()).taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build();
 		TaskManagerEngine engine = new TaskManagerEngine(taskManagerConfiguration);
 
-		Todo todo = new Todo();
-		todo.setSummary("Fiche de bug");
-		JPAHelper.getInstance().getEntityManager().persist(todo);
+		Query q = JPAHelper.getInstance().getEntityManager().createQuery("select t from Todo t");
+		List<Todo> todos = q.getResultList();
+		int i = 0;
+		for (Todo todo : todos) {
+			System.out.println(todo);
 
-		engine.startEngine(todo);
+			todo.setName("Laureline");
+			JPAHelper.getInstance().getEntityManager().persist(todo);
 
-		todo.setName("Laureline");
-
-		engine.startEngine(todo);
+			engine.startEngine(todo);
+		}
 
 		showClusters();
 		showTodos();
 		showTasks();
+
+		// read the existing entries and write to console
 
 		JPAHelper.getInstance().getEntityManager().close();
 	}

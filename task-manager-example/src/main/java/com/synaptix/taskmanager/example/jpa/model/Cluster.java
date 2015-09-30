@@ -14,9 +14,12 @@ public class Cluster implements IEntity,ITaskCluster {
 	private Long id;
 	@Version
 	private int version;
+	@Column(name = "CHECK_GRAPH_CREATED")
 	private boolean checkGraphCreated;
+	@Column(name = "CHECK_ARCHIVED")
 	private boolean checkArchived;
-	@OneToMany(mappedBy = "cluster")
+	@OneToMany
+	@JoinColumn(name = "CLUSTER_ID")
 	private List<ClusterDependency> clusterDependencies;
 
 	@Override

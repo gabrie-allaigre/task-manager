@@ -1,6 +1,5 @@
 package com.synaptix.taskmanager.example.jpa.model;
 
-import com.synaptix.taskmanager.model.ITaskObject;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.*;
@@ -15,8 +14,11 @@ public class Todo implements IBusinessTaskObject {
 	private String summary;
 	private String description;
 	private String status;
-	@ManyToOne
-	private Cluster cluster;
+	private String name;
+
+	// TaskManager
+	@Column(name = "CLUSTER_ID")
+	private Long clusterId;
 
 	@Override
 	public final Long getId() {
@@ -47,14 +49,22 @@ public class Todo implements IBusinessTaskObject {
 		this.status = status;
 	}
 
-	@Override
-	public Cluster getCluster() {
-		return cluster;
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	@Override
-	public void setCluster(Cluster cluster) {
-		this.cluster = cluster;
+	public Long getClusterId() {
+		return clusterId;
+	}
+
+	@Override
+	public void setClusterId(Long clusterId) {
+		this.clusterId = clusterId;
 	}
 
 	@Override
@@ -64,12 +74,12 @@ public class Todo implements IBusinessTaskObject {
 
 	@Override
 	public boolean equals(Object obj) {
-		return id != null && ((Todo)obj).id != null ? id.equals(((Todo) obj).id) : super.equals(obj);
+		return id != null && ((Todo) obj).id != null ? id.equals(((Todo) obj).id) : super.equals(obj);
 	}
 
 	@Override
 	public String toString() {
-		return new ToStringBuilder(this).append("id",id).append("version", version).append("summary", summary).append("description",description).append("status",status).append("cluster",
-				cluster != null ? cluster.getId() : null).build();
+		return new ToStringBuilder(this).append("id", id).append("version", version).append("summary", summary).append("description", description).append("status", status).append("name", name)
+				.append("clusterId", clusterId).build();
 	}
 }

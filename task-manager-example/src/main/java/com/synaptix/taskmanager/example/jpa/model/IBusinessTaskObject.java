@@ -4,8 +4,8 @@ import com.synaptix.taskmanager.model.ITaskObject;
 
 public interface IBusinessTaskObject extends IEntity,ITaskObject {
 
-	Cluster getCluster();
+	Long getClusterId();
 
-	void setCluster(Cluster cluster);
+	void setClusterId(Long clusterId);
 
 }

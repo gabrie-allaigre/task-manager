@@ -1,10 +1,11 @@
 package com.synaptix.taskmanager.example.jpa.model;
 
+import com.synaptix.taskmanager.example.jpa.ClassConverter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.*;
 
-@Entity
+@Entity(name = "CLUSTER_DEPENDENCY")
 public class ClusterDependency implements IEntity {
 
 	@Id
@@ -12,22 +13,15 @@ public class ClusterDependency implements IEntity {
 	private Long id;
 	@Version
 	private int version;
-	@ManyToOne
-	private Cluster cluster;
+	@Column(name = "BUSINESS_TASK_OBJECT_ID")
 	private Long businessTaskObjectId;
+	@Column(name = "BUSINESS_TASK_OBJECT_CLASS",length = 512)
+	@Convert(converter = ClassConverter.class)
 	private Class<? extends IBusinessTaskObject> businessTaskObjectClass;
 
 	@Override
 	public Long getId() {
 		return id;
-	}
-
-	public Cluster getCluster() {
-		return cluster;
-	}
-
-	public void setCluster(Cluster cluster) {
-		this.cluster = cluster;
 	}
 
 	public Long getBusinessTaskObjectId() {
@@ -58,7 +52,7 @@ public class ClusterDependency implements IEntity {
 
 	@Override
 	public String toString() {
-		return new ToStringBuilder(this).append("id", id).append("version", version).append("businessTaskObjectClass", businessTaskObjectClass).append("cluster", cluster != null ? cluster.getId() : null)
-				.append("businessTaskObjectId", businessTaskObjectId).build();
+		return new ToStringBuilder(this).append("id", id).append("version", version).append("businessTaskObjectClass", businessTaskObjectClass).append("businessTaskObjectId", businessTaskObjectId)
+				.build();
 	}
 }

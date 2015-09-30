@@ -99,7 +99,7 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 	}
 
 	@Override
-	public ITaskCluster saveMoveTaskObjectsToTaskCluster(ITaskCluster dstTaskCluster, Map<ITaskCluster, List<ITaskObject>> modifyClusterMap, boolean newTaskCluster) {
+	public ITaskCluster saveMoveTaskObjectsToTaskCluster(ITaskCluster dstTaskCluster, Map<ITaskCluster, List<ITaskObject>> modifyClusterMap) {
 		if (modifyClusterMap != null && !modifyClusterMap.isEmpty()) {
 			List<ITaskObject> dstTos = taskClusterMap.get(dstTaskCluster);
 			List<ICommonTask> dstAts = currentTasksMap.get(dstTaskCluster);
@@ -131,9 +131,7 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 			}
 		}
 
-		if (newTaskCluster) {
-			((SimpleTaskCluster) dstTaskCluster).setCheckGraphCreated(true);
-		}
+		((SimpleTaskCluster) dstTaskCluster).setCheckGraphCreated(true);
 
 		return dstTaskCluster;
 	}
@@ -146,9 +144,8 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 	}
 
 	@Override
-	public void saveNewNextTasksInTaskCluster(ITaskCluster taskCluster, IStatusTask toDoneTask, Object taskServiceResult, List<ICommonTask> newTasks,
-			Map<ISubTask, List<ICommonTask>> linkNextTasksMap, Map<IStatusTask, List<ICommonTask>> otherBranchFirstTasksMap, List<ICommonTask> nextCurrentTasks,
-			List<ICommonTask> deleteTasks) {
+	public void saveNewNextTasksInTaskCluster(ITaskCluster taskCluster, IStatusTask toDoneTask, Object taskServiceResult, List<ICommonTask> newTasks, Map<ISubTask, List<ICommonTask>> linkNextTasksMap,
+			Map<IStatusTask, List<ICommonTask>> otherBranchFirstTasksMap, List<ICommonTask> nextCurrentTasks, List<ICommonTask> deleteTasks) {
 		LOG.info("MRW - saveNewNextTasksInTaskCluster");
 
 		currentTasksMap.get(taskCluster).remove(toDoneTask);
@@ -169,7 +166,8 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 					if (nextTasks != null && !nextTasks.isEmpty()) {
 						simpleSubTask.getNextTasks().addAll(nextTasks);
 					}
-				} if (task instanceof SimpleStatusTask) {
+				}
+				if (task instanceof SimpleStatusTask) {
 					SimpleStatusTask simpleStatusTask = (SimpleStatusTask) task;
 					List<ICommonTask> otherPreviousNextTasks = otherBranchFirstTasksMap.get(simpleStatusTask);
 					if (otherPreviousNextTasks != null && !otherPreviousNextTasks.isEmpty()) {

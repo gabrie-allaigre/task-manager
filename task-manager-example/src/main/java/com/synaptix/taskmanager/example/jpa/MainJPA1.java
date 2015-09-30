@@ -12,8 +12,10 @@ import com.synaptix.taskmanager.engine.graph.StatusGraphsBuilder;
 import com.synaptix.taskmanager.engine.manager.ITaskObjectManager;
 import com.synaptix.taskmanager.engine.manager.TaskObjectManagerBuilder;
 import com.synaptix.taskmanager.engine.taskdefinition.TaskDefinitionBuilder;
-import com.synaptix.taskmanager.example.jpa.model.Cluster;
-import com.synaptix.taskmanager.example.jpa.model.Task;
+import com.synaptix.taskmanager.jpa.JPATaskFactory;
+import com.synaptix.taskmanager.jpa.JPATaskManagerReaderWriter;
+import com.synaptix.taskmanager.jpa.model.Cluster;
+import com.synaptix.taskmanager.jpa.model.Task;
 import com.synaptix.taskmanager.example.jpa.model.Todo;
 import com.synaptix.taskmanager.example.jpa.task.MultiUpdateStatusTaskService;
 import com.synaptix.taskmanager.example.jpa.task.SetNameTaskService;
@@ -45,15 +47,19 @@ public class MainJPA1 {
 				.addTaskDefinition(TaskDefinitionBuilder.newBuilder("STOP", new StopTaskService()).build())
 				.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERIFY_LAURELINE", new VerifyNameTaskService("Laureline")).build()).build();
 
-		JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance());
+		JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(),JPATaskManagerReaderWriter.RemoveMode.DELETE);
 
 		ITaskManagerConfiguration taskManagerConfiguration = TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(taskObjectManagerRegistry)
 				.taskDefinitionRegistry(taskDefinitionRegistry).taskFactory(new JPATaskFactory()).taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build();
 		TaskManagerEngine engine = new TaskManagerEngine(taskManagerConfiguration);
 
+		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
+
 		Todo todo = new Todo();
 		todo.setSummary("Fiche de bug");
-		JPAHelper.getInstance().getEntityManager().persist(todo);
+		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(todo);
+
+		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
 
 		engine.startEngine(todo);
 
@@ -65,12 +71,12 @@ public class MainJPA1 {
 		showTodos();
 		showTasks();
 
-		JPAHelper.getInstance().getEntityManager().close();
+		JPAHelper.getInstance().getJpaAccess().getEntityManager().close();
 	}
 
 	private static void showClusters() {
 		System.out.println("------ Cluster ------");
-		Query q = JPAHelper.getInstance().getEntityManager().createQuery("select t from Cluster t");
+		Query q = JPAHelper.getInstance().getJpaAccess().getEntityManager().createQuery("select t from Cluster t");
 		List<Cluster> clusters = q.getResultList();
 		for (Cluster t : clusters) {
 			System.out.println(t);
@@ -80,7 +86,7 @@ public class MainJPA1 {
 
 	private static void showTodos() {
 		System.out.println("------ Todo ------");
-		Query q = JPAHelper.getInstance().getEntityManager().createQuery("select t from Todo t");
+		Query q = JPAHelper.getInstance().getJpaAccess().getEntityManager().createQuery("select t from Todo t");
 		List<Todo> todos = q.getResultList();
 		for (Todo t : todos) {
 			System.out.println(t);
@@ -90,7 +96,7 @@ public class MainJPA1 {
 
 	private static void showTasks() {
 		System.out.println("------ Task ------");
-		Query q = JPAHelper.getInstance().getEntityManager().createQuery("select t from Task t");
+		Query q = JPAHelper.getInstance().getJpaAccess().getEntityManager().createQuery("select t from Task t");
 		List<Task> tasks = q.getResultList();
 		for (Task t : tasks) {
 			System.out.println(t);

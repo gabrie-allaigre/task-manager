@@ -4,7 +4,7 @@ import com.synaptix.taskmanager.engine.task.ICommonTask;
 import com.synaptix.taskmanager.engine.taskservice.AbstractTaskService;
 import com.synaptix.taskmanager.engine.taskservice.ExecutionResultBuilder;
 import com.synaptix.taskmanager.example.jpa.JPAHelper;
-import com.synaptix.taskmanager.example.jpa.model.Task;
+import com.synaptix.taskmanager.jpa.model.Task;
 import com.synaptix.taskmanager.example.jpa.model.Todo;
 
 public class MultiUpdateStatusTaskService extends AbstractTaskService {
@@ -21,14 +21,14 @@ public class MultiUpdateStatusTaskService extends AbstractTaskService {
 	public IExecutionResult execute(IEngineContext context, ICommonTask commonTask) {
 		Task task = (Task)commonTask;
 
-		Todo todo = JPAHelper.getInstance().getEntityManager().find(Todo.class, task.getBusinessTaskObjectId());
+		Todo todo = JPAHelper.getInstance().getJpaAccess().getEntityManager().find(Todo.class, task.getBusinessTaskObjectId());
 
-		JPAHelper.getInstance().getEntityManager().getTransaction().begin();
+		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
 
 		todo.setStatus(status);
-		JPAHelper.getInstance().getEntityManager().persist(todo);
+		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(todo);
 
-		JPAHelper.getInstance().getEntityManager().getTransaction().commit();
+		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
 
 		return ExecutionResultBuilder.newBuilder().finished();
 	}

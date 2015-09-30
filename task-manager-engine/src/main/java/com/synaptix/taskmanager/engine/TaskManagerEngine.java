@@ -371,7 +371,7 @@ public class TaskManagerEngine {
 			taskCluster = getTaskManagerConfiguration().getTaskFactory().newTaskCluster();
 			taskCluster = getTaskManagerConfiguration().getTaskManagerWriter().saveNewTaskCluster(taskCluster);
 
-			taskCluster = getTaskManagerConfiguration().getTaskManagerWriter().saveMoveTaskObjectsToTaskCluster(taskCluster, modifyClusterMap, true);
+			taskCluster = getTaskManagerConfiguration().getTaskManagerWriter().saveMoveTaskObjectsToTaskCluster(taskCluster, modifyClusterMap);
 
 			List<ITaskCluster> cs = new ArrayList<ITaskCluster>(modifyClusterMap.keySet());
 			cs.add(taskCluster);
@@ -422,7 +422,7 @@ public class TaskManagerEngine {
 		}
 
 		if (!modifyClusterMap.isEmpty()) {
-			getTaskManagerConfiguration().getTaskManagerWriter().saveMoveTaskObjectsToTaskCluster(dstTaskCluster, modifyClusterMap, false);
+			getTaskManagerConfiguration().getTaskManagerWriter().saveMoveTaskObjectsToTaskCluster(dstTaskCluster, modifyClusterMap);
 
 			List<ITaskCluster> cs = new ArrayList<ITaskCluster>(modifyClusterMap.keySet());
 			cs.add(dstTaskCluster);

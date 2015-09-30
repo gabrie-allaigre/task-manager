@@ -1,12 +1,12 @@
-package com.synaptix.taskmanager.example.jpa;
+package com.synaptix.taskmanager.jpa;
 
 import com.synaptix.taskmanager.engine.configuration.factory.AbstractTaskFactory;
 import com.synaptix.taskmanager.engine.task.ICommonTask;
 import com.synaptix.taskmanager.engine.task.IStatusTask;
 import com.synaptix.taskmanager.engine.task.ISubTask;
-import com.synaptix.taskmanager.example.jpa.model.Cluster;
-import com.synaptix.taskmanager.example.jpa.model.IBusinessTaskObject;
-import com.synaptix.taskmanager.example.jpa.model.Task;
+import com.synaptix.taskmanager.jpa.model.Cluster;
+import com.synaptix.taskmanager.jpa.model.IBusinessTaskObject;
+import com.synaptix.taskmanager.jpa.model.Task;
 import com.synaptix.taskmanager.model.ITaskCluster;
 import com.synaptix.taskmanager.model.ITaskObject;
 

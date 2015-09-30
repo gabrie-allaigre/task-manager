@@ -33,6 +33,9 @@
 
 		<synaptixlibs.version>4.2.11-SNAPSHOT</synaptixlibs.version>
 		<jkeylockmanager.version>1.0.1</jkeylockmanager.version>
+		<eclipselink.version>2.6.0</eclipselink.version>
+		<org.eclipse.persistence.jpa.version>2.6.0</org.eclipse.persistence.jpa.version>
+		<derby.version>10.11.1.1</derby.version>
 
 		<logback.configurationFile>${root-directory}/etc/maven-annotation-logback.xml</logback.configurationFile>
 		<generated.sources.dir>${project.build.directory}/generated-sources/apt</generated.sources.dir>
@@ -291,6 +294,23 @@
 				<groupId>de.jkeylockmanager</groupId>
 				<artifactId>jkeylockmanager</artifactId>
 				<version>${jkeylockmanager.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.eclipse.persistence</groupId>
+				<artifactId>eclipselink</artifactId>
+				<version>${eclipselink.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.persistence</groupId>
+				<artifactId>org.eclipse.persistence.jpa</artifactId>
+				<version>${org.eclipse.persistence.jpa.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.derby</groupId>
+				<artifactId>derby</artifactId>
+				<version>${derby.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

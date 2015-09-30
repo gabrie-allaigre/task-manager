@@ -1,5 +1,6 @@
 package com.synaptix.taskmanager.example.jpa.model;
 
+import com.synaptix.taskmanager.jpa.model.IBusinessTaskObject;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.*;

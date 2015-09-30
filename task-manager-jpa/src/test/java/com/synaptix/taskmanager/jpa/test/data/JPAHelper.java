@@ -1,7 +1,6 @@
-package com.synaptix.taskmanager.example.jpa;
+package com.synaptix.taskmanager.jpa.test.data;
 
 import com.synaptix.taskmanager.jpa.DefaultJPAAccess;
-import com.synaptix.taskmanager.jpa.IJPAAccess;
 
 public class JPAHelper {
 
@@ -10,7 +9,7 @@ public class JPAHelper {
 	private DefaultJPAAccess jpaAccess;
 
 	private JPAHelper() {
-		jpaAccess = new DefaultJPAAccess("examples");
+		jpaAccess = new DefaultJPAAccess("tests");
 	}
 
 	public static synchronized JPAHelper getInstance() {
@@ -21,7 +20,7 @@ public class JPAHelper {
 		return instance;
 	}
 
-	public IJPAAccess getJpaAccess() {
+	public DefaultJPAAccess getJpaAccess() {
 		return jpaAccess;
 	}
 }

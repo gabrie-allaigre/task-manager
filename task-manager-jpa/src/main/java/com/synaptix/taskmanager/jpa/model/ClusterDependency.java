@@ -1,6 +1,6 @@
-package com.synaptix.taskmanager.example.jpa.model;
+package com.synaptix.taskmanager.jpa.model;
 
-import com.synaptix.taskmanager.example.jpa.ClassConverter;
+import com.synaptix.taskmanager.jpa.converter.ClassConverter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.*;

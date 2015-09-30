@@ -40,10 +40,9 @@ public interface ITaskManagerWriter {
 	 *
 	 * @param dstTaskCluster
 	 * @param modifyClusterMap
-	 * @param newTaskCluster
 	 * @return
 	 */
-	ITaskCluster saveMoveTaskObjectsToTaskCluster(ITaskCluster dstTaskCluster, Map<ITaskCluster, List<ITaskObject>> modifyClusterMap, boolean newTaskCluster);
+	ITaskCluster saveMoveTaskObjectsToTaskCluster(ITaskCluster dstTaskCluster, Map<ITaskCluster, List<ITaskObject>> modifyClusterMap);
 
 	/**
 	 * When taskCluster is finish (no task current)

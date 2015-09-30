@@ -1,4 +1,4 @@
-package com.synaptix.taskmanager.example.jpa.model;
+package com.synaptix.taskmanager.jpa.model;
 
 import com.synaptix.taskmanager.model.ITaskObject;
 

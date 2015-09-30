@@ -1,4 +1,4 @@
-package com.synaptix.taskmanager.example.jpa;
+package com.synaptix.taskmanager.jpa.converter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;

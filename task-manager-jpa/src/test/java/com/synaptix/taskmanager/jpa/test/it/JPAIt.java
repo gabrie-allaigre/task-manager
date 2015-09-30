@@ -19,7 +19,7 @@ import org.junit.Test;
 import javax.persistence.Query;
 import java.util.List;
 
-public class JPAIT {
+public class JpaIT {
 
 	/**
 	 * null -> A

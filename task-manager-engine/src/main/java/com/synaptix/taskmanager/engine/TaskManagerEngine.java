@@ -193,40 +193,44 @@ public class TaskManagerEngine {
 						if (LOG.isDebugEnabled()) {
 							LOG.debug("TM - Task is done");
 						}
-
-						TasksLists tasksLists = setTaskDone(taskCluster, task, taskServiceResult);
-						// Add new tasks to top of deque
-						if (tasksLists.newCurrentTasks != null && !tasksLists.newCurrentTasks.isEmpty()) {
-							for (ICommonTask iTask : tasksLists.newCurrentTasks) {
-								tasksQueue.addFirst(iTask);
-							}
-						}
-
-						if (tasksLists.tasksToRemoves != null && !tasksLists.tasksToRemoves.isEmpty()) {
-							for (ICommonTask idTask : tasksLists.tasksToRemoves) {
-								for (Iterator<ICommonTask> iterator = recycleList.iterator(); iterator.hasNext(); ) {
-									ICommonTask iTask = iterator.next();
-									if (idTask.equals(iTask)) {
-										iterator.remove();
-										break;
-									}
-								}
-								for (Iterator<ICommonTask> iterator = tasksQueue.iterator(); iterator.hasNext(); ) {
-									ICommonTask iTask = iterator.next();
-									if (idTask.equals(iTask)) {
-										iterator.remove();
-										break;
-									}
+						try {
+							TasksLists tasksLists = setTaskDone(taskCluster, task, taskServiceResult);
+							// Add new tasks to top of deque
+							if (tasksLists.newCurrentTasks != null && !tasksLists.newCurrentTasks.isEmpty()) {
+								for (ICommonTask iTask : tasksLists.newCurrentTasks) {
+									tasksQueue.addFirst(iTask);
 								}
 							}
-						}
 
-						if (!noChanges) {
-							// Add previously failed tasks to end of deque. Not done when service nature is not DATA_CHECK because DATA_CHECK does not update objects.
-							for (ICommonTask iTask : recycleList) {
-								tasksQueue.addLast(iTask);
+							if (tasksLists.tasksToRemoves != null && !tasksLists.tasksToRemoves.isEmpty()) {
+								for (ICommonTask idTask : tasksLists.tasksToRemoves) {
+									for (Iterator<ICommonTask> iterator = recycleList.iterator(); iterator.hasNext(); ) {
+										ICommonTask iTask = iterator.next();
+										if (idTask.equals(iTask)) {
+											iterator.remove();
+											break;
+										}
+									}
+									for (Iterator<ICommonTask> iterator = tasksQueue.iterator(); iterator.hasNext(); ) {
+										ICommonTask iTask = iterator.next();
+										if (idTask.equals(iTask)) {
+											iterator.remove();
+											break;
+										}
+									}
+								}
 							}
-							recycleList.clear();
+
+							if (!noChanges) {
+								// Add previously failed tasks to end of deque. Not done when service nature is not DATA_CHECK because DATA_CHECK does not update objects.
+								for (ICommonTask iTask : recycleList) {
+									tasksQueue.addLast(iTask);
+								}
+								recycleList.clear();
+							}
+						} catch (Throwable t) {
+							LOG.error("TM - Error setTaskDone" + task.getCodeTaskDefinition(), t);
+							setTaskNothing(taskCluster, task, taskServiceResult, t);
 						}
 					} else {
 						if (LOG.isDebugEnabled()) {

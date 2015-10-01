@@ -420,4 +420,30 @@ public class SimpleIT {
 		Assert.assertEquals(businessObject.getStatus(), null);
 		Assert.assertTrue(!taskCluster.isCheckArchived());
 	}
+
+	/**
+	 * Test two parallel task service
+	 * <p>
+	 * null -> (CHANGE1=>CHANGE2,VERSA=>CHANGE3) -> A
+	 */
+	@Test
+	public void test17() {
+		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
+				TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask").build())
+						.addTaskChainCriteria(null, "A", "(CHANGE1=>CHANGE2)=>(VERSA=>CHANGE3)").build()).build()).taskDefinitionRegistry(
+				TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("CHANGE1", new ChangeCodeTaskService("VersB")).build())
+						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("CHANGE2", new ChangeCodeTaskService("VersA")).build())
+						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("CHANGE3", new ChangeCodeTaskService("VersC")).build())
+						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSA", new VerifyCodeTaskService("VersA")).build())
+						.build()).build());
+
+		BusinessObject businessObject = new BusinessObject();
+
+		ITaskCluster taskCluster = engine.startEngine(businessObject);
+
+		Assert.assertEquals(businessObject.getStatus(), "A");
+		Assert.assertEquals(businessObject.getCode(), "VersC");
+		Assert.assertTrue(taskCluster.isCheckArchived());
+	}
 }

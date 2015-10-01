@@ -257,9 +257,9 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 				if (previousTasks != null && !previousTasks.isEmpty()) {
 					Iterator<ICommonTask> previousTaskIt = previousTasks.iterator();
 					while (previousTaskIt.hasNext() && allFinish) {
-						ICommonTask previousTask = previousTaskIt.next();
-						if (!previousTask.equals(subTask) && (AbstractSimpleCommonTask.Status.TODO.equals(((AbstractSimpleCommonTask) nextTask).getStatus()) || AbstractSimpleCommonTask.Status.CURRENT
-								.equals(((AbstractSimpleCommonTask) nextTask).getStatus()))) {
+						AbstractSimpleCommonTask previousTask = (AbstractSimpleCommonTask) previousTaskIt.next();
+						if (!previousTask.equals(subTask) && (AbstractSimpleCommonTask.Status.TODO.equals(previousTask.getStatus()) || AbstractSimpleCommonTask.Status.CURRENT
+								.equals(previousTask.getStatus()))) {
 							allFinish = false;
 						}
 					}

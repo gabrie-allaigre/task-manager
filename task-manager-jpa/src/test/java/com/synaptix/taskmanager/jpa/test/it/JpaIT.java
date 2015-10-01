@@ -760,6 +760,44 @@ public class JpaIT {
 		JPAHelper.getInstance().getJpaAccess().stop();
 	}
 
+	/**
+	 * null -> A -> (CHANGE,DATE) => VERSB -> B
+	 */
+	@Test
+	public void test17() {
+		JPAHelper.getInstance().getJpaAccess().start();
+
+		JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.DELETE);
+
+		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
+				TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class)
+						.statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
+						.addTaskChainCriteria("A", "B", "(CHANGE,DATE)=>VERSB").build()).build()).taskDefinitionRegistry(
+				TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("CHANGE", new ChangeCodeTaskService("VersB")).build())
+						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build())
+						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("DATE", new SetNowDateTaskService()).build()).build())
+				.taskFactory(new JPATaskFactory()).taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
+
+		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
+		BusinessObject businessObject = new BusinessObject();
+		businessObject.setCode("VersA");
+		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
+		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
+
+		Assert.assertNull(businessObject.getDate());
+
+		ITaskCluster taskCluster = engine.startEngine(businessObject);
+
+		Assert.assertNotNull(businessObject.getDate());
+		Assert.assertEquals(businessObject.getCode(), "VersB");
+		Assert.assertEquals(businessObject.getStatus(), "B");
+		Assert.assertTrue(taskCluster.isCheckArchived());
+
+		JPAHelper.getInstance().getJpaAccess().stop();
+	}
+
 	private List<Cluster> getClusters() {
 		Query q = JPAHelper.getInstance().getJpaAccess().getEntityManager().createQuery("select t from Cluster t");
 		return q.getResultList();

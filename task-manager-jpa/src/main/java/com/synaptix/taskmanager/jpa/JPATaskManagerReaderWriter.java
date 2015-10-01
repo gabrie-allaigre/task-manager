@@ -457,8 +457,8 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 					Iterator<Task> previousTaskIt = previousTasks.iterator();
 					while (previousTaskIt.hasNext() && allFinish) {
 						Task previousTask = previousTaskIt.next();
-						if (!previousTask.equals(subTask) && (Task.Status.TODO.equals(((Task) nextTask).getStatus()) || Task.Status.CURRENT
-								.equals(((Task) nextTask).getStatus()))) {
+						if (!previousTask.equals(subTask) && (Task.Status.TODO.equals(((Task) previousTask).getStatus()) || Task.Status.CURRENT
+								.equals(((Task) previousTask).getStatus()))) {
 							allFinish = false;
 						}
 					}

@@ -18,6 +18,7 @@ public class DefaultJPAAccess implements IJPAAccess {
 		super();
 
 		this.persistenceUnitName = persistenceUnitName;
+
 	}
 
 	public void start() {

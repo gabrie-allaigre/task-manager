@@ -153,23 +153,6 @@
                         </configuration>
                     </execution>
                     <!--
-                        Ensures that the code coverage report for unit tests is created after
-                        unit tests have been run.
-                    -->
-                    <execution>
-                        <id>post-unit-test</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                        <configuration>
-                            <!-- Sets the path to the file which contains the execution data. -->
-                            <dataFile>${jacoco.ut.execution.data.file}</dataFile>
-                            <!-- Sets the output directory for the code coverage report. -->
-                            <outputDirectory>${project.reporting.outputDirectory}/jacoco-ut</outputDirectory>
-                        </configuration>
-                    </execution>
-                    <!--
                         Prepares the property pointing to the JaCoCo runtime agent which
                         is passed as VM argument when Maven the Failsafe plugin is executed.
                     -->
@@ -184,23 +167,17 @@
                             <destFile>${jacoco.it.execution.data.file}</destFile>
                         </configuration>
                     </execution>
-                    <!--
-                        Ensures that the code coverage report for integration tests after
-                        integration tests have been run.
-                    -->
-                    <execution>
-                        <id>post-integration-test</id>
-                        <phase>post-integration-test</phase>
+                    <!--execution>
+                        <id>rien</id>
+                        <phase>install</phase>
                         <goals>
-                            <goal>report</goal>
+                            <goal>merge</goal>
                         </goals>
                         <configuration>
-                            <!-- Sets the path to the file which contains the execution data. -->
                             <dataFile>${jacoco.it.execution.data.file}</dataFile>
-                            <!-- Sets the output directory for the code coverage report. -->
                             <outputDirectory>${project.reporting.outputDirectory}/jacoco-it</outputDirectory>
                         </configuration>
-                    </execution>
+                    </execution-->
                 </executions>
             </plugin>
             <plugin>

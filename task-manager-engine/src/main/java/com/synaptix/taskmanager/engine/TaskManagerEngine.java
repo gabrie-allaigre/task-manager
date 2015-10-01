@@ -149,6 +149,7 @@ public class TaskManagerEngine {
 							if (LOG.isDebugEnabled()) {
 								LOG.debug("TM - TaskService does not exist code=" + task.getCodeTaskDefinition());
 							}
+							done = false;
 							errorMessage = new NotFoundTaskDefinitionException();
 						} else {
 							if (LOG.isDebugEnabled()) {

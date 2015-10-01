@@ -324,7 +324,7 @@ public class SimpleIT {
 	/**
 	 * Test bug on task service
 	 * <p>
-	 * null -> A
+	 * null -> BUG -> A
 	 */
 	@Test
 	public void test12() {
@@ -344,7 +344,9 @@ public class SimpleIT {
 	}
 
 	/**
-	 * null -> A
+	 * TaskService return null
+	 * <p>
+	 * null -> NULL -> A
 	 */
 	@Test
 	public void test13() {
@@ -353,6 +355,48 @@ public class SimpleIT {
 						.addTaskChainCriteria(null, "A", "NULL").build()).build()).taskDefinitionRegistry(
 				TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
 						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("NULL", new NullTaskService()).build()).build()).build());
+
+		BusinessObject businessObject = new BusinessObject();
+		Assert.assertNull(businessObject.getStatus());
+
+		ITaskCluster taskCluster = engine.startEngine(businessObject);
+
+		Assert.assertEquals(businessObject.getStatus(), null);
+		Assert.assertFalse(taskCluster.isCheckArchived());
+	}
+
+	/**
+	 * TaskService not found
+	 * <p>
+	 * null -> A
+	 */
+	@Test
+	public void test14() {
+		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
+				TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "NOTFOUND").build())
+						.build()).build()).taskDefinitionRegistry(TaskDefinitionRegistryBuilder.newBuilder().build()).build());
+
+		BusinessObject businessObject = new BusinessObject();
+		Assert.assertNull(businessObject.getStatus());
+
+		ITaskCluster taskCluster = engine.startEngine(businessObject);
+
+		Assert.assertEquals(businessObject.getStatus(), null);
+		Assert.assertFalse(taskCluster.isCheckArchived());
+	}
+
+	/**
+	 * TaskService not found
+	 * <p>
+	 * null -> NOTFOUND -> A
+	 */
+	@Test
+	public void test15() {
+		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
+				TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask").build())
+						.addTaskChainCriteria(null, "A", "NOTFOUND").build()).build())
+				.taskDefinitionRegistry(TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build()).build())
+				.build());
 
 		BusinessObject businessObject = new BusinessObject();
 		Assert.assertNull(businessObject.getStatus());

@@ -10,3 +10,13 @@ TaskManager
 - Pour l’utilisateur :
  - Visualiser les tâches effectuées pour un objet
  - Visualiser ses actions manuelles (todo)
+
+# Dependance
+
+```xml
+<dependency>
+    <groupId>com.synaptix</groupId>
+    <artifactId>task-manager-engine</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```

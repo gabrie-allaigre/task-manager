@@ -59,9 +59,13 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 	public ITaskCluster saveNewTaskCluster(ITaskCluster taskCluster) {
 		LOG.info("JPARW - saveNewTaskCluster");
 
+		getJpaAccess().getEntityManager().getTransaction().begin();
+
 		Cluster cluster = (Cluster) taskCluster;
 
 		getJpaAccess().getEntityManager().persist(cluster);
+
+		getJpaAccess().getEntityManager().getTransaction().commit();
 
 		return cluster;
 	}
@@ -416,7 +420,7 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 		List<ClusterDependency> cds = cluster.getClusterDependencies();
 		if (cds != null && !cds.isEmpty()) {
 			for (ClusterDependency cd : cds) {
-				getJpaAccess().find(cd.getBusinessTaskObjectClass(), cd.getBusinessTaskObjectId());
+				res.add(getJpaAccess().find(cd.getBusinessTaskObjectClass(), cd.getBusinessTaskObjectId()));
 			}
 		}
 

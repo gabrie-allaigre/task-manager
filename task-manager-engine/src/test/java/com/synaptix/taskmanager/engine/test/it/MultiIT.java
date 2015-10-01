@@ -16,32 +16,22 @@ public class MultiIT {
 
 	/**
 	 * Add taskObject tto existing cluster
-	 *
+	 * <p>
 	 * null -> A -> (VERSB -> B -> STOP,VERSC -> C -> STOP) -> D
 	 */
 	@Test
 	public void test1() {
-		TaskManagerEngine engine = new TaskManagerEngine(
-				TaskManagerConfigurationBuilder.newBuilder()
-						.taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder()
-								.addTaskObjectManager(TaskObjectManagerBuilder.<String,BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String> newBuilder()
-										.addNextStatusGraph("A", "ATask",
-												StatusGraphsBuilder.<String> newBuilder()
-														.addNextStatusGraph("B", "BTask", StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("D", "DTask"))
-														.addNextStatusGraph("C", "CTask",
-																StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("D",
-																		"DTask")))
-										.build()).addTaskChainCriteria("A", "B", "VERSB").addTaskChainCriteria("A", "C", "VERSC")
-										.addTaskChainCriteria("B", "D", "STOP").addTaskChainCriteria("C", "D", "STOP").build())
-								.build())
-				.taskDefinitionRegistry(
-						TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-								.addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
-								.addTaskDefinition(TaskDefinitionBuilder.newBuilder("CTask", new MultiUpdateStatusTaskService("C")).build())
-								.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build())
-								.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSC", new VerifyCodeTaskService("VersC")).build())
-								.addTaskDefinition(TaskDefinitionBuilder.newBuilder("STOP", new StopTaskService()).build()).build())
-						.build());
+		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
+				TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask",
+						StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("D", "DTask"))
+								.addNextStatusGraph("C", "CTask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("D", "DTask"))).build()).addTaskChainCriteria("A", "B", "VERSB")
+						.addTaskChainCriteria("A", "C", "VERSC").addTaskChainCriteria("B", "D", "STOP").addTaskChainCriteria("C", "D", "STOP").build()).build()).taskDefinitionRegistry(
+				TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("CTask", new MultiUpdateStatusTaskService("C")).build())
+						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build())
+						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSC", new VerifyCodeTaskService("VersC")).build())
+						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("STOP", new StopTaskService()).build()).build()).build());
 
 		BusinessObject firstBusinessObject = new BusinessObject();
 		firstBusinessObject.setCode("VersB");
@@ -69,17 +59,15 @@ public class MultiIT {
 	 */
 	@Test
 	public void test2() {
-		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder()
-				.taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder()
-						.addTaskObjectManager(TaskObjectManagerBuilder.<String,BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build()).build())
-						.addTaskObjectManager(TaskObjectManagerBuilder.<String,OtherBusinessObject>newBuilder(OtherBusinessObject.class).statusGraphs(StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("B", "BTask")).build()).addTaskChainCriteria(
-								"A", "B", "VERSB").build())
-						.build())
-				.taskDefinitionRegistry(
-						TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-								.addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
-								.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build())
-				.build());
+		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
+				TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class)
+						.statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
+						.build()).addTaskObjectManager(TaskObjectManagerBuilder.<String, OtherBusinessObject>newBuilder(OtherBusinessObject.class)
+				.statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
+				.addTaskChainCriteria("A", "B", "VERSB").build()).build()).taskDefinitionRegistry(
+				TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build()).build());
 
 		BusinessObject businessObject = new BusinessObject();
 		businessObject.setCode("VersA");
@@ -87,7 +75,7 @@ public class MultiIT {
 		OtherBusinessObject otherBusinessObject = new OtherBusinessObject();
 		otherBusinessObject.setCode("VersA");
 
-		ITaskCluster taskCluster = engine.startEngine(businessObject,otherBusinessObject);
+		ITaskCluster taskCluster = engine.startEngine(businessObject, otherBusinessObject);
 
 		Assert.assertEquals(businessObject.getCode(), "VersA");
 		Assert.assertEquals(otherBusinessObject.getCode(), "VersA");
@@ -104,20 +92,21 @@ public class MultiIT {
 
 	/**
 	 * Remove task object to task cluster
+	 * <p>
+	 * null -> A -> B
+	 * null -> A -> VERSB -> B
 	 */
 	@Test
 	public void test3() {
-		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder()
-				.taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder()
-						.addTaskObjectManager(TaskObjectManagerBuilder.<String,BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build()).build())
-						.addTaskObjectManager(TaskObjectManagerBuilder.<String,OtherBusinessObject>newBuilder(OtherBusinessObject.class).statusGraphs(StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("B", "BTask")).build()).addTaskChainCriteria(
-								"A", "B", "VERSB").build())
-						.build())
-				.taskDefinitionRegistry(
-						TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-								.addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
-								.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build())
-				.build());
+		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
+				TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class)
+						.statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
+						.build()).addTaskObjectManager(TaskObjectManagerBuilder.<String, OtherBusinessObject>newBuilder(OtherBusinessObject.class)
+				.statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
+				.addTaskChainCriteria("A", "B", "VERSB").build()).build()).taskDefinitionRegistry(
+				TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build()).build());
 
 		BusinessObject businessObject = new BusinessObject();
 		businessObject.setCode("VersA");
@@ -125,7 +114,7 @@ public class MultiIT {
 		OtherBusinessObject otherBusinessObject = new OtherBusinessObject();
 		otherBusinessObject.setCode("VersA");
 
-		ITaskCluster taskCluster = engine.startEngine(businessObject,otherBusinessObject);
+		ITaskCluster taskCluster = engine.startEngine(businessObject, otherBusinessObject);
 
 		Assert.assertEquals(businessObject.getCode(), "VersA");
 		Assert.assertEquals(otherBusinessObject.getCode(), "VersA");
@@ -144,20 +133,21 @@ public class MultiIT {
 
 	/**
 	 * Move task object to new task cluster
+	 * <p>
+	 * null -> A -> VERSB -> B
+	 * null -> A -> VERSB -> B
 	 */
 	@Test
 	public void test4() {
-		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder()
-				.taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder()
-						.addTaskObjectManager(TaskObjectManagerBuilder.<String,BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build()).build())
-						.addTaskObjectManager(TaskObjectManagerBuilder.<String,OtherBusinessObject>newBuilder(OtherBusinessObject.class).statusGraphs(StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("B", "BTask")).build()).addTaskChainCriteria(
-								"A", "B", "VERSB").build())
-						.build())
-				.taskDefinitionRegistry(
-						TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-								.addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
-								.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build())
-				.build());
+		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
+				TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class)
+						.statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
+						.build()).addTaskObjectManager(TaskObjectManagerBuilder.<String, OtherBusinessObject>newBuilder(OtherBusinessObject.class)
+				.statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
+				.addTaskChainCriteria("A", "B", "VERSB").build()).build()).taskDefinitionRegistry(
+				TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build()).build());
 
 		BusinessObject businessObject = new BusinessObject();
 		businessObject.setCode("VersA");
@@ -165,7 +155,7 @@ public class MultiIT {
 		OtherBusinessObject otherBusinessObject = new OtherBusinessObject();
 		otherBusinessObject.setCode("VersA");
 
-		ITaskCluster taskCluster = engine.startEngine(businessObject,otherBusinessObject);
+		ITaskCluster taskCluster = engine.startEngine(businessObject, otherBusinessObject);
 
 		Assert.assertEquals(businessObject.getCode(), "VersA");
 		Assert.assertEquals(otherBusinessObject.getCode(), "VersA");
@@ -176,7 +166,7 @@ public class MultiIT {
 
 		ITaskCluster newTaskCluster = engine.moveTaskObjectsToNewTaskCluster(otherBusinessObject);
 
-		Assert.assertNotSame(taskCluster,newTaskCluster);
+		Assert.assertNotSame(taskCluster, newTaskCluster);
 
 		Assert.assertEquals(engine.getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(otherBusinessObject), newTaskCluster);
 		Assert.assertEquals(otherBusinessObject.getStatus(), "B");
@@ -185,22 +175,22 @@ public class MultiIT {
 	}
 
 	/**
-	 * Move task object to new task cluster
+	 * Move task object to other task cluster
+	 * <p>
+	 * null -> A -> VERSB -> B
+	 * null -> A -> VERSB -> B
 	 */
 	@Test
 	public void test5() {
-		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder()
-				.taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder()
-						.addTaskObjectManager(TaskObjectManagerBuilder.<String,BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build()).addTaskChainCriteria(
-								"A", "B", "VERSB").build())
-						.addTaskObjectManager(TaskObjectManagerBuilder.<String,OtherBusinessObject>newBuilder(OtherBusinessObject.class).statusGraphs(StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String> newBuilder().addNextStatusGraph("B", "BTask")).build()).addTaskChainCriteria(
-								"A", "B", "VERSB").build())
-						.build())
-				.taskDefinitionRegistry(
-						TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-								.addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
-								.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build())
-				.build());
+		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
+				TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class)
+						.statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
+						.addTaskChainCriteria("A", "B", "VERSB").build()).addTaskObjectManager(TaskObjectManagerBuilder.<String, OtherBusinessObject>newBuilder(OtherBusinessObject.class)
+				.statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
+				.addTaskChainCriteria("A", "B", "VERSB").build()).build()).taskDefinitionRegistry(
+				TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build()).build());
 
 		BusinessObject businessObject = new BusinessObject();
 		businessObject.setCode("VersA");
@@ -221,7 +211,7 @@ public class MultiIT {
 		businessObject.setCode("VersB");
 		otherBusinessObject.setCode("VersB");
 
-		engine.moveTaskObjectsToTaskCluster(taskCluster,otherBusinessObject);
+		engine.moveTaskObjectsToTaskCluster(taskCluster, otherBusinessObject);
 
 		Assert.assertEquals(engine.getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(otherBusinessObject), taskCluster);
 		Assert.assertEquals(businessObject.getStatus(), "B");

@@ -728,6 +728,38 @@ public class JpaIT {
 		JPAHelper.getInstance().getJpaAccess().stop();
 	}
 
+	/**
+	 * Test two parallel task service
+	 * <p>
+	 * null -> (CHANGE,STOP) -> A
+	 */
+	@Test
+	public void test16() {
+		JPAHelper.getInstance().getJpaAccess().start();
+
+		JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.DELETE);
+
+		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
+				TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask").build())
+						.addTaskChainCriteria(null, "A", "CHANGE,STOP").build()).build()).taskDefinitionRegistry(
+				TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("CHANGE", new ChangeCodeTaskService("VersA")).build())
+						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("STOP", new StopTaskService()).build()).build())
+				.taskFactory(new JPATaskFactory()).taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
+
+		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
+		BusinessObject businessObject = new BusinessObject();
+		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
+		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
+
+		ITaskCluster taskCluster = engine.startEngine(businessObject);
+
+		Assert.assertEquals(businessObject.getStatus(), null);
+		Assert.assertTrue(!taskCluster.isCheckArchived());
+
+		JPAHelper.getInstance().getJpaAccess().stop();
+	}
+
 	private List<Cluster> getClusters() {
 		Query q = JPAHelper.getInstance().getJpaAccess().getEntityManager().createQuery("select t from Cluster t");
 		return q.getResultList();

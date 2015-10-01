@@ -445,7 +445,31 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 	@Override
 	public List<? extends ICommonTask> findNextTasksBySubTask(ISubTask subTask) {
 		LOG.info("JPARW - findNextTasksBySubTask");
-		return ((Task) subTask).getNextTasks();
+
+		List<ICommonTask> res = new ArrayList<ICommonTask>();
+
+		List<Task> nextTasks = ((Task) subTask).getNextTasks();
+		if (nextTasks != null && !nextTasks.isEmpty()) {
+			for (ICommonTask nextTask : nextTasks) {
+				List<Task> previousTasks = ((Task) nextTask).getPreviousTasks();
+				boolean allFinish = true;
+				if (previousTasks != null && !previousTasks.isEmpty()) {
+					Iterator<Task> previousTaskIt = previousTasks.iterator();
+					while (previousTaskIt.hasNext() && allFinish) {
+						Task previousTask = previousTaskIt.next();
+						if (!previousTask.equals(subTask) && (Task.Status.TODO.equals(((Task) nextTask).getStatus()) || Task.Status.CURRENT
+								.equals(((Task) nextTask).getStatus()))) {
+							allFinish = false;
+						}
+					}
+				}
+				if (allFinish) {
+					res.add(nextTask);
+				}
+			}
+		}
+
+		return res;
 	}
 
 	@Override

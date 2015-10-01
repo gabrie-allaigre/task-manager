@@ -3,8 +3,8 @@ package com.synaptix.taskmanager.engine.memory;
 import com.synaptix.taskmanager.engine.configuration.persistance.ITaskManagerReader;
 import com.synaptix.taskmanager.engine.configuration.persistance.ITaskManagerWriter;
 import com.synaptix.taskmanager.engine.task.ICommonTask;
-import com.synaptix.taskmanager.engine.task.ISubTask;
 import com.synaptix.taskmanager.engine.task.IStatusTask;
+import com.synaptix.taskmanager.engine.task.ISubTask;
 import com.synaptix.taskmanager.model.ITaskCluster;
 import com.synaptix.taskmanager.model.ITaskObject;
 import org.apache.commons.lang3.tuple.Pair;
@@ -64,6 +64,7 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 				IStatusTask task = taskObjectNode.getRight();
 
 				((AbstractSimpleCommonTask) task).setTaskObject(taskObject);
+				((AbstractSimpleCommonTask) task).setStatus(AbstractSimpleCommonTask.Status.CURRENT);
 
 				ats.add(task);
 			}
@@ -148,6 +149,8 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 			Map<IStatusTask, List<ICommonTask>> otherBranchFirstTasksMap, List<ICommonTask> nextCurrentTasks, List<ICommonTask> deleteTasks) {
 		LOG.info("MRW - saveNewNextTasksInTaskCluster");
 
+		((AbstractSimpleCommonTask) toDoneTask).setStatus(AbstractSimpleCommonTask.Status.DONE);
+
 		currentTasksMap.get(taskCluster).remove(toDoneTask);
 
 		if (deleteTasks != null && !deleteTasks.isEmpty()) {
@@ -159,12 +162,17 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 			for (ICommonTask task : newTasks) {
 				if (task instanceof AbstractSimpleCommonTask) {
 					((AbstractSimpleCommonTask) task).setTaskObject(taskObject);
+					((AbstractSimpleCommonTask) task).setStatus(AbstractSimpleCommonTask.Status.TODO);
 				}
 				if (task instanceof SimpleSubTask) {
 					SimpleSubTask simpleSubTask = (SimpleSubTask) task;
 					List<ICommonTask> nextTasks = linkNextTasksMap.get(simpleSubTask);
 					if (nextTasks != null && !nextTasks.isEmpty()) {
 						simpleSubTask.getNextTasks().addAll(nextTasks);
+
+						for (ICommonTask nextTask : nextTasks) {
+							((AbstractSimpleCommonTask) nextTask).getPreviousTasks().add(task);
+						}
 					}
 				}
 				if (task instanceof SimpleStatusTask) {
@@ -177,6 +185,12 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 			}
 		}
 
+		if (nextCurrentTasks != null && !nextCurrentTasks.isEmpty()) {
+			for (ICommonTask nextCurrentTask : nextCurrentTasks) {
+				((AbstractSimpleCommonTask) nextCurrentTask).setStatus(AbstractSimpleCommonTask.Status.CURRENT);
+			}
+		}
+
 		currentTasksMap.get(taskCluster).addAll(nextCurrentTasks);
 	}
 
@@ -184,7 +198,16 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 	public void saveNextTasksInTaskCluster(ITaskCluster taskCluster, ICommonTask toDoneTask, Object taskServiceResult, List<ICommonTask> nextCurrentTasks) {
 		LOG.info("MRW - saveNextTasksInTaskCluster");
 
+		((AbstractSimpleCommonTask) toDoneTask).setStatus(AbstractSimpleCommonTask.Status.DONE);
+
 		currentTasksMap.get(taskCluster).remove(toDoneTask);
+
+		if (nextCurrentTasks != null && !nextCurrentTasks.isEmpty()) {
+			for (ICommonTask nextCurrentTask : nextCurrentTasks) {
+				AbstractSimpleCommonTask nct = (AbstractSimpleCommonTask) nextCurrentTask;
+				nct.setStatus(AbstractSimpleCommonTask.Status.CURRENT);
+			}
+		}
 
 		currentTasksMap.get(taskCluster).addAll(nextCurrentTasks);
 	}
@@ -198,6 +221,8 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 
 	@Override
 	public ITaskCluster findTaskClusterByTaskObject(ITaskObject taskObject) {
+		LOG.info("MRW - findTaskClusterByTaskObject");
+
 		for (Entry<ITaskCluster, List<ITaskObject>> entry : taskClusterMap.entrySet()) {
 			if (entry.getValue().contains(taskObject)) {
 				return entry.getKey();
@@ -208,21 +233,49 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 
 	@Override
 	public List<? extends ITaskObject> findTaskObjectsByTaskCluster(ITaskCluster taskCluster) {
+		LOG.info("MRW - findTaskObjectsByTaskCluster");
 		return taskClusterMap.get(taskCluster);
 	}
 
 	@Override
 	public List<? extends ICommonTask> findCurrentTasksByTaskCluster(ITaskCluster taskCluster) {
+		LOG.info("MRW - findCurrentTasksByTaskCluster");
 		return currentTasksMap.get(taskCluster);
 	}
 
 	@Override
 	public List<? extends ICommonTask> findNextTasksBySubTask(ISubTask subTask) {
-		return ((SimpleSubTask) subTask).getNextTasks();
+		LOG.info("MRW - findNextTasksBySubTask");
+
+		List<ICommonTask> res = new ArrayList<ICommonTask>();
+
+		List<ICommonTask> nextTasks = ((SimpleSubTask) subTask).getNextTasks();
+		if (nextTasks != null && !nextTasks.isEmpty()) {
+			for (ICommonTask nextTask : nextTasks) {
+				List<ICommonTask> previousTasks = ((AbstractSimpleCommonTask) nextTask).getPreviousTasks();
+				boolean allFinish = true;
+				if (previousTasks != null && !previousTasks.isEmpty()) {
+					Iterator<ICommonTask> previousTaskIt = previousTasks.iterator();
+					while (previousTaskIt.hasNext() && allFinish) {
+						ICommonTask previousTask = previousTaskIt.next();
+						if (!previousTask.equals(subTask) && (AbstractSimpleCommonTask.Status.TODO.equals(((AbstractSimpleCommonTask) nextTask).getStatus()) || AbstractSimpleCommonTask.Status.CURRENT
+								.equals(((AbstractSimpleCommonTask) nextTask).getStatus()))) {
+							allFinish = false;
+						}
+					}
+				}
+				if (allFinish) {
+					res.add(nextTask);
+				}
+			}
+		}
+
+		return res;
 	}
 
 	@Override
 	public List<? extends ICommonTask> findOtherBranchFirstTasksByStatusTask(IStatusTask statusTask) {
+		LOG.info("MRW - findOtherBranchFirstTasksByStatusTask");
 		return ((SimpleStatusTask) statusTask).getOtherBranchFirstTasks();
 	}
 }

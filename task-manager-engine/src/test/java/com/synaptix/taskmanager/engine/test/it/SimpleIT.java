@@ -400,7 +400,7 @@ public class SimpleIT {
 	}
 
 	/**
-	 * Test two objects separeted
+	 * Test two parallel task service
 	 * <p>
 	 * null -> (CHANGE,STOP) -> A
 	 */

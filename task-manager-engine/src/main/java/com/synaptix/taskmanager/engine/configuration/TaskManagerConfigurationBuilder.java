@@ -11,7 +11,6 @@ import com.synaptix.taskmanager.engine.configuration.transform.DefaultTaskChainC
 import com.synaptix.taskmanager.engine.configuration.transform.ITaskChainCriteriaTransform;
 import com.synaptix.taskmanager.engine.memory.MemoryTaskManagerReaderWriter;
 import com.synaptix.taskmanager.engine.memory.SimpleTaskFactory;
-import com.synaptix.taskmanager.model.ITaskObject;
 
 public class TaskManagerConfigurationBuilder {
 

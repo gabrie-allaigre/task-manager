@@ -8,7 +8,6 @@ import org.junit.Test;
 
 import com.synaptix.taskmanager.engine.graph.IStatusGraph;
 import com.synaptix.taskmanager.engine.graph.StatusGraphsBuilder;
-import com.synaptix.taskmanager.engine.test.data.BusinessObject;
 
 public class StatusGraphTest {
 

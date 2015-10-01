@@ -1,8 +1,5 @@
 package com.synaptix.taskmanager.antlr.test.unit;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.synaptix.taskmanager.antlr.*;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;

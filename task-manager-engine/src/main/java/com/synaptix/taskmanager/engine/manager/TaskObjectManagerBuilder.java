@@ -1,16 +1,15 @@
 package com.synaptix.taskmanager.engine.manager;
 
+import com.synaptix.taskmanager.engine.graph.IStatusGraph;
+import com.synaptix.taskmanager.engine.task.IStatusTask;
+import com.synaptix.taskmanager.model.ITaskObject;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.tuple.Pair;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.synaptix.taskmanager.engine.graph.IStatusGraph;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.tuple.Pair;
-
-import com.synaptix.taskmanager.engine.task.IStatusTask;
-import com.synaptix.taskmanager.model.ITaskObject;
 
 public class TaskObjectManagerBuilder<E extends Object, F extends ITaskObject> {
 
@@ -94,7 +93,7 @@ public class TaskObjectManagerBuilder<E extends Object, F extends ITaskObject> {
 		}
 
 		@Override
-		public String getTaskChainCriteria(IStatusTask statusTask, Object currentStatus, Object nextStatus) {
+		public String getTaskChainCriteria(IStatusTask statusTask, E currentStatus, E nextStatus) {
 			return taskChainCriteriaMap.get(Pair.of(currentStatus, nextStatus));
 		}
 

@@ -39,7 +39,7 @@ public class DefaultTaskChainCriteriaTransform extends AbstractTaskChainCriteria
 		return parser.compile();
 	}
 
-	private IResult _createTasks(ITaskManagerConfiguration taskManagerConfiguration, AbstractGraphNode node) {
+	private MyResult _createTasks(ITaskManagerConfiguration taskManagerConfiguration, AbstractGraphNode node) {
 		if (node instanceof IdGraphNode) {
 			IdGraphNode ign = (IdGraphNode) node;
 			ISubTask task = taskManagerConfiguration.getTaskFactory().newSubTask(ign.getId());
@@ -54,29 +54,29 @@ public class DefaultTaskChainCriteriaTransform extends AbstractTaskChainCriteria
 
 			MyResult result = new MyResult();
 			for (AbstractGraphNode subNode : pgn.getNodes()) {
-				IResult subResult = _createTasks(taskManagerConfiguration, subNode);
-				result.newSubTasks.addAll(subResult.getNewSubTasks());
-				result.nextSubTasks.addAll(subResult.getNextSubTasks());
-				result.linkNextTasksMap.putAll(subResult.getLinkNextTasksMap());
+				MyResult subResult = _createTasks(taskManagerConfiguration, subNode);
+				result.newSubTasks.addAll(subResult.newSubTasks);
+				result.nextSubTasks.addAll(subResult.nextSubTasks);
+				result.linkNextTasksMap.putAll(subResult.linkNextTasksMap);
 			}
 
 			return result;
 		} else if (node instanceof NextGraphNode) {
 			NextGraphNode ngn = (NextGraphNode) node;
 
-			IResult firstCr = _createTasks(taskManagerConfiguration, ngn.getFirstNode());
-			IResult nextCr = _createTasks(taskManagerConfiguration, ngn.getNextNode());
+			MyResult firstCr = _createTasks(taskManagerConfiguration, ngn.getFirstNode());
+			MyResult nextCr = _createTasks(taskManagerConfiguration, ngn.getNextNode());
 
 			MyResult result = new MyResult();
-			result.newSubTasks.addAll(firstCr.getNewSubTasks());
-			result.nextSubTasks.addAll(firstCr.getNextSubTasks());
-			result.linkNextTasksMap.putAll(firstCr.getLinkNextTasksMap());
-			result.newSubTasks.addAll(nextCr.getNewSubTasks());
-			result.linkNextTasksMap.putAll(nextCr.getLinkNextTasksMap());
+			result.newSubTasks.addAll(firstCr.newSubTasks);
+			result.nextSubTasks.addAll(firstCr.nextSubTasks);
+			result.linkNextTasksMap.putAll(firstCr.linkNextTasksMap);
+			result.newSubTasks.addAll(nextCr.newSubTasks);
+			result.linkNextTasksMap.putAll(nextCr.linkNextTasksMap);
 
 				for (ISubTask firstTask : firstCr.getNewSubTasks()) {
 					if (!firstCr.getLinkNextTasksMap().containsKey(firstTask)) {
-						result.linkNextTasksMap.put(firstTask,nextCr.getNewSubTasks());
+						result.linkNextTasksMap.put(firstTask,nextCr.newSubTasks);
 					}
 				}
 

@@ -13,7 +13,6 @@ import com.synaptix.taskmanager.engine.test.data.BusinessObject;
 import com.synaptix.taskmanager.engine.test.data.OtherBusinessObject;
 
 import java.util.List;
-import java.util.Objects;
 
 public class TaskObjectTest {
 

@@ -22,6 +22,6 @@ public class NextGraphNode extends AbstractGraphNode {
 
 	@Override
 	public String toString() {
-		return new StringBuilder("(").append(firstNode).append("=>").append(nextNode).append(")").toString();
+		return "(" + firstNode + "=>" + nextNode + ")";
 	}
 }

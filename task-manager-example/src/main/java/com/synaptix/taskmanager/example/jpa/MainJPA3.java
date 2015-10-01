@@ -57,7 +57,6 @@ public class MainJPA3 {
 
 		Query q = JPAHelper.getInstance().getJpaAccess().getEntityManager().createQuery("select t from Todo t");
 		List<Todo> todos = q.getResultList();
-		int i = 0;
 		for (Todo todo : todos) {
 			System.out.println(todo);
 

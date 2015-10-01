@@ -19,7 +19,7 @@ import org.junit.Test;
 
 import javax.persistence.Query;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class JpaIT {
@@ -706,7 +706,7 @@ public class JpaIT {
 		cd.setBusinessTaskObjectClass(BusinessObject.class);
 		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(cd);
 
-		taskCluster.setClusterDependencies(new ArrayList<ClusterDependency>(Arrays.asList(cd)));
+		taskCluster.setClusterDependencies(new ArrayList<ClusterDependency>(Collections.singletonList(cd)));
 		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(taskCluster);
 
 		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();

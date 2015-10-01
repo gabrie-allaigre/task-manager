@@ -140,7 +140,6 @@ public class TaskManagerEngine {
 
 					boolean done = true;
 					Throwable errorMessage = null;
-					ITaskService taskService = null;
 					Object taskServiceResult = null;
 					boolean noChanges = false;
 					if (task.getCodeTaskDefinition() != null) {
@@ -155,7 +154,7 @@ public class TaskManagerEngine {
 							if (LOG.isDebugEnabled()) {
 								LOG.debug("TM - Execute taskService code=" + task.getCodeTaskDefinition());
 							}
-							taskService = getTaskService(task);
+							ITaskService taskService = taskDefinition.getTaskService();
 							try {
 								MyEngineContext context = new MyEngineContext(taskCluster, taskDefinition);
 
@@ -443,7 +442,7 @@ public class TaskManagerEngine {
 	private void setTaskNothing(ITaskCluster taskCluster, ICommonTask task, Object taskServiceResult, Throwable throwable) {
 		getTaskManagerConfiguration().getTaskManagerWriter().saveNothingTask(taskCluster, task, taskServiceResult, throwable);
 
-		onNothingTasks(Arrays.<ICommonTask>asList(task));
+		onNothingTasks(Collections.singletonList(task));
 	}
 
 	/*
@@ -498,7 +497,7 @@ public class TaskManagerEngine {
 							if (nextTasks != null && !nextTasks.isEmpty()) {
 								linkNextTasksMap.put(newSubTask, new ArrayList<ICommonTask>(nextTasks));
 							} else {
-								linkNextTasksMap.put(newSubTask, Arrays.<ICommonTask>asList(nextstatusTask));
+								linkNextTasksMap.put(newSubTask, Collections.<ICommonTask>singletonList(nextstatusTask));
 							}
 						}
 
@@ -512,7 +511,7 @@ public class TaskManagerEngine {
 						nextTodoTasks.add(nextstatusTask);
 						nextCurrentTasks.add(nextstatusTask);
 
-						map.put(statusGraph.getCurrentStatus(), Arrays.asList(nextstatusTask));
+						map.put(statusGraph.getCurrentStatus(), Collections.singletonList(nextstatusTask));
 					}
 
 					nextstatusTasks.add(nextstatusTask);
@@ -541,7 +540,7 @@ public class TaskManagerEngine {
 			getTaskManagerConfiguration().getTaskManagerWriter().saveNextTasksInTaskCluster(taskCluster, toDoneTask, taskServiceResult, nextCurrentTasks);
 		}
 
-		onDoneTasks(Arrays.asList(toDoneTask));
+		onDoneTasks(Collections.singletonList(toDoneTask));
 		onTodoTasks(nextTodoTasks);
 		onCurrentTasks(nextCurrentTasks);
 		onDeleteTasks(toDeleteTasks);

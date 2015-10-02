@@ -23,7 +23,7 @@ TaskManager
 
 # Faire une release
 
-```shell
+```bash
 mvn versions:set -DnewVersion=1.0.1
 
 mvn clean deploy

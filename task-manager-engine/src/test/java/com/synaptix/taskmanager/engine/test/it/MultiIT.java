@@ -5,6 +5,7 @@ import com.synaptix.taskmanager.engine.configuration.TaskManagerConfigurationBui
 import com.synaptix.taskmanager.engine.configuration.registry.TaskDefinitionRegistryBuilder;
 import com.synaptix.taskmanager.engine.configuration.registry.TaskObjectManagerRegistryBuilder;
 import com.synaptix.taskmanager.engine.graph.StatusGraphsBuilder;
+import com.synaptix.taskmanager.engine.listener.LogTaskCycleListener;
 import com.synaptix.taskmanager.engine.manager.TaskObjectManagerBuilder;
 import com.synaptix.taskmanager.engine.taskdefinition.TaskDefinitionBuilder;
 import com.synaptix.taskmanager.engine.test.data.*;
@@ -108,6 +109,8 @@ public class MultiIT {
 						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
 						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build()).build());
 
+		engine.addTaskManagerListener(new LogTaskCycleListener());
+
 		BusinessObject businessObject = new BusinessObject();
 		businessObject.setCode("VersA");
 
@@ -148,6 +151,8 @@ public class MultiIT {
 				TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
 						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
 						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build()).build());
+
+		engine.addTaskManagerListener(new LogTaskCycleListener());
 
 		BusinessObject businessObject = new BusinessObject();
 		businessObject.setCode("VersA");
@@ -191,6 +196,8 @@ public class MultiIT {
 				TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
 						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
 						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build()).build());
+
+		engine.addTaskManagerListener(new LogTaskCycleListener());
 
 		BusinessObject businessObject = new BusinessObject();
 		businessObject.setCode("VersA");

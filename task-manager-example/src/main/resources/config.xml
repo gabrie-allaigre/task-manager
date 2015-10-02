@@ -1,24 +1,36 @@
-<task-manager-configurator>
-    <object-managers instance-to-class="com.synaptix.taskmanager.component.ComponentInstanceToClass">
-        <object-manager class="com.synaptix.taskmanager.example.component.business.ICustomerOrder">
-            <graph initStatut="null">
-                <node status="A" service="A_TASK" rule="CHANGE">
-                    <node status="B" service="B_TASK" rule="VERSB">
-                        <node status="D" service="D_TASK" rule="CODE=>VERSD"/>
-                    </node>
-                    <node status="C" service="C_TASK" rule="VERSC"/>
-                </node>
-            </graph>
-        </object-manager>
-    </object-managers>
-    <definitions>
-        <definition code="A_TASK" class="com.synaptix.taskmanager.example.component.task.MultiUpdateStatusTaskService">
+<task-manager-configuration>
+    <graph-definitions instance-to-class="com.synaptix.taskmanager.component.ComponentInstanceToClass">
+        <graph-definition object-class="com.synaptix.taskmanager.example.component.business.ICustomerOrder">
+            <init-state initStatut="null">
+                <state status="A" task-id="A_TASK">
+                    <state status="B" task-id="B_TASK">
+                        <state status="D" task-id="D_TASK"/>
+                    </state>
+                    <state status="C" task-id="C_TASK"/>
+                </state>
+            </init-state>
+            <transitions>
+                <transition start-status="null" end-status="A" tasks-path="CHANGE"/>
+                <transition start-status="A" end-status="B" tasks-path="VERSB"/>
+                <transition start-status="B" end-status="D" tasks-path="CODE=>VERSD"/>
+                <transition start-status="A" end-status="C" tasks-path="VERSC"/>
+            </transitions>
+        </graph-definition>
+    </graph-definitions>
+    <task-definitions>
+        <task-definition task-id="A_TASK" class="com.synaptix.taskmanager.example.component.task.MultiUpdateStatusTask">
             <parameter value="A"/>
-        </definition>
-        <definition code="B_TASK" class="com.synaptix.taskmanager.example.component.task.MultiUpdateStatusTaskService">
+        </task-definition>
+        <task-definition task-id="B_TASK" class="com.synaptix.taskmanager.example.component.task.MultiUpdateStatusTask">
             <parameter value="B"/>
-        </definition>
-        <definition code="STOP" class="com.synaptix.taskmanager.example.component.task.StopTaskService"/>
-    </definitions>
-</task-manager-configurator>
-
+        </task-definition>
+        <task-definition task-id="CHANGE" class="com.synaptix.taskmanager.example.component.task.ChangeTask"/>
+        <task-definition task-id="VERSB" class="com.synaptix.taskmanager.example.component.task.VerifyTask">
+            <parameter value="B"/>
+        </task-definition>
+        <task-definition task-id="VERSD" class="com.synaptix.taskmanager.example.component.task.VerifyTask">
+            <parameter value="D"/>
+        </task-definition>
+        <task-definition task-id="STOP" class="com.synaptix.taskmanager.example.component.task.StopTask"/>
+    </task-definitions>
+</task-manager-configuration>

@@ -23,12 +23,12 @@ TaskManager
 
 # Faire une release
 
-## Préparation
-
-Dans le cas de Git, on ne push pas
-
 ```shell
-mvn -DpushChanges=false -DreleaseVersion=1.0.1 -Dtag=1.0.1 -DdevelopmentVersion=1.1.0-SNAPSHOT release:prepare
+git 
+
+mvn versions:set -DnewVersion=1.0.1
+
+mvn versions:set -DnewVersion=1.1.0-SNAPSHOT
 ```
 
 ## Perform
@@ -37,4 +37,14 @@ Il fait un checkout local et on ignore la javadoc
 
 ```shell
 mvn -DlocalCheckout=true -Darguments="-Dmaven.javadoc.skip=true" release:perform
+```
+
+## Git
+
+```shell
+git checkout -- *
+```
+
+```shell
+
 ```

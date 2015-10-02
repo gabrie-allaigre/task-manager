@@ -17,6 +17,13 @@ TaskManager
 <dependency>
     <groupId>com.synaptix</groupId>
     <artifactId>task-manager-engine</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
+```
+
+# Faire une release
+
+```shell
+mvn -DpushChanges=false -DreleaseVersion=1.0.1 -Dtag=1.0.1 -DdevelopmentVersion=1.1.0-SNAPSHOT release:prepare
+mvn release:perform
 ```

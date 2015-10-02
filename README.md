@@ -24,27 +24,13 @@ TaskManager
 # Faire une release
 
 ```shell
-git 
-
 mvn versions:set -DnewVersion=1.0.1
 
+mvn clean deploy
+
+git tag 1.0.1
+git push --follow-tags origin 1.0.1
+
 mvn versions:set -DnewVersion=1.1.0-SNAPSHOT
-```
-
-## Perform
-
-Il fait un checkout local et on ignore la javadoc
-
-```shell
-mvn -DlocalCheckout=true -Darguments="-Dmaven.javadoc.skip=true" release:perform
-```
-
-## Git
-
-```shell
-git checkout -- *
-```
-
-```shell
 
 ```

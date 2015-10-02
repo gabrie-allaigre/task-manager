@@ -13,11 +13,11 @@ import java.util.List;
 public class Task implements IStatusTask, ISubTask {
 
 	public enum Type {
-		statusTask, subTask;
+		statusTask, subTask
 	}
 
 	public enum Status {
-		TODO, CURRENT, DONE, CANCEL;
+		TODO, CURRENT, DONE, CANCEL
 	}
 
 	private transient final CurrentStatusTransform currentStatusTransform;
@@ -192,7 +192,7 @@ public class Task implements IStatusTask, ISubTask {
 				.append("previousTasks", previousTasks != null ? previousTasks.size() : 0).append("otherBranchFirstTasks", otherBranchFirstTasks != null ? otherBranchFirstTasks.size() : 0).build();
 	}
 
-	interface CurrentStatusTransform<E extends Object> {
+	interface CurrentStatusTransform<E> {
 
 		String toString(E currentStatus);
 

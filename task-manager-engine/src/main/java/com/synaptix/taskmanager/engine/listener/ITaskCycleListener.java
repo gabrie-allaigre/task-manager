@@ -6,13 +6,13 @@ import com.synaptix.taskmanager.engine.task.ICommonTask;
 
 public interface ITaskCycleListener extends EventListener {
 
-	public void onTodo(ICommonTask task);
+	void onTodo(ICommonTask task);
 
-	public void onCurrent(ICommonTask task);
+	void onCurrent(ICommonTask task);
 
-	public void onNothing(ICommonTask task);
+	void onNothing(ICommonTask task);
 
-	public void onDone(ICommonTask task);
+	void onDone(ICommonTask task);
 
-	public void onDelete(ICommonTask task);
+	void onDelete(ICommonTask task);
 }

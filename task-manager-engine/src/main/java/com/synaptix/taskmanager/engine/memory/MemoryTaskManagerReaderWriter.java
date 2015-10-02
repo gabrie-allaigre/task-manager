@@ -25,8 +25,8 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 	public MemoryTaskManagerReaderWriter() {
 		super();
 
-		this.taskClusterMap = new HashMap<ITaskCluster, List<ITaskObject>>();
-		this.currentTasksMap = new HashMap<ITaskCluster, List<ICommonTask>>();
+		this.taskClusterMap = new HashMap<>();
+		this.currentTasksMap = new HashMap<>();
 	}
 
 	/**
@@ -44,8 +44,8 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 	@Override
 	public ITaskCluster saveNewTaskCluster(ITaskCluster taskCluster) {
 		LOG.info("MRW - saveNewTaskClusterForTaskObject");
-		taskClusterMap.put(taskCluster, new ArrayList<ITaskObject>());
-		currentTasksMap.put(taskCluster, new ArrayList<ICommonTask>());
+		taskClusterMap.put(taskCluster, new ArrayList<>());
+		currentTasksMap.put(taskCluster, new ArrayList<>());
 		return taskCluster;
 	}
 
@@ -247,7 +247,7 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
 	public List<? extends ICommonTask> findNextTasksBySubTask(ISubTask subTask) {
 		LOG.info("MRW - findNextTasksBySubTask");
 
-		List<ICommonTask> res = new ArrayList<ICommonTask>();
+		List<ICommonTask> res = new ArrayList<>();
 
 		List<ICommonTask> nextTasks = ((SimpleSubTask) subTask).getNextTasks();
 		if (nextTasks != null && !nextTasks.isEmpty()) {

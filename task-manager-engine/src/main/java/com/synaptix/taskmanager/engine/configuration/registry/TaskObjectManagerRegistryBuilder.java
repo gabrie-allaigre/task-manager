@@ -51,12 +51,12 @@ public class TaskObjectManagerRegistryBuilder {
 		public MyObjectManagerRegistry() {
 			super();
 
-			this.taskObjectManagerMap = new HashMap<Class<? extends ITaskObject>, ITaskObjectManager<?,?>>();
+			this.taskObjectManagerMap = new HashMap<>();
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public <E extends Object,F extends ITaskObject> ITaskObjectManager<E,F> getTaskObjectManager(F taskObject) {
+		public <E,F extends ITaskObject> ITaskObjectManager<E,F> getTaskObjectManager(F taskObject) {
 			if (instanceToClass != null) {
 				return getTaskObjectManager(instanceToClass.instanceToClass(taskObject));
 			}
@@ -65,7 +65,7 @@ public class TaskObjectManagerRegistryBuilder {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public <E extends Object,F extends ITaskObject> ITaskObjectManager<E,F> getTaskObjectManager(Class<F> taskObjectClass) {
+		public <E,F extends ITaskObject> ITaskObjectManager<E,F> getTaskObjectManager(Class<F> taskObjectClass) {
 			return (ITaskObjectManager<E,F>) taskObjectManagerMap.get(taskObjectClass);
 		}
 

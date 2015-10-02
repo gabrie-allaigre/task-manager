@@ -10,15 +10,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-public class TaskObjectManagerBuilder<E extends Object, F extends ITaskObject> {
+public class TaskObjectManagerBuilder<E, F extends ITaskObject> {
 
 	private MyTaskObjectManager<E, F> taskObjectManager;
 
 	private TaskObjectManagerBuilder(Class<F> taskObjectClass) {
 		super();
 
-		this.taskObjectManager = new MyTaskObjectManager<E, F>(taskObjectClass);
+		this.taskObjectManager = new MyTaskObjectManager<>(taskObjectClass);
 	}
 
 	public TaskObjectManagerBuilder<E, F> initialStatus(E defaultInitialStatus) {
@@ -45,17 +46,17 @@ public class TaskObjectManagerBuilder<E extends Object, F extends ITaskObject> {
 		return taskObjectManager;
 	}
 
-	public static <E extends Object, F extends ITaskObject> TaskObjectManagerBuilder<E, F> newBuilder(Class<F> taskObjectClass) {
-		return new TaskObjectManagerBuilder<E, F>(taskObjectClass);
+	public static <E, F extends ITaskObject> TaskObjectManagerBuilder<E, F> newBuilder(Class<F> taskObjectClass) {
+		return new TaskObjectManagerBuilder<>(taskObjectClass);
 	}
 
-	public interface IGetStatus<E extends Object,F extends ITaskObject> {
+	public interface IGetStatus<E,F extends ITaskObject> {
 
 		E getStatus(F taskObject);
 
 	}
 
-	private static class MyTaskObjectManager<E extends Object, F extends ITaskObject> extends AbstractTaskObjectManager<E,F> {
+	private static class MyTaskObjectManager<E, F extends ITaskObject> extends AbstractTaskObjectManager<E,F> {
 
 		private final Map<Pair<E, E>, String> taskChainCriteriaMap;
 
@@ -68,7 +69,7 @@ public class TaskObjectManagerBuilder<E extends Object, F extends ITaskObject> {
 		public MyTaskObjectManager(Class<F> taskObjectClass) {
 			super(taskObjectClass);
 
-			this.taskChainCriteriaMap = new HashMap<Pair<E, E>, String>();
+			this.taskChainCriteriaMap = new HashMap<>();
 		}
 
 		@Override
@@ -81,13 +82,11 @@ public class TaskObjectManagerBuilder<E extends Object, F extends ITaskObject> {
 
 		@Override
 		public List<IStatusGraph<E>> getNextStatusGraphsByTaskObjectType(IStatusTask statusTask, E currentStatus) {
-			List<IStatusGraph<E>> res = new ArrayList<IStatusGraph<E>>();
+			List<IStatusGraph<E>> res = new ArrayList<>();
 			if (statusGraphs != null && !statusGraphs.isEmpty()) {
-				for (IStatusGraph<E> statusGraph : statusGraphs) {
-					if ((currentStatus == null && statusGraph.getPreviousStatus() == null) || (currentStatus != null && currentStatus.equals(statusGraph.getPreviousStatus()))) {
-						res.add(statusGraph);
-					}
-				}
+				res.addAll(statusGraphs.stream()
+						.filter(statusGraph -> (currentStatus == null && statusGraph.getPreviousStatus() == null) || (currentStatus != null && currentStatus.equals(statusGraph.getPreviousStatus())))
+						.collect(Collectors.toList()));
 			}
 			return res;
 		}

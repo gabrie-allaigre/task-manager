@@ -21,7 +21,7 @@ public class SimpleStatusTask extends AbstractSimpleCommonTask implements IStatu
 		this.taskObjectClass = taskObjectClass;
 		this.currentStatus = currentStatus;
 
-		this.otherBranchFirstTasks = new ArrayList<ICommonTask>();
+		this.otherBranchFirstTasks = new ArrayList<>();
 	}
 
 	@Override
@@ -30,7 +30,7 @@ public class SimpleStatusTask extends AbstractSimpleCommonTask implements IStatu
 	}
 
 	@Override
-	public <E extends Object> E getCurrentStatus() {
+	public <E> E getCurrentStatus() {
 		return (E) currentStatus;
 	}
 

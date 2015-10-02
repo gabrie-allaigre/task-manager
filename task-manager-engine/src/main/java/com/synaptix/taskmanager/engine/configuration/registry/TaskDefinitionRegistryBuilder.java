@@ -35,7 +35,7 @@ public class TaskDefinitionRegistryBuilder {
 		public MyTaskDefinitionRegistry() {
 			super();
 
-			this.taskDefinitionMap = new HashMap<String, ITaskDefinition>();
+			this.taskDefinitionMap = new HashMap<>();
 		}
 
 		@Override

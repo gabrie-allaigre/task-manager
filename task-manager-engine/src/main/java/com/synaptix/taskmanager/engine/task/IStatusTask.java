@@ -18,6 +18,6 @@ public interface IStatusTask extends ICommonTask {
 	 * @param <E> type of status
 	 * @return status
 	 */
-	<E extends Object> E getCurrentStatus();
+	<E> E getCurrentStatus();
 
 }

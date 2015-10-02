@@ -74,11 +74,7 @@ public class DefaultTaskChainCriteriaTransform extends AbstractTaskChainCriteria
 			result.newSubTasks.addAll(nextCr.newSubTasks);
 			result.linkNextTasksMap.putAll(nextCr.linkNextTasksMap);
 
-				for (ISubTask firstTask : firstCr.getNewSubTasks()) {
-					if (!firstCr.getLinkNextTasksMap().containsKey(firstTask)) {
-						result.linkNextTasksMap.put(firstTask,nextCr.newSubTasks);
-					}
-				}
+			firstCr.getNewSubTasks().stream().filter(firstTask -> !firstCr.getLinkNextTasksMap().containsKey(firstTask)).forEach(firstTask -> result.linkNextTasksMap.put(firstTask, nextCr.newSubTasks));
 
 			return result;
 		}
@@ -87,11 +83,11 @@ public class DefaultTaskChainCriteriaTransform extends AbstractTaskChainCriteria
 
 	private class MyResult implements IResult {
 
-		List<ISubTask> newSubTasks = new ArrayList<ISubTask>();
+		final List<ISubTask> newSubTasks = new ArrayList<>();
 
-		List<ISubTask> nextSubTasks = new ArrayList<ISubTask>();
+		final List<ISubTask> nextSubTasks = new ArrayList<>();
 
-		Map<ISubTask, List<ISubTask>> linkNextTasksMap = new HashMap<ISubTask, List<ISubTask>>();
+		final Map<ISubTask, List<ISubTask>> linkNextTasksMap = new HashMap<>();
 
 		@Override
 		public List<ISubTask> getNewSubTasks() {

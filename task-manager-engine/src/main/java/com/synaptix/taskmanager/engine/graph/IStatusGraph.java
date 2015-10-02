@@ -1,11 +1,11 @@
 package com.synaptix.taskmanager.engine.graph;
 
-public interface IStatusGraph<E extends Object> {
+public interface IStatusGraph<E> {
 
-	public E getPreviousStatus();
+	E getPreviousStatus();
 
-	public E getCurrentStatus();
+	E getCurrentStatus();
 
-	public String getStatusTaskServiceCode();
+	String getStatusTaskServiceCode();
 
 }

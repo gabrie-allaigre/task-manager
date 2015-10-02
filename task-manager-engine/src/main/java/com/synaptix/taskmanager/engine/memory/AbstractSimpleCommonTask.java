@@ -9,7 +9,7 @@ import java.util.List;
 public abstract class AbstractSimpleCommonTask implements ICommonTask {
 
 	public enum Status {
-		TODO, CURRENT, DONE, CANCEL;
+		TODO, CURRENT, DONE, CANCEL
 	}
 
 	private final String codeTaskDefinition;
@@ -27,8 +27,8 @@ public abstract class AbstractSimpleCommonTask implements ICommonTask {
 
 		this.codeTaskDefinition = codeTaskDefinition;
 
-		this.previousTasks = new ArrayList<ICommonTask>();
-		this.nextTasks = new ArrayList<ICommonTask>();
+		this.previousTasks = new ArrayList<>();
+		this.nextTasks = new ArrayList<>();
 	}
 
 	@Override

@@ -6,7 +6,7 @@ import com.synaptix.taskmanager.model.ITaskObject;
 
 import java.util.List;
 
-public interface ITaskObjectManager<E extends Object,F extends ITaskObject> {
+public interface ITaskObjectManager<E,F extends ITaskObject> {
 
 	/**
 	 * Get a class of taskObject

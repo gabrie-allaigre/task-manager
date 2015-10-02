@@ -706,7 +706,7 @@ public class JpaIT {
 		cd.setBusinessTaskObjectClass(BusinessObject.class);
 		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(cd);
 
-		taskCluster.setClusterDependencies(new ArrayList<ClusterDependency>(Collections.singletonList(cd)));
+		taskCluster.setClusterDependencies(new ArrayList<>(Collections.singletonList(cd)));
 		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(taskCluster);
 
 		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
@@ -816,9 +816,7 @@ public class JpaIT {
 	private void showTasks() {
 		System.out.println("------ Task ------");
 		List<Task> tasks = getTasks();
-		for (Task t : tasks) {
-			System.out.println(t);
-		}
+		tasks.forEach(System.out::println);
 		System.out.println("Size: " + tasks.size());
 	}
 }

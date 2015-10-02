@@ -1,13 +1,12 @@
 package com.synaptix.taskmanager.engine.test.unit;
 
-import java.util.List;
-import java.util.Objects;
-
+import com.synaptix.taskmanager.engine.graph.IStatusGraph;
+import com.synaptix.taskmanager.engine.graph.StatusGraphsBuilder;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.synaptix.taskmanager.engine.graph.IStatusGraph;
-import com.synaptix.taskmanager.engine.graph.StatusGraphsBuilder;
+import java.util.List;
+import java.util.Objects;
 
 public class StatusGraphTest {
 
@@ -29,7 +28,7 @@ public class StatusGraphTest {
 	 */
 	@Test
 	public void test2() {
-		List<IStatusGraph<String>> statusGraphs = StatusGraphsBuilder.<String> newBuilder("DEBUT").addNextStatusGraph("A", "ATask").build();
+		List<IStatusGraph<String>> statusGraphs = StatusGraphsBuilder.newBuilder("DEBUT").addNextStatusGraph("A", "ATask").build();
 
 		Assert.assertNotNull(statusGraphs);
 		Assert.assertEquals(statusGraphs.size(), 1);
@@ -67,7 +66,7 @@ public class StatusGraphTest {
 		assertUniqueContains(statusGraphs, null, "B", "BTask");
 	}
 
-	public static <E extends Object> void assertUniqueContains(List<IStatusGraph<E>> statusGraphs, E previousStatus, E currentStatus, String statusTaskServiceCode) {
+	public static <E> void assertUniqueContains(List<IStatusGraph<E>> statusGraphs, E previousStatus, E currentStatus, String statusTaskServiceCode) {
 		int i = 0;
 		if (statusGraphs != null && !statusGraphs.isEmpty()) {
 			for (IStatusGraph<E> statusGraph : statusGraphs) {

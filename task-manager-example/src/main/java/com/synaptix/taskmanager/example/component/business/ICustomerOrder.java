@@ -1,36 +1,36 @@
 package com.synaptix.taskmanager.example.component.business;
 
-import java.util.Date;
-
 import com.synaptix.component.annotation.SynaptixComponent;
 import com.synaptix.entity.IEntity;
 import com.synaptix.taskmanager.model.ITaskObject;
 
+import java.util.Date;
+
 @SynaptixComponent
 public interface ICustomerOrder extends IEntity, ITaskObject {
 
-	public CustomerOrderStatus getStatus();
+	CustomerOrderStatus getStatus();
 
-	public void setStatus(CustomerOrderStatus status);
+	void setStatus(CustomerOrderStatus status);
 
-	public String getCustomerOrderNo();
+	String getCustomerOrderNo();
 
-	public void setCustomerOrderNo(String customerOrderNo);
+	void setCustomerOrderNo(String customerOrderNo);
 
-	public String getReference();
+	String getReference();
 
-	public void setReference(String reference);
+	void setReference(String reference);
 
-	public boolean isConfirmed();
+	boolean isConfirmed();
 
-	public void setConfirmed(boolean confirmed);
+	void setConfirmed(boolean confirmed);
 
-	public boolean isCancelled();
+	boolean isCancelled();
 
-	public void setCancelled(boolean cancelled);
+	void setCancelled(boolean cancelled);
 
-	public Date getDateClosed();
+	Date getDateClosed();
 
-	public void setDateClosed(Date dateClosed);
+	void setDateClosed(Date dateClosed);
 
 }

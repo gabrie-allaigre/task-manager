@@ -4,8 +4,8 @@ import com.synaptix.taskmanager.engine.taskservice.ITaskService;
 
 public interface ITaskDefinition {
 
-	public String getCode();
+	String getCode();
 
-	public ITaskService getTaskService();
+	ITaskService getTaskService();
 
 }

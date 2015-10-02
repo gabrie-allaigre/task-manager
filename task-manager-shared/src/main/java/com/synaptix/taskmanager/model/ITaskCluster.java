@@ -7,13 +7,13 @@ public interface ITaskCluster {
 	 * 
 	 * @return
 	 */
-	public boolean isCheckGraphCreated();
+	boolean isCheckGraphCreated();
 
 	/**
 	 * If archived cluster, is finish
 	 * 
 	 * @return
 	 */
-	public boolean isCheckArchived();
+	boolean isCheckArchived();
 
 }

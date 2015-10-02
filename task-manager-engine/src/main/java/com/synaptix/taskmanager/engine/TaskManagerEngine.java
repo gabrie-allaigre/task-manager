@@ -65,8 +65,8 @@ public class TaskManagerEngine {
 			return null;
 		}
 
-		Set<ITaskCluster> taskClusters = new HashSet<ITaskCluster>();
-		Set<ITaskObject> createClusters = new HashSet<ITaskObject>();
+		Set<ITaskCluster> taskClusters = new HashSet<>();
+		Set<ITaskObject> createClusters = new HashSet<>();
 		for (ITaskObject taskObject : taskObjects) {
 			if (taskObject != null) {
 				// If cluster not existe, create
@@ -110,7 +110,7 @@ public class TaskManagerEngine {
 			return;
 		}
 
-		LinkedList<ITaskCluster> restartClusters = new LinkedList<ITaskCluster>();
+		LinkedList<ITaskCluster> restartClusters = new LinkedList<>();
 		for (ITaskCluster taskCluster : taskClusters) {
 			if (taskCluster != null && !taskCluster.isCheckArchived() && !restartClusters.contains(taskCluster)) {
 				restartClusters.add(taskCluster);
@@ -132,8 +132,8 @@ public class TaskManagerEngine {
 					getTaskManagerConfiguration().getTaskManagerWriter().archiveTaskCluster(taskCluster);
 				}
 			} else {
-				LinkedList<ICommonTask> tasksQueue = new LinkedList<ICommonTask>(tasks);
-				List<ICommonTask> recycleList = new ArrayList<ICommonTask>();
+				LinkedList<ICommonTask> tasksQueue = new LinkedList<>(tasks);
+				List<ICommonTask> recycleList = new ArrayList<>();
 
 				while (!tasksQueue.isEmpty()) {
 					ICommonTask task = tasksQueue.removeFirst();
@@ -197,9 +197,7 @@ public class TaskManagerEngine {
 							TasksLists tasksLists = setTaskDone(taskCluster, task, taskServiceResult);
 							// Add new tasks to top of deque
 							if (tasksLists.newCurrentTasks != null && !tasksLists.newCurrentTasks.isEmpty()) {
-								for (ICommonTask iTask : tasksLists.newCurrentTasks) {
-									tasksQueue.addFirst(iTask);
-								}
+								tasksLists.newCurrentTasks.forEach(tasksQueue::addFirst);
 							}
 
 							if (tasksLists.tasksToRemoves != null && !tasksLists.tasksToRemoves.isEmpty()) {
@@ -223,9 +221,7 @@ public class TaskManagerEngine {
 
 							if (!noChanges) {
 								// Add previously failed tasks to end of deque. Not done when service nature is not DATA_CHECK because DATA_CHECK does not update objects.
-								for (ICommonTask iTask : recycleList) {
-									tasksQueue.addLast(iTask);
-								}
+								recycleList.forEach(tasksQueue::addLast);
 								recycleList.clear();
 							}
 						} catch (Throwable t) {
@@ -276,7 +272,7 @@ public class TaskManagerEngine {
 			return;
 		}
 
-		List<ITaskObject> adds = new ArrayList<ITaskObject>();
+		List<ITaskObject> adds = new ArrayList<>();
 		for (ITaskObject taskObject : taskObjects) {
 			if (taskObject != null) {
 				ITaskCluster tc = getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(taskObject);
@@ -311,14 +307,14 @@ public class TaskManagerEngine {
 			return;
 		}
 
-		Map<ITaskCluster, List<ITaskObject>> modifyClusterMap = new HashMap<ITaskCluster, List<ITaskObject>>();
+		Map<ITaskCluster, List<ITaskObject>> modifyClusterMap = new HashMap<>();
 		for (ITaskObject taskObject : taskObjects) {
 			if (taskObject != null) {
 				ITaskCluster tc = getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(taskObject);
 				if (tc != null) {
 					List<ITaskObject> tos = modifyClusterMap.get(tc);
 					if (tos == null) {
-						tos = new ArrayList<ITaskObject>();
+						tos = new ArrayList<>();
 						modifyClusterMap.put(tc, tos);
 					}
 					if (!tos.contains(taskObject)) {
@@ -353,14 +349,14 @@ public class TaskManagerEngine {
 			return null;
 		}
 
-		Map<ITaskCluster, List<ITaskObject>> modifyClusterMap = new HashMap<ITaskCluster, List<ITaskObject>>();
+		Map<ITaskCluster, List<ITaskObject>> modifyClusterMap = new HashMap<>();
 		for (ITaskObject taskObject : taskObjects) {
 			if (taskObject != null) {
 				ITaskCluster tc = getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(taskObject);
 				if (tc != null) {
 					List<ITaskObject> tos = modifyClusterMap.get(tc);
 					if (tos == null) {
-						tos = new ArrayList<ITaskObject>();
+						tos = new ArrayList<>();
 						modifyClusterMap.put(tc, tos);
 					}
 					if (!tos.contains(taskObject)) {
@@ -377,7 +373,7 @@ public class TaskManagerEngine {
 
 			taskCluster = getTaskManagerConfiguration().getTaskManagerWriter().saveMoveTaskObjectsToTaskCluster(taskCluster, modifyClusterMap);
 
-			List<ITaskCluster> cs = new ArrayList<ITaskCluster>(modifyClusterMap.keySet());
+			List<ITaskCluster> cs = new ArrayList<>(modifyClusterMap.keySet());
 			cs.add(taskCluster);
 			startEngine(cs.toArray(new ITaskCluster[cs.size()]));
 		}
@@ -408,14 +404,14 @@ public class TaskManagerEngine {
 			return;
 		}
 
-		Map<ITaskCluster, List<ITaskObject>> modifyClusterMap = new HashMap<ITaskCluster, List<ITaskObject>>();
+		Map<ITaskCluster, List<ITaskObject>> modifyClusterMap = new HashMap<>();
 		for (ITaskObject taskObject : taskObjects) {
 			if (taskObject != null) {
 				ITaskCluster tc = getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(taskObject);
 				if (tc != null && !tc.equals(dstTaskCluster)) {
 					List<ITaskObject> tos = modifyClusterMap.get(tc);
 					if (tos == null) {
-						tos = new ArrayList<ITaskObject>();
+						tos = new ArrayList<>();
 						modifyClusterMap.put(tc, tos);
 					}
 					if (!tos.contains(taskObject)) {
@@ -428,7 +424,7 @@ public class TaskManagerEngine {
 		if (!modifyClusterMap.isEmpty()) {
 			getTaskManagerConfiguration().getTaskManagerWriter().saveMoveTaskObjectsToTaskCluster(dstTaskCluster, modifyClusterMap);
 
-			List<ITaskCluster> cs = new ArrayList<ITaskCluster>(modifyClusterMap.keySet());
+			List<ITaskCluster> cs = new ArrayList<>(modifyClusterMap.keySet());
 			cs.add(dstTaskCluster);
 			startEngine(cs.toArray(new ITaskCluster[cs.size()]));
 		}
@@ -460,13 +456,13 @@ public class TaskManagerEngine {
 	private TasksLists nextTasks(ITaskCluster taskCluster, ICommonTask toDoneTask, Object taskServiceResult, boolean skip) {
 		TasksLists tasksLists = new TasksLists();
 
-		List<ICommonTask> nextTodoTasks = new ArrayList<ICommonTask>();
-		List<ICommonTask> nextCurrentTasks = new ArrayList<ICommonTask>();
-		List<ICommonTask> toDeleteTasks = new ArrayList<ICommonTask>();
+		List<ICommonTask> nextTodoTasks = new ArrayList<>();
+		List<ICommonTask> nextCurrentTasks = new ArrayList<>();
+		List<ICommonTask> toDeleteTasks = new ArrayList<>();
 		if (getTaskManagerConfiguration().getTaskFactory().isStatusTask(toDoneTask)) {
 			IStatusTask statusTask = (IStatusTask) toDoneTask;
 
-			Class<? extends ITaskObject> taskObjectClass = (Class<? extends ITaskObject>) statusTask.getTaskObjectClass();
+			Class<? extends ITaskObject> taskObjectClass = statusTask.getTaskObjectClass();
 
 			List<? extends ICommonTask> oldOtherPreviousNextTasks = getTaskManagerConfiguration().getTaskManagerReader().findOtherBranchFirstTasksByStatusTask(statusTask);
 
@@ -477,14 +473,14 @@ public class TaskManagerEngine {
 			ITaskObjectManager<Object, ? extends ITaskObject> taskObjectManager = getTaskManagerConfiguration().getTaskObjectManagerRegistry().getTaskObjectManager(taskObjectClass);
 			List<IStatusGraph<Object>> statusGraphs = taskObjectManager.getNextStatusGraphsByTaskObjectType(statusTask, statusTask.getCurrentStatus());
 
-			List<ICommonTask> newTasks = new ArrayList<ICommonTask>();
-			Map<ISubTask, List<ICommonTask>> linkNextTasksMap = new HashMap<ISubTask, List<ICommonTask>>();
+			List<ICommonTask> newTasks = new ArrayList<>();
+			Map<ISubTask, List<ICommonTask>> linkNextTasksMap = new HashMap<>();
 
-			Map<IStatusTask, List<ICommonTask>> otherBranchFirstTasksMap = new HashMap<IStatusTask, List<ICommonTask>>();
+			Map<IStatusTask, List<ICommonTask>> otherBranchFirstTasksMap = new HashMap<>();
 
 			if (statusGraphs != null && !statusGraphs.isEmpty()) {
-				List<IStatusTask> nextstatusTasks = new ArrayList<IStatusTask>();
-				Map<Object, List<? extends ICommonTask>> map = new HashMap<Object, List<? extends ICommonTask>>();
+				List<IStatusTask> nextstatusTasks = new ArrayList<>();
+				Map<Object, List<? extends ICommonTask>> map = new HashMap<>();
 
 				for (IStatusGraph<Object> statusGraph : statusGraphs) {
 					// Create sub tasks
@@ -499,7 +495,7 @@ public class TaskManagerEngine {
 						for (ISubTask newSubTask : result.getNewSubTasks()) {
 							List<ISubTask> nextTasks = result.getLinkNextTasksMap().get(newSubTask);
 							if (nextTasks != null && !nextTasks.isEmpty()) {
-								linkNextTasksMap.put(newSubTask, new ArrayList<ICommonTask>(nextTasks));
+								linkNextTasksMap.put(newSubTask, new ArrayList<>(nextTasks));
 							} else {
 								linkNextTasksMap.put(newSubTask, Collections.<ICommonTask>singletonList(nextstatusTask));
 							}
@@ -522,12 +518,8 @@ public class TaskManagerEngine {
 				}
 
 				for (IStatusTask task : nextstatusTasks) {
-					List<ICommonTask> otherBranchFirstTasks = new ArrayList<ICommonTask>();
-					for (Entry<Object, List<? extends ICommonTask>> entry : map.entrySet()) {
-						if (!entry.getKey().equals(task.getCurrentStatus())) {
-							otherBranchFirstTasks.addAll(entry.getValue());
-						}
-					}
+					List<ICommonTask> otherBranchFirstTasks = new ArrayList<>();
+					map.entrySet().stream().filter(entry -> !entry.getKey().equals(task.getCurrentStatus())).forEach(entry -> otherBranchFirstTasks.addAll(entry.getValue()));
 					otherBranchFirstTasksMap.put(task, otherBranchFirstTasks);
 				}
 			}
@@ -559,7 +551,7 @@ public class TaskManagerEngine {
 	 * Extract all tasks
 	 */
 	private List<? extends ICommonTask> extractAllTasks(List<? extends ICommonTask> tasks) {
-		List<ICommonTask> res = new ArrayList<ICommonTask>();
+		List<ICommonTask> res = new ArrayList<>();
 		if (tasks != null && !tasks.isEmpty()) {
 			for (ICommonTask task : tasks) {
 				res.add(task);
@@ -588,16 +580,14 @@ public class TaskManagerEngine {
 	/*
 	 * Create status graph and tasks
 	 */
-	private <E extends Object, F extends ITaskObject> IStatusTask createInitTask(F taskObject) {
+	private <E, F extends ITaskObject> IStatusTask createInitTask(F taskObject) {
 		ITaskObjectManager<E, F> taskObjectManager = getTaskManagerConfiguration().getTaskObjectManagerRegistry().getTaskObjectManager(taskObject);
 		Class<F> taskObjectClass = taskObjectManager.getTaskObjectClass();
 
 		E currentStatus = taskObjectManager.getInitialStatus(taskObject);
 
 		// Create a first task, it does nothing
-		IStatusTask initTask = getTaskManagerConfiguration().getTaskFactory().newStatusTask(null, taskObjectClass, currentStatus);
-
-		return initTask;
+		return getTaskManagerConfiguration().getTaskFactory().newStatusTask(null, taskObjectClass, currentStatus);
 	}
 
 	/*
@@ -607,13 +597,13 @@ public class TaskManagerEngine {
 		List<? extends ITaskObject> taskObjects = getTaskManagerConfiguration().getTaskManagerReader().findTaskObjectsByTaskCluster(taskCluster);
 
 		List<IStatusTask> statusTasks = null;
-		List<Pair<ITaskObject, IStatusTask>> taskObjectNodes = new ArrayList<Pair<ITaskObject, IStatusTask>>();
+		List<Pair<ITaskObject, IStatusTask>> taskObjectNodes = new ArrayList<>();
 		if (taskObjects != null && !taskObjects.isEmpty()) {
-			statusTasks = new ArrayList<IStatusTask>();
-			for (ITaskObject taskObject : taskObjects) {
+			statusTasks = new ArrayList<>();
+			taskObjects.forEach(taskObject -> {
 				IStatusTask initTask = createInitTask(taskObject);
-				taskObjectNodes.add(Pair.<ITaskObject, IStatusTask>of(taskObject, initTask));
-			}
+				taskObjectNodes.add(Pair.of(taskObject, initTask));
+			});
 		}
 
 		taskCluster = getTaskManagerConfiguration().getTaskManagerWriter().saveNewGraphFromTaskCluster(taskCluster, taskObjectNodes);
@@ -629,12 +619,12 @@ public class TaskManagerEngine {
 	 */
 	private ITaskCluster createTaskGraphForTaskCluster(ITaskCluster taskCluster, ITaskObject... taskObjects) {
 		List<IStatusTask> statusTasks = null;
-		List<Pair<ITaskObject, IStatusTask>> taskObjectNodes = new ArrayList<Pair<ITaskObject, IStatusTask>>();
+		List<Pair<ITaskObject, IStatusTask>> taskObjectNodes = new ArrayList<>();
 		if (taskObjects != null && taskObjects.length > 0) {
-			statusTasks = new ArrayList<IStatusTask>();
+			statusTasks = new ArrayList<>();
 			for (ITaskObject taskObject : taskObjects) {
 				IStatusTask initTask = createInitTask(taskObject);
-				taskObjectNodes.add(Pair.<ITaskObject, IStatusTask>of(taskObject, initTask));
+				taskObjectNodes.add(Pair.of(taskObject, initTask));
 			}
 		}
 
@@ -673,56 +663,31 @@ public class TaskManagerEngine {
 		}
 	}
 
-	private static final ExecuteTaskListener TODO_EXECUTE_TASK_LISTENER = new ExecuteTaskListener() {
-		@Override
-		public void execute(ITaskCycleListener taskCycleListener, ICommonTask task) {
-			taskCycleListener.onTodo(task);
-		}
-	};
+	private static final ExecuteTaskListener TODO_EXECUTE_TASK_LISTENER = ITaskCycleListener::onTodo;
 
 	private void onTodoTasks(List<? extends ICommonTask> tasks) {
 		onTasks(tasks, TODO_EXECUTE_TASK_LISTENER);
 	}
 
-	private static final ExecuteTaskListener CURRENT_EXECUTE_TASK_LISTENER = new ExecuteTaskListener() {
-		@Override
-		public void execute(ITaskCycleListener taskCycleListener, ICommonTask task) {
-			taskCycleListener.onCurrent(task);
-		}
-	};
+	private static final ExecuteTaskListener CURRENT_EXECUTE_TASK_LISTENER = ITaskCycleListener::onCurrent;
 
 	private void onCurrentTasks(List<? extends ICommonTask> tasks) {
 		onTasks(tasks, CURRENT_EXECUTE_TASK_LISTENER);
 	}
 
-	private static final ExecuteTaskListener DONE_EXECUTE_TASK_LISTENER = new ExecuteTaskListener() {
-		@Override
-		public void execute(ITaskCycleListener taskCycleListener, ICommonTask task) {
-			taskCycleListener.onDone(task);
-		}
-	};
+	private static final ExecuteTaskListener DONE_EXECUTE_TASK_LISTENER = ITaskCycleListener::onDone;
 
 	private void onDoneTasks(List<? extends ICommonTask> tasks) {
 		onTasks(tasks, DONE_EXECUTE_TASK_LISTENER);
 	}
 
-	private static final ExecuteTaskListener NOTHING_EXECUTE_TASK_LISTENER = new ExecuteTaskListener() {
-		@Override
-		public void execute(ITaskCycleListener taskCycleListener, ICommonTask task) {
-			taskCycleListener.onNothing(task);
-		}
-	};
+	private static final ExecuteTaskListener NOTHING_EXECUTE_TASK_LISTENER = ITaskCycleListener::onNothing;
 
 	private void onNothingTasks(List<? extends ICommonTask> tasks) {
 		onTasks(tasks, NOTHING_EXECUTE_TASK_LISTENER);
 	}
 
-	private static final ExecuteTaskListener DELETE_EXECUTE_TASK_LISTENER = new ExecuteTaskListener() {
-		@Override
-		public void execute(ITaskCycleListener taskCycleListener, ICommonTask task) {
-			taskCycleListener.onDelete(task);
-		}
-	};
+	private static final ExecuteTaskListener DELETE_EXECUTE_TASK_LISTENER = ITaskCycleListener::onDelete;
 
 	private void onDeleteTasks(List<ICommonTask> tasks) {
 		onTasks(tasks, DELETE_EXECUTE_TASK_LISTENER);

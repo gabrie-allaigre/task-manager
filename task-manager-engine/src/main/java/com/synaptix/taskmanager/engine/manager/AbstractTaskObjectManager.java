@@ -2,7 +2,7 @@ package com.synaptix.taskmanager.engine.manager;
 
 import com.synaptix.taskmanager.model.ITaskObject;
 
-public abstract class AbstractTaskObjectManager<E extends Object,F extends ITaskObject> implements ITaskObjectManager<E,F> {
+public abstract class AbstractTaskObjectManager<E,F extends ITaskObject> implements ITaskObjectManager<E,F> {
 
 	private final Class<F> taskObjectClass;
 

@@ -79,7 +79,7 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 		Cluster cluster = (Cluster) taskCluster;
 		List<ClusterDependency> cds = cluster.getClusterDependencies();
 		if (cds == null) {
-			cds = new ArrayList<ClusterDependency>();
+			cds = new ArrayList<>();
 			cluster.setClusterDependencies(cds);
 		}
 
@@ -174,7 +174,7 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 		if (modifyClusterMap != null && !modifyClusterMap.isEmpty()) {
 			List<ClusterDependency> dstCds = dstCluster.getClusterDependencies();
 			if (dstCds == null) {
-				dstCds = new ArrayList<ClusterDependency>();
+				dstCds = new ArrayList<>();
 				dstCluster.setClusterDependencies(dstCds);
 			}
 
@@ -309,7 +309,7 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 			for (Map.Entry<ISubTask, List<ICommonTask>> entry : linkNextTasksMap.entrySet()) {
 				Task nct = (Task) entry.getKey();
 
-				List<Task> nextTasks = new ArrayList<Task>();
+				List<Task> nextTasks = new ArrayList<>();
 				List<ICommonTask> ts = entry.getValue();
 				if (ts != null && !ts.isEmpty()) {
 					for (ICommonTask t : ts) {
@@ -318,7 +318,7 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 
 						List<Task> previousTasks = nextTask.getPreviousTasks();
 						if (previousTasks == null) {
-							previousTasks = new ArrayList<Task>();
+							previousTasks = new ArrayList<>();
 							nextTask.setPreviousTasks(previousTasks);
 						}
 						previousTasks.add(nct);
@@ -336,7 +336,7 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 			for (Map.Entry<IStatusTask, List<ICommonTask>> entry : otherBranchFirstTasksMap.entrySet()) {
 				Task nct = (Task) entry.getKey();
 
-				List<Task> childs = new ArrayList<Task>();
+				List<Task> childs = new ArrayList<>();
 				List<ICommonTask> ts = entry.getValue();
 				if (ts != null && !ts.isEmpty()) {
 					for (ICommonTask t : ts) {
@@ -346,7 +346,7 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 
 						List<Task> parentTasks = otherTask.getParentOtherBranchFirstTasks();
 						if (parentTasks == null) {
-							parentTasks = new ArrayList<Task>();
+							parentTasks = new ArrayList<>();
 							otherTask.setParentOtherBranchFirstTasks(parentTasks);
 						}
 						parentTasks.add(tdt);
@@ -361,7 +361,7 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 		}
 
 		if (nextCurrentTasks != null && !nextCurrentTasks.isEmpty()) {
-			List<Task> childs = new ArrayList<Task>();
+			List<Task> childs = new ArrayList<>();
 			for (ICommonTask nextCurrentTask : nextCurrentTasks) {
 				Task nct = (Task) nextCurrentTask;
 				nct.setStatus(Task.Status.CURRENT);
@@ -370,7 +370,7 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 
 				List<Task> previousTasks = nct.getPreviousTasks();
 				if (previousTasks == null) {
-					previousTasks = new ArrayList<Task>();
+					previousTasks = new ArrayList<>();
 					nct.setPreviousTasks(previousTasks);
 				}
 				previousTasks.add(tdt);
@@ -414,7 +414,7 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 	public List<? extends ITaskObject> findTaskObjectsByTaskCluster(ITaskCluster taskCluster) {
 		LOG.info("JPARW - findTaskObjectsByTaskCluster");
 
-		List<ITaskObject> res = new ArrayList<ITaskObject>();
+		List<ITaskObject> res = new ArrayList<>();
 
 		Cluster cluster = (Cluster) taskCluster;
 		List<ClusterDependency> cds = cluster.getClusterDependencies();
@@ -446,7 +446,7 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 	public List<? extends ICommonTask> findNextTasksBySubTask(ISubTask subTask) {
 		LOG.info("JPARW - findNextTasksBySubTask");
 
-		List<ICommonTask> res = new ArrayList<ICommonTask>();
+		List<ICommonTask> res = new ArrayList<>();
 
 		List<Task> nextTasks = ((Task) subTask).getNextTasks();
 		if (nextTasks != null && !nextTasks.isEmpty()) {
@@ -457,8 +457,8 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 					Iterator<Task> previousTaskIt = previousTasks.iterator();
 					while (previousTaskIt.hasNext() && allFinish) {
 						Task previousTask = previousTaskIt.next();
-						if (!previousTask.equals(subTask) && (Task.Status.TODO.equals(((Task) previousTask).getStatus()) || Task.Status.CURRENT
-								.equals(((Task) previousTask).getStatus()))) {
+						if (!previousTask.equals(subTask) && (Task.Status.TODO.equals(previousTask.getStatus()) || Task.Status.CURRENT
+								.equals(previousTask.getStatus()))) {
 							allFinish = false;
 						}
 					}

@@ -80,9 +80,7 @@ public class MainJPA1 {
 		System.out.println("------ Cluster ------");
 		Query q = JPAHelper.getInstance().getJpaAccess().getEntityManager().createQuery("select t from Cluster t");
 		List<Cluster> clusters = q.getResultList();
-		for (Cluster t : clusters) {
-			System.out.println(t);
-		}
+		clusters.forEach(System.out::println);
 		System.out.println("Size: " + clusters.size());
 	}
 
@@ -90,9 +88,7 @@ public class MainJPA1 {
 		System.out.println("------ Todo ------");
 		Query q = JPAHelper.getInstance().getJpaAccess().getEntityManager().createQuery("select t from Todo t");
 		List<Todo> todos = q.getResultList();
-		for (Todo t : todos) {
-			System.out.println(t);
-		}
+		todos.forEach(System.out::println);
 		System.out.println("Size: " + todos.size());
 	}
 
@@ -100,9 +96,7 @@ public class MainJPA1 {
 		System.out.println("------ Task ------");
 		Query q = JPAHelper.getInstance().getJpaAccess().getEntityManager().createQuery("select t from Task t");
 		List<Task> tasks = q.getResultList();
-		for (Task t : tasks) {
-			System.out.println(t);
-		}
+		tasks.forEach(System.out::println);
 		System.out.println("Size: " + tasks.size());
 	}
 }

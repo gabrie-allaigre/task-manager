@@ -9,8 +9,6 @@
         <url>http://www.synaptix-labs.com</url>
     </organization>
     <properties>
-        <root-directory>${project.basedir}</root-directory>
-
         <target.jdk>1.8</target.jdk>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -36,7 +34,6 @@
         <jacoco.it.execution.data.file>${project.build.directory}/coverage-reports/jacoco-it.exec</jacoco.it.execution.data.file>
         <jacoco.ut.execution.data.file>${project.build.directory}/coverage-reports/jacoco-ut.exec</jacoco.ut.execution.data.file>
 
-        <logback.configurationFile>${root-directory}/etc/maven-annotation-logback.xml</logback.configurationFile>
         <generated.sources.dir>${project.build.directory}/generated-sources/apt</generated.sources.dir>
         <generated.antlr.sources.dir>${project.build.directory}/generated-sources/apt</generated.antlr.sources.dir>
     </properties>
@@ -193,10 +190,6 @@
                     <configuration>
                         <outputDirectory>${generated.sources.dir}</outputDirectory>
                         <failOnError>false</failOnError>
-
-                        <systemProperties>
-                            <logback.configurationFile>${logback.configurationFile}</logback.configurationFile>
-                        </systemProperties>
                     </configuration>
                 </plugin>
                 <plugin>

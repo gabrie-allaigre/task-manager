@@ -1,14 +1,9 @@
 package com.synaptix.taskmanager.antlr;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.synaptix.taskmanager.antlr.GraphCalcParser.*;
 
-import com.synaptix.taskmanager.antlr.GraphCalcParser.CompileContext;
-import com.synaptix.taskmanager.antlr.GraphCalcParser.ExprAndContext;
-import com.synaptix.taskmanager.antlr.GraphCalcParser.ExprContext;
-import com.synaptix.taskmanager.antlr.GraphCalcParser.ExprNextContext;
-import com.synaptix.taskmanager.antlr.GraphCalcParser.IdContext;
-import com.synaptix.taskmanager.antlr.GraphCalcParser.ParensContext;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class EvalGraphCalcVisitor extends GraphCalcBaseVisitor<AbstractGraphNode> {
 
@@ -25,10 +20,7 @@ public class EvalGraphCalcVisitor extends GraphCalcBaseVisitor<AbstractGraphNode
 	@Override
 	public AbstractGraphNode visitExprAnd(ExprAndContext ctx) {
 		if (ctx.exprNext().size() > 1) {
-			List<AbstractGraphNode> nodes = new ArrayList<AbstractGraphNode>();
-			for (ExprNextContext term : ctx.exprNext()) {
-				nodes.add(visit(term));
-			}
+			List<AbstractGraphNode> nodes = ctx.exprNext().stream().map(this::visit).collect(Collectors.toList());
 			return new ParallelGraphNode(nodes);
 		}
 		return visit(ctx.exprNext(0));

@@ -35,4 +35,8 @@ git push --follow-tags origin 1.0.1
 
 mvn versions:set -DnewVersion=1.1.0-SNAPSHOT
 
+git add *
+git commit -m "new version 1.1.0-SNAPSHOT"
+git push origin master
+
 ```

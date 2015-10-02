@@ -28,6 +28,8 @@ mvn versions:set -DnewVersion=1.0.1
 
 mvn clean deploy
 
+git add *
+git commit -m "release version 1.0.1"
 git tag 1.0.1
 git push --follow-tags origin 1.0.1
 

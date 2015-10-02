@@ -6,9 +6,6 @@ compile: expr EOF
 expr: exprAnd
     ;
 
-exprOr: exprAnd (OR exprAnd)*
-      ;
-
 exprAnd: exprNext (AND exprNext)*
        ;
 

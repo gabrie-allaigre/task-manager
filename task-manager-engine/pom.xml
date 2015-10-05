@@ -18,5 +18,9 @@
 			<groupId>de.jkeylockmanager</groupId>
 			<artifactId>jkeylockmanager</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.synaptix</groupId>
+			<artifactId>try</artifactId>
+		</dependency>
 	</dependencies>
 </project>

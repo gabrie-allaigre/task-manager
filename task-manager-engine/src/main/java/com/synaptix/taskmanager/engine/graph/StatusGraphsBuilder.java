@@ -1,11 +1,11 @@
 package com.synaptix.taskmanager.engine.graph;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.tuple.Pair;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.tuple.Pair;
 
 public class StatusGraphsBuilder<F> {
 
@@ -14,10 +14,6 @@ public class StatusGraphsBuilder<F> {
 	private List<Pair<F, String>> pairs;
 
 	private List<IStatusGraph<F>> statusGraphs;
-
-	protected StatusGraphsBuilder() {
-		this(null);
-	}
 
 	protected StatusGraphsBuilder(F previousStatus) {
 		super();
@@ -29,8 +25,7 @@ public class StatusGraphsBuilder<F> {
 	}
 
 	public StatusGraphsBuilder<F> addNextStatusGraph(F nextStatus, String nextStatusTaskServiceCode) {
-		this.pairs.add(Pair.of(nextStatus, nextStatusTaskServiceCode));
-		return this;
+		return addNextStatusGraph(nextStatus,nextStatusTaskServiceCode,null);
 	}
 
 	public StatusGraphsBuilder<F> addNextStatusGraph(F nextStatus, String nextStatusTaskServiceCode, StatusGraphsBuilder<F> statusGraphsBuilder) {
@@ -49,7 +44,7 @@ public class StatusGraphsBuilder<F> {
 	}
 
 	public static <F> StatusGraphsBuilder<F> newBuilder() {
-		return new StatusGraphsBuilder<>();
+		return newBuilder(null);
 	}
 
 	public static <F> StatusGraphsBuilder<F> newBuilder(F previousStatus) {

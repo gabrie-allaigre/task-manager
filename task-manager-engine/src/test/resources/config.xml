@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <task-manager-configuration>
-    <graph-definitions instance-to-class="com.synaptix.taskmanager.component.ComponentInstanceToClass">
-        <graph-definition status-class="java.lang.String" object-class="com.synaptix.taskmanager.engine.test.data.BusinessObject">
+    <type-handlers>
+        <type-handler type="" handler-class=""/>
+    </type-handlers>
+    <graph-definitions instance-to-class="com.synaptix.taskmanager.engine.test.data.NoneInstanceToClass">
+        <graph-definition status-class="java.lang.String" object-class="com.synaptix.taskmanager.engine.test.data.BusinessObject" get-status-class="">
             <init-state init-statut="">
                 <state status="A" task-id="A_TASK">
                     <state status="B" task-id="B_TASK">

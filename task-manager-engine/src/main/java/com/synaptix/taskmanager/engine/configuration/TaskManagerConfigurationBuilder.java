@@ -23,37 +23,37 @@ public class TaskManagerConfigurationBuilder {
 	}
 
 	public TaskManagerConfigurationBuilder taskObjectManagerRegistry(ITaskObjectManagerRegistry taskObjectManagerRegistry) {
-		this.taskManagerConfiguration.taskObjectManagerRegistry = taskObjectManagerRegistry;
+		taskManagerConfiguration.taskObjectManagerRegistry = taskObjectManagerRegistry;
 		return this;
 	}
 
 	public TaskManagerConfigurationBuilder taskDefinitionRegistry(ITaskDefinitionRegistry taskDefinitionRegistry) {
-		this.taskManagerConfiguration.taskDefinitionRegistry = taskDefinitionRegistry;
+		taskManagerConfiguration.taskDefinitionRegistry = taskDefinitionRegistry;
 		return this;
 	}
 
 	public TaskManagerConfigurationBuilder taskFactory(ITaskFactory taskFactory) {
-		this.taskManagerConfiguration.taskFactory = taskFactory;
+		taskManagerConfiguration.taskFactory = taskFactory;
 		return this;
 	}
 
 	public TaskManagerConfigurationBuilder taskChainCriteriaBuilder(ITaskChainCriteriaTransform taskChainCriteriaBuilder) {
-		this.taskManagerConfiguration.taskChainCriteriaBuilder = taskChainCriteriaBuilder;
+		taskManagerConfiguration.taskChainCriteriaBuilder = taskChainCriteriaBuilder;
 		return this;
 	}
 
 	public TaskManagerConfigurationBuilder taskManagerReader(ITaskManagerReader taskManagerReader) {
-		this.taskManagerConfiguration.taskManagerReader = taskManagerReader;
+		taskManagerConfiguration.taskManagerReader = taskManagerReader;
 		return this;
 	}
 
 	public TaskManagerConfigurationBuilder taskManagerWriter(ITaskManagerWriter taskManagerWriter) {
-		this.taskManagerConfiguration.taskManagerWriter = taskManagerWriter;
+		taskManagerConfiguration.taskManagerWriter = taskManagerWriter;
 		return this;
 	}
 
 	public ITaskManagerConfiguration build() {
-		return this.taskManagerConfiguration;
+		return taskManagerConfiguration;
 	}
 
 	public static TaskManagerConfigurationBuilder newBuilder() {

@@ -11,7 +11,7 @@ TaskManager
  - Visualiser les tâches effectuées pour un objet
  - Visualiser ses actions manuelles (todo)
 
-# Dependance
+# Usage
 
 ```xml
 <dependency>

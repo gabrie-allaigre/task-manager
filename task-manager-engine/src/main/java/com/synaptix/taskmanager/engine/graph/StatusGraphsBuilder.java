@@ -30,7 +30,7 @@ public class StatusGraphsBuilder<F> {
 
 	public StatusGraphsBuilder<F> addNextStatusGraph(F nextStatus, String nextStatusTaskServiceCode, StatusGraphsBuilder<F> statusGraphsBuilder) {
 		this.pairs.add(Pair.of(nextStatus, nextStatusTaskServiceCode));
-		if (statusGraphsBuilder.pairs != null && !statusGraphsBuilder.pairs.isEmpty()) {
+		if (statusGraphsBuilder != null && statusGraphsBuilder.pairs != null && !statusGraphsBuilder.pairs.isEmpty()) {
 			this.statusGraphs.addAll(statusGraphsBuilder.pairs.stream().map(pair -> new MyStatusGraph<>(nextStatus, pair.getLeft(), pair.getRight())).collect(Collectors.toList()));
 			this.statusGraphs.addAll(statusGraphsBuilder.statusGraphs);
 		}

@@ -13,7 +13,6 @@ import com.synaptix.taskmanager.engine.configuration.transform.ITaskChainCriteri
 import com.synaptix.taskmanager.engine.graph.StatusGraphsBuilder;
 import com.synaptix.taskmanager.engine.manager.ITaskObjectManager;
 import com.synaptix.taskmanager.engine.manager.TaskObjectManagerBuilder;
-import com.synaptix.taskmanager.engine.taskdefinition.TaskDefinitionBuilder;
 import com.synaptix.taskmanager.engine.taskservice.ITaskService;
 import com.synaptix.taskmanager.model.ITaskObject;
 import org.apache.commons.lang3.StringUtils;
@@ -27,6 +26,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -112,11 +112,11 @@ public class XMLTaskManagerConfigurationBuilder {
 			for (Element taskDefinitionElement : getElements(taskDefinitionsElement, "task-definition")) {
 				String taskId = taskDefinitionElement.getAttribute("task-id");
 				if (StringUtils.isBlank(taskId)) {
-					throw new XMLParseException("task-id must not empty",null);
+					throw new XMLParseException("task-id must not empty", null);
 				}
 				Class<?> taskClass = stringToClass(taskDefinitionElement.getAttribute("task-class"));
 				if (taskClass == null) {
-					throw new XMLParseException("task-class must not empty",null);
+					throw new XMLParseException("task-class must not empty", null);
 				}
 				if (!ITaskService.class.isAssignableFrom(taskClass)) {
 					throw new XMLParseException("Class=" + taskClass + " not inherit class=" + ITaskService.class, null);
@@ -124,14 +124,23 @@ public class XMLTaskManagerConfigurationBuilder {
 
 				List<Element> parameterElements = getElements(taskDefinitionElement, "parameter");
 
-				taskClass.getConstructors();
-
-
-				taskDefinitionRegistryBuilder.addTaskDefinition(TaskDefinitionBuilder.newBuilder(taskId, createInstance(ITaskService.class, taskClass)).build());
+				//taskDefinitionRegistryBuilder.addTaskDefinition(TaskDefinitionBuilder.newBuilder(taskId, createInstance(ITaskService.class, taskClass)).build());
 			}
 		}
 
 		return taskDefinitionRegistryBuilder.build();
+	}
+
+	private List<Constructor<?>> getCon(Class<?> taskClass, int nb) {
+		List<Constructor<?>> res = new ArrayList<>();
+
+		for (Constructor<?> constructor : taskClass.getConstructors()) {
+			if (constructor.getParameterCount() == nb) {
+				res.add(constructor);
+			}
+		}
+
+		return res;
 	}
 
 	private ITaskObjectManagerRegistry parseGraphDefinitions(Element graphDefinitionsElement) throws XMLParseException {

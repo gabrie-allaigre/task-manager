@@ -47,7 +47,7 @@ public class XMLTaskManagerConfigurationBuilder {
 	private XMLTaskManagerConfigurationBuilder(InputStream is) throws XMLParseException {
 		super();
 
-		this.taskManagerConfigurationBuilder.newBuilder();
+		this.taskManagerConfigurationBuilder = TaskManagerConfigurationBuilder.newBuilder();
 
 		parseXML(is);
 	}
@@ -111,7 +111,21 @@ public class XMLTaskManagerConfigurationBuilder {
 		if (taskDefinitionsElement != null) {
 			for (Element taskDefinitionElement : getElements(taskDefinitionsElement, "task-definition")) {
 				String taskId = taskDefinitionElement.getAttribute("task-id");
-				String taskClass = taskDefinitionElement.getAttribute("task-class");
+				if (StringUtils.isBlank(taskId)) {
+					throw new XMLParseException("task-id must not empty",null);
+				}
+				Class<?> taskClass = stringToClass(taskDefinitionElement.getAttribute("task-class"));
+				if (taskClass == null) {
+					throw new XMLParseException("task-class must not empty",null);
+				}
+				if (!ITaskService.class.isAssignableFrom(taskClass)) {
+					throw new XMLParseException("Class=" + taskClass + " not inherit class=" + ITaskService.class, null);
+				}
+
+				List<Element> parameterElements = getElements(taskDefinitionElement, "parameter");
+
+				taskClass.getConstructors();
+
 
 				taskDefinitionRegistryBuilder.addTaskDefinition(TaskDefinitionBuilder.newBuilder(taskId, createInstance(ITaskService.class, taskClass)).build());
 			}
@@ -223,6 +237,9 @@ public class XMLTaskManagerConfigurationBuilder {
 
 	private <E> E createInstance(Class<E> inheritClass, String classString) throws XMLParseException {
 		Class<?> instanceToClass = stringToClass(classString);
+		if (instanceToClass == null) {
+			return null;
+		}
 		if (!inheritClass.isAssignableFrom(instanceToClass)) {
 			throw new XMLParseException("Class=" + classString + " not inherit class=" + inheritClass, null);
 		}

@@ -5,6 +5,6 @@ import com.synaptix.taskmanager.engine.configuration.xml.XMLTaskManagerConfigura
 public class MainXML {
 
 	public static void main(String[] args) throws Exception {
-		new XMLTaskManagerConfigurationBuilder().test(MainXML.class.getResourceAsStream("/config.xml"));
+		XMLTaskManagerConfigurationBuilder.newBuilder(MainXML.class.getResourceAsStream("/config.xml"));
 	}
 }

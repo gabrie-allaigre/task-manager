@@ -149,8 +149,7 @@ public class XMLTaskManagerConfigurationBuilder {
 						}
 
 						taskService = (ITaskService) constructor.newInstance(parameters);
-					} catch (XMLParseException | InvocationTargetException | IllegalAccessException | InstantiationException e) {
-						e.printStackTrace();
+					} catch (Exception e) {
 					}
 				}
 
@@ -251,11 +250,11 @@ public class XMLTaskManagerConfigurationBuilder {
 		if (StringUtils.isBlank(value)) {
 			return null;
 		}
-		if (Integer.class == convertToClass) {
+		if (Integer.class == convertToClass || int.class == convertToClass) {
 			return Integer.parseInt(value);
-		} else if (Float.class == convertToClass) {
+		} else if (Float.class == convertToClass || float.class == convertToClass) {
 			return Float.parseFloat(value);
-		} else if (Double.class == convertToClass) {
+		} else if (Double.class == convertToClass || double.class == convertToClass) {
 			return Double.parseDouble(value);
 		} else if (String.class == convertToClass) {
 			return value;

@@ -242,6 +242,9 @@ public class XMLTaskManagerConfigurationTest {
 
 		Assert.assertNotNull(taskManagerConfiguration.getTaskDefinitionRegistry().getTaskDefinition("A_TASK"));
 		Assert.assertTrue(taskManagerConfiguration.getTaskDefinitionRegistry().getTaskDefinition("A_TASK").getTaskService() instanceof MultiUpdateStatusTaskService);
+
+		MultiUpdateStatusTaskService multiUpdateStatusTaskService = (MultiUpdateStatusTaskService) taskManagerConfiguration.getTaskDefinitionRegistry().getTaskDefinition("A_TASK").getTaskService();
+		Assert.assertEquals(multiUpdateStatusTaskService.getStatus(), "A");
 	}
 
 	/**
@@ -260,5 +263,36 @@ public class XMLTaskManagerConfigurationTest {
 
 		Assert.assertNotNull(taskManagerConfiguration.getTaskDefinitionRegistry().getTaskDefinition("A_TASK"));
 		Assert.assertTrue(taskManagerConfiguration.getTaskDefinitionRegistry().getTaskDefinition("A_TASK").getTaskService() instanceof MultiParamsTaskService);
+
+		MultiParamsTaskService multiParamsTaskService = (MultiParamsTaskService) taskManagerConfiguration.getTaskDefinitionRegistry().getTaskDefinition("A_TASK").getTaskService();
+		Assert.assertEquals(multiParamsTaskService.getNewCode(), "A");
+		Assert.assertEquals(multiParamsTaskService.getEntier(), 10);
+		Assert.assertEquals(multiParamsTaskService.getRien(), 20.5f);
+		Assert.assertEquals(multiParamsTaskService.getStatus(), MyStatus.B);
+	}
+
+	/**
+	 * Transition with parameters
+	 */
+	@Test
+	public void test12() {
+		ITaskManagerConfiguration taskManagerConfiguration = null;
+		try {
+			taskManagerConfiguration = XMLTaskManagerConfigurationBuilder.newBuilder(XMLTaskManagerConfigurationTest.class.getResourceAsStream("config12.xml")).build();
+		} catch (XMLParseException e) {
+			e.printStackTrace();
+		}
+
+		Assert.assertNotNull(taskManagerConfiguration);
+
+		Assert.assertNotNull(taskManagerConfiguration.getTaskDefinitionRegistry().getTaskDefinition("A_TASK"));
+		Assert.assertTrue(taskManagerConfiguration.getTaskDefinitionRegistry().getTaskDefinition("A_TASK").getTaskService() instanceof MultiParamsTaskService);
+
+		MultiParamsTaskService multiParamsTaskService = (MultiParamsTaskService) taskManagerConfiguration.getTaskDefinitionRegistry().getTaskDefinition("A_TASK").getTaskService();
+		Assert.assertEquals(multiParamsTaskService.getNewCode(), "A");
+		Assert.assertEquals(multiParamsTaskService.getEntier(), 10);
+		Assert.assertEquals(multiParamsTaskService.getRien(), 20.5f);
+		Assert.assertNull(multiParamsTaskService.getStatus());
+		Assert.assertEquals(multiParamsTaskService.getD(), 12.4564644);
 	}
 }

@@ -6,5 +6,10 @@
                 <state status="A" task-id="A_TASK"/>
             </init-state>
         </graph-definition>
+        <graph-definition object-class="com.synaptix.taskmanager.engine.test.data.OtherBusinessObject">
+            <init-state>
+                <state status="B" task-id="B_TASK"/>
+            </init-state>
+        </graph-definition>
     </graph-definitions>
 </task-manager-configuration>

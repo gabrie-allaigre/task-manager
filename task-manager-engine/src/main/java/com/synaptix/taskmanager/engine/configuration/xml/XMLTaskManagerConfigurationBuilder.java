@@ -13,6 +13,7 @@ import com.synaptix.taskmanager.engine.configuration.transform.ITaskChainCriteri
 import com.synaptix.taskmanager.engine.graph.StatusGraphsBuilder;
 import com.synaptix.taskmanager.engine.manager.ITaskObjectManager;
 import com.synaptix.taskmanager.engine.manager.TaskObjectManagerBuilder;
+import com.synaptix.taskmanager.engine.taskdefinition.TaskDefinitionBuilder;
 import com.synaptix.taskmanager.engine.taskservice.ITaskService;
 import com.synaptix.taskmanager.model.ITaskObject;
 import org.apache.commons.lang3.StringUtils;
@@ -27,8 +28,11 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class XMLTaskManagerConfigurationBuilder {
 
@@ -119,19 +123,58 @@ public class XMLTaskManagerConfigurationBuilder {
 					throw new XMLParseException("task-class must not empty", null);
 				}
 				if (!ITaskService.class.isAssignableFrom(taskClass)) {
-					throw new XMLParseException("Class=" + taskClass + " not inherit class=" + ITaskService.class, null);
+					throw new XMLParseException("task-class " + taskClass + " not inherit class=" + ITaskService.class, null);
 				}
 
-				List<Element> parameterElements = getElements(taskDefinitionElement, "parameter");
+				List<String> parameterStrings = getParameterStrings(taskDefinitionElement);
+				int nbParameter = parameterStrings.size();
 
-				//taskDefinitionRegistryBuilder.addTaskDefinition(TaskDefinitionBuilder.newBuilder(taskId, createInstance(ITaskService.class, taskClass)).build());
+				List<Constructor<?>> constructors = getConstructors(taskClass, nbParameter);
+				if (constructors.isEmpty()) {
+					throw new XMLParseException("task-class " + taskClass + " not found contructor for " + parameterStrings.size() + " parameter(s)", null);
+				}
+
+				ITaskService taskService = null;
+				Iterator<Constructor<?>> it = constructors.iterator();
+				while (it.hasNext() && taskService == null) {
+					Constructor<?> constructor = it.next();
+					try {
+						Class<?>[] parameterTypes = constructor.getParameterTypes();
+						Object[] parameters = new Object[nbParameter];
+						for (int i = 0; i < nbParameter; i++) {
+							String valueString = parameterStrings.get(i);
+							Class<?> parameterType = parameterTypes[i];
+
+							parameters[i] = convertStringTo(valueString, parameterType);
+						}
+
+						taskService = (ITaskService) constructor.newInstance(parameters);
+					} catch (XMLParseException | InvocationTargetException | IllegalAccessException | InstantiationException e) {
+						e.printStackTrace();
+					}
+				}
+
+				if (taskService == null) {
+					throw new XMLParseException("task-class " + taskClass + " not found contructor", null);
+				}
+
+				taskDefinitionRegistryBuilder.addTaskDefinition(TaskDefinitionBuilder.newBuilder(taskId, taskService).build());
 			}
 		}
 
 		return taskDefinitionRegistryBuilder.build();
 	}
 
-	private List<Constructor<?>> getCon(Class<?> taskClass, int nb) {
+	private List<String> getParameterStrings(Element taskDefinitionElement) {
+		List<String> res = new ArrayList<>();
+
+		List<Element> parameterElements = getElements(taskDefinitionElement, "parameter");
+		res.addAll(parameterElements.stream().map(parameterElement -> parameterElement.getTextContent()).collect(Collectors.toList()));
+
+		return res;
+	}
+
+	private List<Constructor<?>> getConstructors(Class<?> taskClass, int nb) {
 		List<Constructor<?>> res = new ArrayList<>();
 
 		for (Constructor<?> constructor : taskClass.getConstructors()) {
@@ -186,7 +229,7 @@ public class XMLTaskManagerConfigurationBuilder {
 
 			StatusGraphsBuilder<Object> statusGraphsBuilder = StatusGraphsBuilder.newBuilder(initStatut);
 
-			getStates(statusGraphsBuilder, initStateElement);
+			getStates(statusGraphsBuilder, initStateElement, statusClass);
 
 			taskObjectManagerBuilder.statusGraphs(statusGraphsBuilder.build());
 		}
@@ -209,11 +252,11 @@ public class XMLTaskManagerConfigurationBuilder {
 			return null;
 		}
 		if (Integer.class == convertToClass) {
-			return new Integer(Integer.parseInt(value));
+			return Integer.parseInt(value);
 		} else if (Float.class == convertToClass) {
-			return new Float(Float.parseFloat(value));
+			return Float.parseFloat(value);
 		} else if (Double.class == convertToClass) {
-			return new Double(Double.parseDouble(value));
+			return Double.parseDouble(value);
 		} else if (String.class == convertToClass) {
 			return value;
 		} else if (Enum.class.isAssignableFrom(convertToClass)) {
@@ -237,9 +280,7 @@ public class XMLTaskManagerConfigurationBuilder {
 	private <E> E createInstance(Class<E> clazz) throws XMLParseException {
 		try {
 			return clazz.newInstance();
-		} catch (InstantiationException e) {
-			throw new XMLParseException("Not instanciate class=" + clazz, e);
-		} catch (IllegalAccessException e) {
+		} catch (InstantiationException | IllegalAccessException e) {
 			throw new XMLParseException("Not instanciate class=" + clazz, e);
 		}
 	}
@@ -255,16 +296,16 @@ public class XMLTaskManagerConfigurationBuilder {
 		return createInstance((Class<E>) instanceToClass);
 	}
 
-	private void getStates(StatusGraphsBuilder<Object> res, Element element) {
-		getElements(element, "state").forEach(stateElement -> {
-			String status = stateElement.getAttribute("status");
+	private void getStates(StatusGraphsBuilder<Object> res, Element element, Class<?> statusClass) throws XMLParseException {
+		for (Element stateElement : getElements(element, "state")) {
+			Object status = convertStringTo(stateElement.getAttribute("status"), statusClass);
 			String taskId = stateElement.getAttribute("task-id");
 
 			StatusGraphsBuilder<Object> statusGraphsBuilder = StatusGraphsBuilder.newBuilder();
-			getStates(statusGraphsBuilder, stateElement);
+			getStates(statusGraphsBuilder, stateElement, statusClass);
 
 			res.addNextStatusGraph(status, taskId, statusGraphsBuilder);
-		});
+		}
 	}
 
 	private List<Element> getElements(Element element, String tagName) {

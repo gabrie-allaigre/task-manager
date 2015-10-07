@@ -5,6 +5,10 @@
             <init-state>
                 <state status="A" task-id="A_TASK"/>
             </init-state>
+            <transitions>
+                <transition start-status="" end-status="A" tasks-path="CHANGE"/>
+                <transition start-status="B" end-status="D" tasks-path="CODE=>VERSD"/>
+            </transitions>
         </graph-definition>
     </graph-definitions>
 </task-manager-configuration>

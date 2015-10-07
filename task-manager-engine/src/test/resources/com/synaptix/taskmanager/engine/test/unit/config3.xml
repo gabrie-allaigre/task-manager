@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <task-manager-configuration>
     <graph-definitions>
-        <graph-definition object-class="com.synaptix.taskmanager.engine.test.data.BusinessObject">
+        <graph-definition status-class="com.synaptix.taskmanager.engine.test.data.MyStatus" object-class="com.synaptix.taskmanager.engine.test.data.BusinessObject">
             <init-state>
                 <state status="A" task-id="A_TASK"/>
             </init-state>

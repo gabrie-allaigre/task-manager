@@ -7,6 +7,6 @@ public class NoneInstanceToClass implements TaskObjectManagerRegistryBuilder.IIn
 
 	@Override
 	public <F extends ITaskObject> Class<F> instanceToClass(F taskObject) {
-		return (Class<F>)taskObject.getClass();
+		return (Class<F>)BusinessObject.class;
 	}
 }

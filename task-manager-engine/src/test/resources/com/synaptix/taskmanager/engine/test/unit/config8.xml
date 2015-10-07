@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<task-manager-configuration>
+    <graph-definitions>
+        <graph-definition status-class="com.synaptix.taskmanager.engine.test.data.MyStatus" object-class="com.synaptix.taskmanager.engine.test.data.BusinessObject">
+            <init-state>
+                <state status="A" task-id="A_TASK"/>
+            </init-state>
+            <transitions>
+                <transition start-status="" end-status="A" tasks-path="CHANGE"/>
+                <transition start-status="B" end-status="D" tasks-path="CODE=>VERSD"/>
+            </transitions>
+        </graph-definition>
+    </graph-definitions>
+</task-manager-configuration>

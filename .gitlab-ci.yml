@@ -2,11 +2,11 @@ image: maven:3.3.3-jdk-8
 stages:
   - build
   - test
-job1:
+build_job:
   stage: build
   script:
     - mvn -q --batch-mode compile -Dmaven.test.skip=true
-job2:
+test_job:
   stage: test
   script:
     - mvn -q --batch-mode verify

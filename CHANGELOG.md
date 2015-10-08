@@ -1,5 +1,8 @@
-Version 1.1.0-SNAPSHOT
+Version 1.2.0-SNAPSHOT
+
+Version 1.1.0
 - Java 8
+- Configuration par XML
 
 Version 1.0.1
 - Correction bug sur les paralleles 

@@ -17,7 +17,7 @@ TaskManager
 <dependency>
     <groupId>com.synaptix</groupId>
     <artifactId>task-manager-engine</artifactId>
-    <version>1.0.1</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 

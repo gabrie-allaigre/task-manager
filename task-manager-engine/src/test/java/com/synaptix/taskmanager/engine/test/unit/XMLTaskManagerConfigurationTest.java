@@ -295,4 +295,40 @@ public class XMLTaskManagerConfigurationTest {
 		Assert.assertNull(multiParamsTaskService.getStatus());
 		Assert.assertEquals(multiParamsTaskService.getD(), 12.4564644);
 	}
+
+	/**
+	 * Transition with parameters, error multi constructor
+	 */
+	@Test
+	public void test13() {
+		ITaskManagerConfiguration taskManagerConfiguration = null;
+		try {
+			taskManagerConfiguration = XMLTaskManagerConfigurationBuilder.newBuilder(XMLTaskManagerConfigurationTest.class.getResourceAsStream("config13.xml")).build();
+		} catch (XMLParseException e) {
+			return;
+		}
+
+		Assert.assertNull(taskManagerConfiguration);
+	}
+
+	@Test
+	public void test14() {
+		ITaskManagerConfiguration taskManagerConfiguration = null;
+		try {
+			taskManagerConfiguration = XMLTaskManagerConfigurationBuilder.newBuilder(XMLTaskManagerConfigurationTest.class.getResourceAsStream("config14.xml")).build();
+		} catch (XMLParseException e) {
+			e.printStackTrace();
+		}
+
+		Assert.assertNotNull(taskManagerConfiguration);
+
+		Assert.assertNotNull(taskManagerConfiguration.getTaskDefinitionRegistry().getTaskDefinition("A_TASK"));
+		Assert.assertNotNull(taskManagerConfiguration.getTaskDefinitionRegistry().getTaskDefinition("B_TASK"));
+
+		Assert.assertTrue(taskManagerConfiguration.getTaskDefinitionRegistry().getTaskDefinition("A_TASK").getTaskService() instanceof MultiUpdateMyStatusObjectTaskService);
+		Assert.assertTrue(taskManagerConfiguration.getTaskDefinitionRegistry().getTaskDefinition("B_TASK").getTaskService() instanceof MultiUpdateMyStatusObjectTaskService);
+
+		Assert.assertEquals(((MultiUpdateMyStatusObjectTaskService) taskManagerConfiguration.getTaskDefinitionRegistry().getTaskDefinition("A_TASK").getTaskService()).getStatus(), MyStatusObject.A);
+		Assert.assertEquals(((MultiUpdateMyStatusObjectTaskService) taskManagerConfiguration.getTaskDefinitionRegistry().getTaskDefinition("B_TASK").getTaskService()).getStatus(), MyStatusObject.B);
+	}
 }

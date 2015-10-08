@@ -1,15 +1,10 @@
 package com.synaptix.taskmanager.engine.configuration.xml;
 
-import com.synaptix.taskmanager.engine.configuration.ITaskManagerConfiguration;
 import com.synaptix.taskmanager.engine.configuration.TaskManagerConfigurationBuilder;
-import com.synaptix.taskmanager.engine.configuration.factory.ITaskFactory;
-import com.synaptix.taskmanager.engine.configuration.persistance.ITaskManagerReader;
-import com.synaptix.taskmanager.engine.configuration.persistance.ITaskManagerWriter;
 import com.synaptix.taskmanager.engine.configuration.registry.ITaskDefinitionRegistry;
 import com.synaptix.taskmanager.engine.configuration.registry.ITaskObjectManagerRegistry;
 import com.synaptix.taskmanager.engine.configuration.registry.TaskDefinitionRegistryBuilder;
 import com.synaptix.taskmanager.engine.configuration.registry.TaskObjectManagerRegistryBuilder;
-import com.synaptix.taskmanager.engine.configuration.transform.ITaskChainCriteriaTransform;
 import com.synaptix.taskmanager.engine.graph.StatusGraphsBuilder;
 import com.synaptix.taskmanager.engine.manager.ITaskObjectManager;
 import com.synaptix.taskmanager.engine.manager.TaskObjectManagerBuilder;
@@ -17,6 +12,7 @@ import com.synaptix.taskmanager.engine.taskdefinition.TaskDefinitionBuilder;
 import com.synaptix.taskmanager.engine.taskservice.ITaskService;
 import com.synaptix.taskmanager.model.ITaskObject;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -27,61 +23,28 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class XMLTaskManagerConfigurationBuilder {
 
 	private TaskManagerConfigurationBuilder taskManagerConfigurationBuilder;
 
-	private XMLTaskManagerConfigurationBuilder(File file) throws XMLParseException {
-		super();
-
-		try {
-			parseXML(new FileInputStream(file));
-		} catch (FileNotFoundException e) {
-			throw new XMLParseException("Not read file=" + file, e);
-		}
-	}
+	private Map<Class<?>, ITypeHandler> typeHandlerMap;
 
 	private XMLTaskManagerConfigurationBuilder(InputStream is) throws XMLParseException {
 		super();
 
-		this.taskManagerConfigurationBuilder.newBuilder();
-
+		this.taskManagerConfigurationBuilder = TaskManagerConfigurationBuilder.newBuilder();
 		parseXML(is);
 	}
 
-	public XMLTaskManagerConfigurationBuilder taskFactory(ITaskFactory taskFactory) {
-		taskManagerConfigurationBuilder.taskFactory(taskFactory);
-		return this;
-	}
-
-	public XMLTaskManagerConfigurationBuilder taskChainCriteriaBuilder(ITaskChainCriteriaTransform taskChainCriteriaBuilder) {
-		taskManagerConfigurationBuilder.taskChainCriteriaBuilder(taskChainCriteriaBuilder);
-		return this;
-	}
-
-	public XMLTaskManagerConfigurationBuilder taskManagerReader(ITaskManagerReader taskManagerReader) {
-		taskManagerConfigurationBuilder.taskManagerReader(taskManagerReader);
-		return this;
-	}
-
-	public XMLTaskManagerConfigurationBuilder taskManagerWriter(ITaskManagerWriter taskManagerWriter) {
-		taskManagerConfigurationBuilder.taskManagerWriter(taskManagerWriter);
-		return this;
-	}
-
-	public ITaskManagerConfiguration build() {
-		return taskManagerConfigurationBuilder.build();
-	}
-
-	public static XMLTaskManagerConfigurationBuilder newBuilder(File file) throws IOException, XMLParseException {
-		return new XMLTaskManagerConfigurationBuilder(file);
-	}
-
-	public static XMLTaskManagerConfigurationBuilder newBuilder(InputStream is) throws XMLParseException {
-		return new XMLTaskManagerConfigurationBuilder(is);
+	public static TaskManagerConfigurationBuilder newBuilder(InputStream is) throws XMLParseException {
+		return new XMLTaskManagerConfigurationBuilder(is).taskManagerConfigurationBuilder;
 	}
 
 	private void parseXML(InputStream is) throws XMLParseException {
@@ -100,9 +63,31 @@ public class XMLTaskManagerConfigurationBuilder {
 
 		Element root = document.getDocumentElement();
 
+		typeHandlerMap = parseTypeHandlers(getFirstElement(root, "type-handlers"));
+
 		taskManagerConfigurationBuilder.taskObjectManagerRegistry(parseGraphDefinitions(getFirstElement(root, "graph-definitions")));
 
 		taskManagerConfigurationBuilder.taskDefinitionRegistry(parseTaskDefinitions(getFirstElement(root, "task-definitions")));
+	}
+
+	private Map<Class<?>, ITypeHandler> parseTypeHandlers(Element typeHandlersElement) throws XMLParseException {
+		Map<Class<?>, ITypeHandler> res = new HashMap<>();
+		if (typeHandlersElement != null) {
+			for (Element typeHandlerElement : getElements(typeHandlersElement, "type-handler")) {
+				Class<?> type = stringToClass(typeHandlerElement.getAttribute("type"));
+				if (type == null) {
+					throw new XMLParseException("type-handler type must not null", null);
+				}
+
+				ITypeHandler<?> typeHandler = createInstance(ITypeHandler.class, typeHandlerElement.getAttribute("handler-class"));
+				if (typeHandler == null) {
+					throw new XMLParseException("type-handler handler-class must not null", null);
+				}
+
+				res.put(type, typeHandler);
+			}
+		}
+		return res;
 	}
 
 	private ITaskDefinitionRegistry parseTaskDefinitions(Element taskDefinitionsElement) throws XMLParseException {
@@ -111,13 +96,90 @@ public class XMLTaskManagerConfigurationBuilder {
 		if (taskDefinitionsElement != null) {
 			for (Element taskDefinitionElement : getElements(taskDefinitionsElement, "task-definition")) {
 				String taskId = taskDefinitionElement.getAttribute("task-id");
-				String taskClass = taskDefinitionElement.getAttribute("task-class");
+				if (StringUtils.isBlank(taskId)) {
+					throw new XMLParseException("task-id must not empty", null);
+				}
+				Class<?> taskClass = stringToClass(taskDefinitionElement.getAttribute("task-class"));
+				if (taskClass == null) {
+					throw new XMLParseException("task-class must not empty", null);
+				}
+				if (!ITaskService.class.isAssignableFrom(taskClass)) {
+					throw new XMLParseException("task-class " + taskClass + " not inherit class=" + ITaskService.class, null);
+				}
 
-				taskDefinitionRegistryBuilder.addTaskDefinition(TaskDefinitionBuilder.newBuilder(taskId, createInstance(ITaskService.class, taskClass)).build());
+				List<Pair<Class<?>, String>> parameterStrings = getParameterStrings(taskDefinitionElement);
+				int nbParameter = parameterStrings.size();
+
+				List<Constructor<?>> constructors = getConstructors(taskClass, parameterStrings);
+				if (constructors.isEmpty()) {
+					throw new XMLParseException("task-class " + taskClass + " not found contructor for " + parameterStrings.size() + " parameter(s)", null);
+				}
+				if (constructors.size() > 1) {
+					throw new XMLParseException("task-class " + taskClass + " found multi contructors for " + parameterStrings.size() + " parameter(s) (" + constructors.size() + ")", null);
+				}
+
+				Constructor<?> constructor = constructors.get(0);
+				Class<?>[] parameterTypes = constructor.getParameterTypes();
+				Object[] parameters = new Object[nbParameter];
+				for (int i = 0; i < nbParameter; i++) {
+					String valueString = parameterStrings.get(i).getRight();
+					Class<?> parameterType = parameterTypes[i];
+
+					parameters[i] = convertStringTo(valueString, parameterType);
+				}
+
+				ITaskService taskService = null;
+				try {
+					taskService = (ITaskService) constructor.newInstance(parameters);
+				} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+					throw new XMLParseException("task-class " + taskClass + " fail to created new instance", e);
+				}
+				taskDefinitionRegistryBuilder.addTaskDefinition(TaskDefinitionBuilder.newBuilder(taskId, taskService).build());
 			}
 		}
 
 		return taskDefinitionRegistryBuilder.build();
+	}
+
+	private List<Pair<Class<?>, String>> getParameterStrings(Element taskDefinitionElement) throws XMLParseException {
+		List<Pair<Class<?>, String>> res = new ArrayList<>();
+
+		List<Element> parameterElements = getElements(taskDefinitionElement, "parameter");
+		for (Element parameterElement : parameterElements) {
+			res.add(Pair.of(stringToClass(parameterElement.getAttribute("type")), parameterElement.getTextContent()));
+		}
+
+		return res;
+	}
+
+	private List<Constructor<?>> getConstructors(Class<?> taskClass, List<Pair<Class<?>, String>> parameterStrings) {
+		List<Constructor<?>> res = new ArrayList<>();
+
+		int nb = parameterStrings.size();
+		for (Constructor<?> constructor : taskClass.getConstructors()) {
+			if (constructor.getParameterCount() == nb) {
+				Class<?>[] parameterTypes = constructor.getParameterTypes();
+				boolean ok = true;
+				int i = 0;
+				while (i < nb && ok) {
+					Pair<Class<?>, String> parameterString = parameterStrings.get(i);
+					Class<?> type = parameterString.getLeft();
+					Class<?> clazz = parameterTypes[i];
+
+					if (type != null && !type.equals(clazz)) {
+						ok = false;
+					}
+
+					i++;
+				}
+
+				if (ok) {
+					res.add(constructor);
+				}
+			}
+		}
+
+		return res;
 	}
 
 	private ITaskObjectManagerRegistry parseGraphDefinitions(Element graphDefinitionsElement) throws XMLParseException {
@@ -163,7 +225,7 @@ public class XMLTaskManagerConfigurationBuilder {
 
 			StatusGraphsBuilder<Object> statusGraphsBuilder = StatusGraphsBuilder.newBuilder(initStatut);
 
-			getStates(statusGraphsBuilder, initStateElement);
+			getStates(statusGraphsBuilder, initStateElement, statusClass);
 
 			taskObjectManagerBuilder.statusGraphs(statusGraphsBuilder.build());
 		}
@@ -182,15 +244,19 @@ public class XMLTaskManagerConfigurationBuilder {
 	}
 
 	private Object convertStringTo(String value, Class<?> convertToClass) throws XMLParseException {
+		ITypeHandler<?> typeHandler = typeHandlerMap.get(convertToClass);
+		if (typeHandler != null) {
+			return typeHandler.stringToObject(value);
+		}
 		if (StringUtils.isBlank(value)) {
 			return null;
 		}
-		if (Integer.class == convertToClass) {
-			return new Integer(Integer.parseInt(value));
-		} else if (Float.class == convertToClass) {
-			return new Float(Float.parseFloat(value));
-		} else if (Double.class == convertToClass) {
-			return new Double(Double.parseDouble(value));
+		if (Integer.class == convertToClass || int.class == convertToClass) {
+			return Integer.parseInt(value);
+		} else if (Float.class == convertToClass || float.class == convertToClass) {
+			return Float.parseFloat(value);
+		} else if (Double.class == convertToClass || double.class == convertToClass) {
+			return Double.parseDouble(value);
 		} else if (String.class == convertToClass) {
 			return value;
 		} else if (Enum.class.isAssignableFrom(convertToClass)) {
@@ -204,6 +270,14 @@ public class XMLTaskManagerConfigurationBuilder {
 		if (StringUtils.isBlank(classString)) {
 			return null;
 		}
+		switch (classString) {
+		case "int":
+			return int.class;
+		case "float":
+			return float.class;
+		case "double":
+			return double.class;
+		}
 		try {
 			return XMLTaskManagerConfigurationBuilder.class.getClassLoader().loadClass(classString);
 		} catch (ClassNotFoundException e) {
@@ -214,31 +288,32 @@ public class XMLTaskManagerConfigurationBuilder {
 	private <E> E createInstance(Class<E> clazz) throws XMLParseException {
 		try {
 			return clazz.newInstance();
-		} catch (InstantiationException e) {
-			throw new XMLParseException("Not instanciate class=" + clazz, e);
-		} catch (IllegalAccessException e) {
+		} catch (InstantiationException | IllegalAccessException e) {
 			throw new XMLParseException("Not instanciate class=" + clazz, e);
 		}
 	}
 
 	private <E> E createInstance(Class<E> inheritClass, String classString) throws XMLParseException {
 		Class<?> instanceToClass = stringToClass(classString);
+		if (instanceToClass == null) {
+			return null;
+		}
 		if (!inheritClass.isAssignableFrom(instanceToClass)) {
 			throw new XMLParseException("Class=" + classString + " not inherit class=" + inheritClass, null);
 		}
 		return createInstance((Class<E>) instanceToClass);
 	}
 
-	private void getStates(StatusGraphsBuilder<Object> res, Element element) {
-		getElements(element, "state").forEach(stateElement -> {
-			String status = stateElement.getAttribute("status");
+	private void getStates(StatusGraphsBuilder<Object> res, Element element, Class<?> statusClass) throws XMLParseException {
+		for (Element stateElement : getElements(element, "state")) {
+			Object status = convertStringTo(stateElement.getAttribute("status"), statusClass);
 			String taskId = stateElement.getAttribute("task-id");
 
 			StatusGraphsBuilder<Object> statusGraphsBuilder = StatusGraphsBuilder.newBuilder();
-			getStates(statusGraphsBuilder, stateElement);
+			getStates(statusGraphsBuilder, stateElement, statusClass);
 
 			res.addNextStatusGraph(status, taskId, statusGraphsBuilder);
-		});
+		}
 	}
 
 	private List<Element> getElements(Element element, String tagName) {

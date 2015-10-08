@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<task-manager-configuration>
+    <task-definitions>
+        <task-definition task-id="STOP" task-class="com.synaptix.taskmanager.engine.test.data.StopTaskService"/>
+    </task-definitions>
+</task-manager-configuration>

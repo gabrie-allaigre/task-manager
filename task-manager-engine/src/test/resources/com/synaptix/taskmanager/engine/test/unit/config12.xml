@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<task-manager-configuration>
+    <task-definitions>
+        <task-definition task-id="A_TASK" task-class="com.synaptix.taskmanager.engine.test.data.MultiParamsTaskService">
+            <parameter type="java.lang.String">A</parameter>
+            <parameter type="int">10</parameter>
+            <parameter type="float">20.5</parameter>
+            <parameter type="double">12.4564644</parameter>
+        </task-definition>
+    </task-definitions>
+</task-manager-configuration>

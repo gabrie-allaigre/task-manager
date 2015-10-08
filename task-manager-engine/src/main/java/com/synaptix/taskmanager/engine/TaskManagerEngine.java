@@ -173,7 +173,7 @@ public class TaskManagerEngine {
 										executeContext(context);
 									}
 								}
-							} catch (Throwable t) {
+							} catch (Exception t) {
 								LOG.error("TM - Error taskService code=" + task.getCodeTaskDefinition(), t);
 								errorMessage = t;
 								done = false;

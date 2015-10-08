@@ -21,7 +21,7 @@ public class DefaultTaskChainCriteriaTransform extends AbstractTaskChainCriteria
 			try {
 				AbstractGraphNode graphNode = new EvalGraphCalcVisitor().visit(compile(taskChainCriteria));
 				return _createTasks(taskManagerConfiguration, graphNode);
-			} catch (Throwable t) {
+			} catch (Exception t) {
 				throw new RuntimeException(t);
 			}
 		}

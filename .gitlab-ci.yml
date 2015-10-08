@@ -1,4 +1,20 @@
 image: maven:3.3.3-jdk-8
-job:
+stages:
+  - build
+  - test
+build_job:
+  stage: build
   script:
-    - mvn --batch-mode verify sonar:sonar -Dsonar.host.url=http://stx-th2-dev03.vlan-admin.private:9000 -Dsonar.jdbc.url=jdbc:postgresql://stx-th2-dev03.vlan-admin.private/sonar_synaptix -Dsonar.jdbc.username=sonar_synaptix -Dsonar.jdbc.password=72w3C5JGd6gPLq3i
+    - mvn -q --batch-mode compile -Dmaven.test.skip=true
+test_job:
+  stage: test
+  except:
+    - master
+  script:
+    - mvn -q --batch-mode verify
+test_sonar_job:
+  stage: test
+  only:
+    - master
+  script:
+    - mvn --batch-mode verify sonar:sonar -Dsonar.host.url=$SONAR_URL -Dsonar.jdbc.url=$SONAR_DB -Dsonar.jdbc.username=$SONAR_USERNAME -Dsonar.jdbc.password=$SONAR_PASSWORD

@@ -1,4 +1,4 @@
 image: maven:3.3.3-jdk-8
 job:
   script:
-    - mvn --batch-mode package
+    - mvn -q --batch-mode verify

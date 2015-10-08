@@ -17,4 +17,4 @@ test_sonar_job:
   only:
     - master
   script:
-    - mvn -q --batch-mode verify sonar:sonar -Dsonar.host.url=$SONAR_URL -Dsonar.jdbc.url=$SONAR_DB -Dsonar.jdbc.username=$SONAR_USERNAME -Dsonar.jdbc.password=$SONAR_PASSWORD -Dsonar.jacoco.itReportPath=target/coverage-reports/jacoco-it.exec -Dsonar.jacoco.reportPath=target/coverage-reports/jacoco-ut.exec -Dsonar.coverage.exclusions=**/taskmanager/example/**/* -Dsonar.sourceEncoding=UTF-8
+    - mvn --batch-mode verify sonar:sonar -Dsonar.host.url=$SONAR_URL -Dsonar.jdbc.url=$SONAR_DB -Dsonar.jdbc.username=$SONAR_USERNAME -Dsonar.jdbc.password=$SONAR_PASSWORD

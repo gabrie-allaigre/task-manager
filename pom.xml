@@ -37,16 +37,23 @@
         <jacoco.it.execution.data.file>${project.build.directory}/coverage-reports/jacoco-it.exec</jacoco.it.execution.data.file>
         <jacoco.ut.execution.data.file>${project.build.directory}/coverage-reports/jacoco-ut.exec</jacoco.ut.execution.data.file>
 
+        <sonar-maven-plugin.version>2.6</sonar-maven-plugin.version>
+
         <generated.sources.dir>${project.build.directory}/generated-sources/apt</generated.sources.dir>
         <generated.antlr.sources.dir>${project.build.directory}/generated-sources/apt</generated.antlr.sources.dir>
+
+        <sonar.jacoco.itReportPath>target/coverage-reports/jacoco-it.exec</sonar.jacoco.itReportPath>
+        <sonar.jacoco.reportPath>target/coverage-reports/jacoco-ut.exec</sonar.jacoco.reportPath>
+        <sonar.sourceEncoding>UTF-8</sonar.sourceEncoding>
+        <sonar.exclusions>**/taskmanager/example/**/*</sonar.exclusions>
     </properties>
     <scm>
+        <url>https://gitlab.synaptix-labs.com/synaptix/task-manager</url>
         <connection>scm:git:https://gitlab.synaptix-labs.com/synaptix/task-manager.git</connection>
-        <tag>HEAD</tag>
     </scm>
     <ciManagement>
-        <system>jenkins</system>
-        <url>https://jenkins.synaptix-labs.com/job/Synaptix/task-manager</url>
+        <system>gitlab-ci</system>
+        <url>https://gitlab.synaptix-labs.com/ci/projects/4</url>
     </ciManagement>
     <issueManagement>
         <system>gitlab</system>
@@ -216,6 +223,11 @@
                     <configuration>
                         <encoding>${project.reporting.outputEncoding}</encoding>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>${sonar-maven-plugin.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>

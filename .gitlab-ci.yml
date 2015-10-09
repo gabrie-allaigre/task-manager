@@ -13,6 +13,7 @@ test_sonar_preview_job:
     - master
   script:
     - mvn --batch-mode verify sonar:sonar -Dsonar.host.url=$SONAR_URL -Dsonar.analysis.mode=preview -Dsonar.issuesReport.console.enable=true -Dsonar.issuesReport.html.enable=true
+    - cp /builds/synaptix/task-manager/target/sonar/issues-report/issues-report.html /root/.m2/.
 test_sonar_job:
   stage: test
   only:

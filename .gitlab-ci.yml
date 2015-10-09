@@ -11,7 +11,7 @@ test_job:
   except:
     - master
   script:
-    - mvn -q --batch-mode verify
+    - mvn --batch-mode verify
 test_sonar_job:
   stage: test
   only:

@@ -224,7 +224,7 @@ public class TaskManagerEngine {
 								recycleList.forEach(tasksQueue::addLast);
 								recycleList.clear();
 							}
-						} catch (Throwable t) {
+						} catch (Exception t) {
 							LOG.error("TM - Error setTaskDone" + task.getCodeTaskDefinition(), t);
 							setTaskNothing(taskCluster, task, taskServiceResult, t);
 						}

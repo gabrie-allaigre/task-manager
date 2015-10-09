@@ -1,10 +1,10 @@
-TaskManager
+# TaskManager
 
 Jenkins [![Build Status](https://jenkins.synaptix-labs.com/buildStatus/icon?job=Synaptix/task-manager)](https://jenkins.synaptix-labs.com/job/Synaptix/job/task-manager/)
 
 Gitlab-ci [![build status](https://gitlab.synaptix-labs.com/ci/projects/4/status.png?ref=master)](https://gitlab.synaptix-labs.com/ci/projects/4?ref=master)
 
-# Principe
+## Principe
 
 - Personnaliser les traitements à effectuer sur un objet métier par un simple paramétrage dans l’application.
 - Les objets liés entre eux sont regroupés dans un cluster et suivis simultanément par l’ordonnanceur
@@ -13,7 +13,7 @@ Gitlab-ci [![build status](https://gitlab.synaptix-labs.com/ci/projects/4/status
  - Visualiser les tâches effectuées pour un objet
  - Visualiser ses actions manuelles (todo)
 
-# Usage
+## Usage
 
 ```xml
 <dependency>
@@ -23,7 +23,7 @@ Gitlab-ci [![build status](https://gitlab.synaptix-labs.com/ci/projects/4/status
 </dependency>
 ```
 
-# Faire une release
+## Faire une release
 
 ```bash
 mvn versions:set -DnewVersion=1.0.1

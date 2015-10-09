@@ -5,7 +5,7 @@ stages:
 build_job:
   stage: build
   script:
-    - mvn -q --batch-mode compile -Dmaven.test.skip=true
+    - mvn --batch-mode compile -Dmaven.test.skip=true
 test_job:
   stage: test
   except:

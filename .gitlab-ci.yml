@@ -2,10 +2,11 @@ image: maven:3.3.3-jdk-8
 stages:
   - build
   - test
+  - deploy
 build_job:
   stage: build
   script:
-    - mvn --batch-mode compile -Dmaven.test.skip=true
+    - mvn --batch-mode compile -Dmaven.test.skip=true -Djacoco.skip=true
 test_job:
   stage: test
   except:
@@ -18,3 +19,10 @@ test_sonar_job:
     - master
   script:
     - mvn --batch-mode verify sonar:sonar -Dsonar.host.url=$SONAR_URL -Dsonar.jdbc.url=$SONAR_DB -Dsonar.jdbc.username=$SONAR_USERNAME -Dsonar.jdbc.password=$SONAR_PASSWORD
+deploy_job:
+  stage: deploy
+  only:
+    - master
+  script:
+    - mvn --batch-mode deploy -Dmaven.test.skip=true -Djacoco.skip=true
+    

@@ -12,13 +12,13 @@ test_sonar_preview_job:
   except:
     - master
   script:
-    - mvn --batch-mode verify sonar:sonar -Dsonar.host.url=$SONAR_URL -Dsonar.analysis.mode=preview
+    - mvn --batch-mode verify sonar:sonar -Dsonar.host.url=$SONAR_URL -Dsonar.analysis.mode=incremental
 test_sonar_job:
   stage: test
   only:
     - master
   script:
-    - mvn --batch-mode verify sonar:sonar -Dsonar.host.url=$SONAR_URL -Dsonar.jdbc.url=$SONAR_DB -Dsonar.jdbc.username=$SONAR_USERNAME -Dsonar.jdbc.password=$SONAR_PASSWORD -Dsonar.analysis.mode=incremental
+    - mvn --batch-mode verify sonar:sonar -Dsonar.host.url=$SONAR_URL -Dsonar.jdbc.url=$SONAR_DB -Dsonar.jdbc.username=$SONAR_USERNAME -Dsonar.jdbc.password=$SONAR_PASSWORD
 deploy_job:
   stage: deploy
   only:

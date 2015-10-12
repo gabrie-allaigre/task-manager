@@ -85,7 +85,7 @@ public class ContextIT {
 		Assert.assertEquals(businessObject.getStatus(), null);
 		Assert.assertEquals(optionObject.getStatus(), "CLO");
 		Assert.assertFalse(taskCluster2.isCheckArchived());
-		Assert.assertTrue(engine.getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(businessObject.getOptionObject()).isCheckArchived());
+		Assert.assertTrue(taskCluster1.isCheckArchived());
 
 		Assert.assertNotSame(taskCluster1, taskCluster2);
 	}
@@ -220,5 +220,89 @@ public class ContextIT {
 		Assert.assertEquals(optionObject.getStatus(), null);
 
 		Assert.assertNull(engine.getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(businessObject.getOptionObject()));
+	}
+
+	/**
+	 * Move to new cluster
+	 */
+	@Test
+	public void test7() {
+		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
+				TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask").build())
+						.addTaskChainCriteria(null, "A", "OPTION").build()).addTaskObjectManager(
+				TaskObjectManagerBuilder.<String, OptionObject>newBuilder(OptionObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("CLO", "CLOTask").build())
+						.addTaskChainCriteria(null, "CLO", "STOP").build()).build()).taskDefinitionRegistry(
+				TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("CLOTask", new MultiUpdateStatusTaskService("CLO")).build())
+						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("OPTION", new MoveToNewOptionTaskService()).build())
+						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("STOP", new StopTaskService()).build()).build()).build());
+
+		BusinessObject businessObject = new BusinessObject();
+		Assert.assertNull(businessObject.getStatus());
+
+		OptionObject optionObject = new OptionObject();
+		Assert.assertNull(optionObject.getStatus());
+
+		businessObject.setOptionObject(optionObject);
+
+		ITaskCluster taskCluster = engine.startEngine(businessObject, optionObject);
+
+		Assert.assertEquals(businessObject.getStatus(), "A");
+		Assert.assertTrue(taskCluster.isCheckArchived());
+
+		Assert.assertNotNull(optionObject);
+		Assert.assertEquals(optionObject.getStatus(), null);
+
+		Assert.assertFalse(engine.getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(optionObject).isCheckArchived());
+
+		Assert.assertNotSame(engine.getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(businessObject),
+				engine.getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(optionObject));
+	}
+
+	/**
+	 * Move to cluster
+	 */
+	@Test
+	public void test8() {
+		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
+				TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask").build())
+						.addTaskChainCriteria(null, "A", "OPTION=>STOP").build()).addTaskObjectManager(
+				TaskObjectManagerBuilder.<String, OptionObject>newBuilder(OptionObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("CLO", "CLOTask").build())
+						.addTaskChainCriteria(null, "CLO", "VERIFY").build()).build()).taskDefinitionRegistry(
+				TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("CLOTask", new MultiUpdateStatusTaskService("CLO")).build())
+						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("OPTION", new MoveOptionTaskService()).build())
+						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERIFY", new VerifyCodeTaskService("VERSCLO")).build())
+						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("STOP", new StopTaskService()).build()).build()).build());
+
+		OptionObject optionObject = new OptionObject();
+		Assert.assertNull(optionObject.getStatus());
+
+		ITaskCluster taskCluster1 = engine.startEngine(optionObject);
+
+		Assert.assertEquals(optionObject.getStatus(), null);
+		Assert.assertFalse(taskCluster1.isCheckArchived());
+
+		optionObject.setCode("VERSCLO");
+
+		BusinessObject businessObject = new BusinessObject();
+		Assert.assertNull(businessObject.getStatus());
+
+		businessObject.setOptionObject(optionObject);
+
+		ITaskCluster taskCluster2 = engine.startEngine(businessObject);
+
+		Assert.assertNotNull(businessObject.getOptionObject());
+		Assert.assertEquals(businessObject.getOptionObject(), optionObject);
+
+		Assert.assertEquals(businessObject.getStatus(), null);
+		Assert.assertEquals(optionObject.getStatus(), "CLO");
+		Assert.assertFalse(taskCluster2.isCheckArchived());
+		Assert.assertTrue(taskCluster1.isCheckArchived());
+
+		Assert.assertEquals(engine.getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(businessObject),
+				engine.getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(optionObject));
+		Assert.assertNotSame(taskCluster1, engine.getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(optionObject));
+
 	}
 }

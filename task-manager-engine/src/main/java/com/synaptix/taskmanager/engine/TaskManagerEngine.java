@@ -438,6 +438,7 @@ public class TaskManagerEngine {
 
 		executeContextStartEngine(context, restartClusters);
 		executeContextAddRemove(context, restartClusters);
+		executeContextMove(context, restartClusters);
 	}
 
 	private void executeContextStartEngine(MyEngineContext context, LinkedList<ITaskCluster> restartClusters) {
@@ -517,6 +518,72 @@ public class TaskManagerEngine {
 		}
 
 		restartClusters.addAll(modifyClusterMap.keySet());
+	}
+
+	private void executeContextMove(MyEngineContext context, LinkedList<ITaskCluster> restartClusters) {
+		// Move to new cluster
+		context.moveToNewTaskClusters.forEach(pair -> {
+			Map<ITaskCluster, List<ITaskObject>> modifyClusterMap = new HashMap<>();
+			for (ITaskObject taskObject : pair.getLeft()) {
+				if (taskObject != null) {
+					ITaskCluster tc = getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(taskObject);
+					if (tc != null) {
+						List<ITaskObject> tos = modifyClusterMap.get(tc);
+						if (tos == null) {
+							tos = new ArrayList<>();
+							modifyClusterMap.put(tc, tos);
+						}
+						if (!tos.contains(taskObject)) {
+							tos.add(taskObject);
+						}
+					}
+				}
+			}
+
+			ITaskCluster taskCluster = null;
+			if (!modifyClusterMap.isEmpty()) {
+				taskCluster = getTaskManagerConfiguration().getTaskFactory().newTaskCluster();
+				taskCluster = getTaskManagerConfiguration().getTaskManagerWriter().saveNewTaskCluster(taskCluster);
+
+				taskCluster = getTaskManagerConfiguration().getTaskManagerWriter().saveMoveTaskObjectsToTaskCluster(taskCluster, modifyClusterMap);
+
+				List<ITaskCluster> cs = new ArrayList<>(modifyClusterMap.keySet());
+				cs.add(taskCluster);
+				restartClusters.addAll(cs);
+			}
+			if (pair.getRight() != null) {
+				pair.getRight().setTaskCluster(taskCluster);
+			}
+		});
+
+		// Move
+		context.moveToTaskClusters.forEach(pair -> {
+			Map<ITaskCluster, List<ITaskObject>> modifyClusterMap = new HashMap<>();
+			ITaskCluster dstTaskCluster = pair.getLeft();
+			for (ITaskObject taskObject : pair.getRight()) {
+				if (taskObject != null) {
+					ITaskCluster tc = getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(taskObject);
+					if (tc != null && !tc.equals(pair.getLeft())) {
+						List<ITaskObject> tos = modifyClusterMap.get(tc);
+						if (tos == null) {
+							tos = new ArrayList<>();
+							modifyClusterMap.put(tc, tos);
+						}
+						if (!tos.contains(taskObject)) {
+							tos.add(taskObject);
+						}
+					}
+				}
+			}
+
+			if (!modifyClusterMap.isEmpty()) {
+				getTaskManagerConfiguration().getTaskManagerWriter().saveMoveTaskObjectsToTaskCluster(dstTaskCluster, modifyClusterMap);
+
+				List<ITaskCluster> cs = new ArrayList<>(modifyClusterMap.keySet());
+				cs.add(dstTaskCluster);
+				restartClusters.addAll(cs);
+			}
+		});
 	}
 
 	/*

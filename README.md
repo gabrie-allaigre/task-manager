@@ -1,8 +1,6 @@
 # TaskManager
 
-Jenkins [![Build Status](https://jenkins.synaptix-labs.com/buildStatus/icon?job=Synaptix/task-manager)](https://jenkins.synaptix-labs.com/job/Synaptix/job/task-manager/)
-
-Gitlab-ci [![build status](https://gitlab.synaptix-labs.com/ci/projects/4/status.png?ref=master)](https://gitlab.synaptix-labs.com/ci/projects/4?ref=master)
+[![build status](https://gitlab.synaptix-labs.com/ci/projects/4/status.png?ref=master)](https://gitlab.synaptix-labs.com/ci/projects/4?ref=master) [![Coverage](https://img.shields.io/sonar/https/sonar.synaptix-labs.com/com.synaptix:task-manager/overall_coverage.svg)](https://sonar.synaptix-labs.com/dashboard/index/1) [![Ligne](https://img.shields.io/sonar/https/sonar.synaptix-labs.com/com.synaptix:task-manager/ncloc.svg?label=Lignes)](https://sonar.synaptix-labs.com/dashboard/index/1) [![Issue](https://img.shields.io/sonar/https/sonar.synaptix-labs.com/com.synaptix:task-manager/violations.svg?style=flat-square)](https://sonar.synaptix-labs.com/dashboard/index/1)
 
 ## Principe
 

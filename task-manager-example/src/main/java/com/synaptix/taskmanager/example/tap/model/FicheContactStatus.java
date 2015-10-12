@@ -1,6 +1,6 @@
 package com.synaptix.taskmanager.example.tap.model;
 
-public enum OrderStatus {
+public enum FicheContactStatus {
 
     ETUDE, VALIDE, TERMINE
 }

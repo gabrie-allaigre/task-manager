@@ -4,8 +4,8 @@ import com.synaptix.taskmanager.engine.task.ICommonTask;
 import com.synaptix.taskmanager.engine.taskservice.AbstractTaskService;
 import com.synaptix.taskmanager.engine.taskservice.ExecutionResultBuilder;
 import com.synaptix.taskmanager.example.tap.TapHelper;
-import com.synaptix.taskmanager.example.tap.model.Order;
-import com.synaptix.taskmanager.example.tap.model.OrderStatus;
+import com.synaptix.taskmanager.example.tap.model.FicheContact;
+import com.synaptix.taskmanager.example.tap.model.FicheContactStatus;
 import com.synaptix.taskmanager.jpa.model.Task;
 
 import javax.persistence.EntityManager;
@@ -22,12 +22,12 @@ public class EtudeStatusTaskService extends AbstractTaskService {
 
         EntityManager em = TapHelper.getInstance().getJpaAccess().getEntityManager();
 
-        Order order = em.find(Order.class, task.getBusinessTaskObjectId());
+        FicheContact ficheContact = em.find(FicheContact.class, task.getBusinessTaskObjectId());
 
         em.getTransaction().begin();
 
-        order.setStatus(OrderStatus.ETUDE.name());
-        em.persist(order);
+        ficheContact.setFicheContactStatus(FicheContactStatus.ETUDE);
+        em.persist(ficheContact);
 
         em.getTransaction().commit();
 

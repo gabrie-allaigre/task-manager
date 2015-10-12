@@ -27,7 +27,9 @@ import java.util.Map;
 public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskManagerWriter {
 
     private static final Log LOG = LogFactory.getLog(JPATaskManagerReaderWriter.class);
+
     private final IJPAAccess jpaAccess;
+
     private final RemoveMode removeMode;
 
     public JPATaskManagerReaderWriter(IJPAAccess jpaAccess) {

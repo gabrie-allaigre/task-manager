@@ -1,11 +1,12 @@
 package com.synaptix.taskmanager.example.tap.model;
 
 import com.synaptix.taskmanager.jpa.model.IEntity;
+import com.synaptix.taskmanager.jpa.model.Task;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.*;
 
-@Entity(name = "T_ITEM")
+@Entity
 public class Item implements IEntity {
 
     @Id
@@ -18,8 +19,15 @@ public class Item implements IEntity {
 
     private boolean done;
 
-    @Column(name = "ORDER_STATUS_DONE")
-    private String orderStatusDone;
+    @Column(name = "FICHE_CONTACT_STATUS_DONE")
+    @Enumerated(EnumType.STRING)
+    private FicheContactStatus ficheContactStatusDone;
+
+    @ManyToOne
+    private FicheContact ficheContact;
+
+    @ManyToOne
+    private Task task;
 
     @Override
     public Long getId() {
@@ -42,12 +50,28 @@ public class Item implements IEntity {
         this.done = done;
     }
 
-    public String getOrderStatusDone() {
-        return orderStatusDone;
+    public FicheContactStatus getFicheContactStatusDone() {
+        return ficheContactStatusDone;
     }
 
-    public void setOrderStatusDone(String orderStatusDone) {
-        this.orderStatusDone = orderStatusDone;
+    public void setFicheContactStatusDone(FicheContactStatus ficheContactStatusDone) {
+        this.ficheContactStatusDone = ficheContactStatusDone;
+    }
+
+    public FicheContact getFicheContact() {
+        return ficheContact;
+    }
+
+    public void setFicheContact(FicheContact ficheContact) {
+        this.ficheContact = ficheContact;
+    }
+
+    public Task getTask() {
+        return task;
+    }
+
+    public void setTask(Task task) {
+        this.task = task;
     }
 
     @Override
@@ -62,6 +86,6 @@ public class Item implements IEntity {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this).append("id", id).append("version", version).append("type", type).append("done", done).append("orderStatusDone", orderStatusDone).build();
+        return new ToStringBuilder(this).append("id", id).append("version", version).append("type", type).append("done", done).append("ficheContactStatusDone", ficheContactStatusDone).build();
     }
 }

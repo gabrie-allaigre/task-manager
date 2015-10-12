@@ -7,12 +7,11 @@ import com.synaptix.taskmanager.model.ITaskObject;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.List;
 
 @Entity
 public class Task implements IStatusTask, ISubTask {
-
-    private transient final CurrentStatusTransform currentStatusTransform;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -44,7 +43,7 @@ public class Task implements IStatusTask, ISubTask {
     private List<Task> previousTasks;
     //StatusTask
     @Column(name = "CURRENT_STATUS")
-    private String currentStatus;
+    private Serializable currentStatus;
     @ManyToMany
     @JoinTable(
             name = "TASK_OTHER_BRANCH_TASK",
@@ -53,14 +52,6 @@ public class Task implements IStatusTask, ISubTask {
     private List<Task> otherBranchFirstTasks;
     @ManyToMany(mappedBy = "otherBranchFirstTasks")
     private List<Task> parentOtherBranchFirstTasks;
-    public Task() {
-        this(MyCurrentStatusTransform.INSTANCE);
-    }
-    public Task(CurrentStatusTransform currentStatusTransform) {
-        super();
-
-        this.currentStatusTransform = currentStatusTransform;
-    }
 
     public final Long getId() {
         return id;
@@ -137,12 +128,12 @@ public class Task implements IStatusTask, ISubTask {
     }
 
     @Override
-    public Object getCurrentStatus() {
-        return currentStatusTransform.toObject(currentStatus);
+    public <E> E getCurrentStatus() {
+        return (E)currentStatus;
     }
 
     public void setCurrentStatus(Object currentStatus) {
-        this.currentStatus = currentStatusTransform.toString(currentStatus);
+        this.currentStatus = (Serializable)currentStatus;
     }
 
     // StatusTask
@@ -189,26 +180,5 @@ public class Task implements IStatusTask, ISubTask {
         TODO, CURRENT, DONE, CANCEL
     }
 
-    interface CurrentStatusTransform<E> {
 
-        String toString(E currentStatus);
-
-        E toObject(String currentStatusString);
-
-    }
-
-    private static class MyCurrentStatusTransform implements CurrentStatusTransform<String> {
-
-        public static final CurrentStatusTransform<String> INSTANCE = new MyCurrentStatusTransform();
-
-        @Override
-        public String toString(String currentStatus) {
-            return currentStatus;
-        }
-
-        @Override
-        public String toObject(String currentStatusString) {
-            return currentStatusString;
-        }
-    }
 }

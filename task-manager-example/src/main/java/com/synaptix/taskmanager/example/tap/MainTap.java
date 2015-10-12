@@ -12,15 +12,19 @@ import com.synaptix.taskmanager.engine.graph.StatusGraphsBuilder;
 import com.synaptix.taskmanager.engine.manager.ITaskObjectManager;
 import com.synaptix.taskmanager.engine.manager.TaskObjectManagerBuilder;
 import com.synaptix.taskmanager.engine.taskdefinition.TaskDefinitionBuilder;
-import com.synaptix.taskmanager.example.tap.model.Order;
-import com.synaptix.taskmanager.example.tap.model.OrderStatus;
+import com.synaptix.taskmanager.example.tap.model.FicheContact;
+import com.synaptix.taskmanager.example.tap.model.FicheContactStatus;
+import com.synaptix.taskmanager.example.tap.model.Item;
 import com.synaptix.taskmanager.example.tap.task.EtudeStatusTaskService;
 import com.synaptix.taskmanager.example.tap.task.TermineStatusTaskService;
+import com.synaptix.taskmanager.example.tap.task.TestItemTaskService;
 import com.synaptix.taskmanager.example.tap.task.ValideStatusTaskService;
 import com.synaptix.taskmanager.jpa.JPATaskFactory;
 import com.synaptix.taskmanager.jpa.JPATaskManagerReaderWriter;
+import com.synaptix.taskmanager.jpa.model.Task;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import java.util.List;
 
 public class MainTap {
@@ -28,17 +32,20 @@ public class MainTap {
     public static void main(String[] args) {
         TapHelper.getInstance().getJpaAccess().start();
 
-        List<IStatusGraph<String>> statusGraphs = StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph(OrderStatus.ETUDE.name(), "ETUDE_TASK", StatusGraphsBuilder.<String>newBuilder()
-                .addNextStatusGraph(OrderStatus.VALIDE.name(), "VALIDE_TASK", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph(OrderStatus.TERMINE.name(), "TERMINE_TASK"))).build();
+        List<IStatusGraph<FicheContactStatus>> statusGraphs = StatusGraphsBuilder.<FicheContactStatus>newBuilder().addNextStatusGraph(FicheContactStatus.ETUDE, "ETUDE_TASK",
+                StatusGraphsBuilder.<FicheContactStatus>newBuilder().addNextStatusGraph(FicheContactStatus.VALIDE, "VALIDE_TASK",
+                        StatusGraphsBuilder.<FicheContactStatus>newBuilder().addNextStatusGraph(FicheContactStatus.TERMINE, "TERMINE_TASK"))).build();
 
-        ITaskObjectManager<String, Order> orderTaskObjectManager = TaskObjectManagerBuilder.<String, Order>newBuilder(Order.class).statusGraphs(statusGraphs).build();
+        ITaskObjectManager<FicheContactStatus, FicheContact> orderTaskObjectManager = TaskObjectManagerBuilder.<FicheContactStatus, FicheContact>newBuilder(FicheContact.class)
+                .statusGraphs(statusGraphs).addTaskChainCriteria(FicheContactStatus.ETUDE, FicheContactStatus.VALIDE, "TEST_TASK").build();
 
         ITaskObjectManagerRegistry taskObjectManagerRegistry = TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(orderTaskObjectManager).build();
 
         ITaskDefinitionRegistry taskDefinitionRegistry = TaskDefinitionRegistryBuilder.newBuilder()
                 .addTaskDefinition(TaskDefinitionBuilder.newBuilder("ETUDE_TASK", new EtudeStatusTaskService()).build())
                 .addTaskDefinition(TaskDefinitionBuilder.newBuilder("VALIDE_TASK", new ValideStatusTaskService()).build())
-                .addTaskDefinition(TaskDefinitionBuilder.newBuilder("TERMINE_TASK", new TermineStatusTaskService()).build()).build();
+                .addTaskDefinition(TaskDefinitionBuilder.newBuilder("TERMINE_TASK", new TermineStatusTaskService()).build())
+                .addTaskDefinition(TaskDefinitionBuilder.newBuilder("TEST_TASK", new TestItemTaskService()).build()).build();
 
         JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(TapHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.DELETE);
 
@@ -50,16 +57,25 @@ public class MainTap {
 
         em.getTransaction().begin();
 
-        Order order = new Order();
-        em.persist(order);
+        FicheContact ficheContact = new FicheContact();
+        em.persist(ficheContact);
 
         em.getTransaction().commit();
 
-        engine.startEngine(order);
+        engine.startEngine(ficheContact);
 
-        System.out.println(order);
+        System.out.println(ficheContact);
+
+        showItems();
 
         TapHelper.getInstance().getJpaAccess().stop();
     }
 
+    private static void showItems() {
+        System.out.println("------ Items ------");
+        Query q = TapHelper.getInstance().getJpaAccess().getEntityManager().createQuery("select t from Item t");
+        List<Item> items = q.getResultList();
+        items.forEach(System.out::println);
+        System.out.println("Size: " + items.size());
+    }
 }

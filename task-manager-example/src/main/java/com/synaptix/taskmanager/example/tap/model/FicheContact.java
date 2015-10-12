@@ -5,8 +5,8 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.*;
 
-@Entity(name = "T_ORDER")
-public class Order implements IBusinessTaskObject {
+@Entity(name = "FICHE_CONTACT")
+public class FicheContact implements IBusinessTaskObject {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -14,8 +14,9 @@ public class Order implements IBusinessTaskObject {
     @Version
     private int version;
 
-    @Column(name = "ORDER_STATUS")
-    private String status;
+    @Column(name = "FICHE_CONTACT_STATUS")
+    @Enumerated(EnumType.STRING)
+    private FicheContactStatus ficheContactStatus;
 
     // TaskManager
     @Column(name = "CLUSTER_ID")
@@ -35,12 +36,12 @@ public class Order implements IBusinessTaskObject {
         this.clusterId = clusterId;
     }
 
-    public String getStatus() {
-        return status;
+    public FicheContactStatus getFicheContactStatus() {
+        return ficheContactStatus;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setFicheContactStatus(FicheContactStatus ficheContactStatus) {
+        this.ficheContactStatus = ficheContactStatus;
     }
 
     @Override
@@ -50,11 +51,11 @@ public class Order implements IBusinessTaskObject {
 
     @Override
     public boolean equals(Object obj) {
-        return id != null && ((Order) obj).id != null ? id.equals(((Order) obj).id) : super.equals(obj);
+        return id != null && ((FicheContact) obj).id != null ? id.equals(((FicheContact) obj).id) : super.equals(obj);
     }
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this).append("id", id).append("version", version).append("clusterId", clusterId).append("status", status).build();
+        return new ToStringBuilder(this).append("id", id).append("version", version).append("clusterId", clusterId).append("ficheContactStatus", ficheContactStatus).build();
     }
 }

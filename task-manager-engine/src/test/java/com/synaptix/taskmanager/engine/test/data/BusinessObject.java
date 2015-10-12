@@ -4,23 +4,23 @@ import java.util.Date;
 
 public class BusinessObject extends AbstractCommonObject {
 
-	private Date date;
+    private Date date;
 
-	private OptionObject optionObject;
+    private OptionObject optionObject;
 
-	public Date getDate() {
-		return date;
-	}
+    public Date getDate() {
+        return date;
+    }
 
-	public void setDate(Date date) {
-		this.date = date;
-	}
+    public void setDate(Date date) {
+        this.date = date;
+    }
 
-	public OptionObject getOptionObject() {
-		return optionObject;
-	}
+    public OptionObject getOptionObject() {
+        return optionObject;
+    }
 
-	public void setOptionObject(OptionObject optionObject) {
-		this.optionObject = optionObject;
-	}
+    public void setOptionObject(OptionObject optionObject) {
+        this.optionObject = optionObject;
+    }
 }

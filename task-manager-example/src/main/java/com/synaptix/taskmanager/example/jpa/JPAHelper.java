@@ -1,27 +1,26 @@
 package com.synaptix.taskmanager.example.jpa;
 
 import com.synaptix.taskmanager.jpa.DefaultJPAAccess;
-import com.synaptix.taskmanager.jpa.IJPAAccess;
 
 public class JPAHelper {
 
-	private static JPAHelper instance;
+    private static JPAHelper instance;
 
-	private DefaultJPAAccess jpaAccess;
+    private DefaultJPAAccess jpaAccess;
 
-	private JPAHelper() {
-		jpaAccess = new DefaultJPAAccess("examples");
-	}
+    private JPAHelper() {
+        jpaAccess = new DefaultJPAAccess("jpa");
+    }
 
-	public static synchronized JPAHelper getInstance() {
-		if (instance == null) {
-			instance = new JPAHelper();
-		}
+    public static synchronized JPAHelper getInstance() {
+        if (instance == null) {
+            instance = new JPAHelper();
+        }
 
-		return instance;
-	}
+        return instance;
+    }
 
-	public IJPAAccess getJpaAccess() {
-		return jpaAccess;
-	}
+    public DefaultJPAAccess getJpaAccess() {
+        return jpaAccess;
+    }
 }

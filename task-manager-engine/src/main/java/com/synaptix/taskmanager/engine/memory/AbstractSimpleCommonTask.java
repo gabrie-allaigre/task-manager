@@ -8,55 +8,51 @@ import java.util.List;
 
 public abstract class AbstractSimpleCommonTask implements ICommonTask {
 
-	public enum Status {
-		TODO, CURRENT, DONE, CANCEL
-	}
+    private final String codeTaskDefinition;
+    private final List<ICommonTask> previousTasks;
+    private final List<ICommonTask> nextTasks;
+    private ITaskObject taskObject;
+    private Status status;
 
-	private final String codeTaskDefinition;
+    public AbstractSimpleCommonTask(String codeTaskDefinition) {
+        super();
 
-	private final List<ICommonTask> previousTasks;
+        this.codeTaskDefinition = codeTaskDefinition;
 
-	private final List<ICommonTask> nextTasks;
+        this.previousTasks = new ArrayList<>();
+        this.nextTasks = new ArrayList<>();
+    }
 
-	private ITaskObject taskObject;
+    @Override
+    public final String getCodeTaskDefinition() {
+        return codeTaskDefinition;
+    }
 
-	private Status status;
+    public <G extends ITaskObject> G getTaskObject() {
+        return (G) taskObject;
+    }
 
-	public AbstractSimpleCommonTask(String codeTaskDefinition) {
-		super();
+    public void setTaskObject(ITaskObject taskObject) {
+        this.taskObject = taskObject;
+    }
 
-		this.codeTaskDefinition = codeTaskDefinition;
+    public final List<ICommonTask> getPreviousTasks() {
+        return previousTasks;
+    }
 
-		this.previousTasks = new ArrayList<>();
-		this.nextTasks = new ArrayList<>();
-	}
+    public final List<ICommonTask> getNextTasks() {
+        return nextTasks;
+    }
 
-	@Override
-	public final String getCodeTaskDefinition() {
-		return codeTaskDefinition;
-	}
+    public Status getStatus() {
+        return status;
+    }
 
-	public void setTaskObject(ITaskObject taskObject) {
-		this.taskObject = taskObject;
-	}
+    public void setStatus(Status status) {
+        this.status = status;
+    }
 
-	public <G extends ITaskObject> G getTaskObject() {
-		return (G)taskObject;
-	}
-
-	public final List<ICommonTask> getPreviousTasks() {
-		return previousTasks;
-	}
-
-	public final List<ICommonTask> getNextTasks() {
-		return nextTasks;
-	}
-
-	public Status getStatus() {
-		return status;
-	}
-
-	public void setStatus(Status status) {
-		this.status = status;
-	}
+    public enum Status {
+        TODO, CURRENT, DONE, CANCEL
+    }
 }

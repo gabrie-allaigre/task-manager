@@ -10,25 +10,25 @@ import org.junit.Test;
 
 public class ComponentInstanceToClassTest {
 
-	@Test
-	public void test1() {
-		ICustomerOrder customerOrder = ComponentFactory.getInstance().createInstance(ICustomerOrder.class);
+    @Test
+    public void test1() {
+        ICustomerOrder customerOrder = ComponentFactory.getInstance().createInstance(ICustomerOrder.class);
 
-		Assert.assertSame(ICustomerOrder.class, ComponentInstanceToClass.INSTANCE.instanceToClass(customerOrder));
-	}
+        Assert.assertSame(ICustomerOrder.class, ComponentInstanceToClass.INSTANCE.instanceToClass(customerOrder));
+    }
 
-	@Test
-	public void test2() {
-		ISuperCustomerOrder superCustomerOrder = ComponentFactory.getInstance().createInstance(ISuperCustomerOrder.class);
+    @Test
+    public void test2() {
+        ISuperCustomerOrder superCustomerOrder = ComponentFactory.getInstance().createInstance(ISuperCustomerOrder.class);
 
-		Assert.assertSame(ISuperCustomerOrder.class, ComponentInstanceToClass.INSTANCE.instanceToClass(superCustomerOrder));
-		Assert.assertNotSame(ICustomerOrder.class, ComponentInstanceToClass.INSTANCE.instanceToClass(superCustomerOrder));
-	}
+        Assert.assertSame(ISuperCustomerOrder.class, ComponentInstanceToClass.INSTANCE.instanceToClass(superCustomerOrder));
+        Assert.assertNotSame(ICustomerOrder.class, ComponentInstanceToClass.INSTANCE.instanceToClass(superCustomerOrder));
+    }
 
-	@Test
-	public void test3() {
-		ExecutionOrder executionOrder = new ExecutionOrder();
+    @Test
+    public void test3() {
+        ExecutionOrder executionOrder = new ExecutionOrder();
 
-		Assert.assertEquals(ExecutionOrder.class,ComponentInstanceToClass.INSTANCE.instanceToClass(executionOrder));
-	}
+        Assert.assertEquals(ExecutionOrder.class, ComponentInstanceToClass.INSTANCE.instanceToClass(executionOrder));
+    }
 }

@@ -9,28 +9,28 @@ import java.util.Date;
 @SynaptixComponent
 public interface ICustomerOrder extends IEntity, ITaskObject {
 
-	CustomerOrderStatus getStatus();
+    CustomerOrderStatus getStatus();
 
-	void setStatus(CustomerOrderStatus status);
+    void setStatus(CustomerOrderStatus status);
 
-	String getCustomerOrderNo();
+    String getCustomerOrderNo();
 
-	void setCustomerOrderNo(String customerOrderNo);
+    void setCustomerOrderNo(String customerOrderNo);
 
-	String getReference();
+    String getReference();
 
-	void setReference(String reference);
+    void setReference(String reference);
 
-	boolean isConfirmed();
+    boolean isConfirmed();
 
-	void setConfirmed(boolean confirmed);
+    void setConfirmed(boolean confirmed);
 
-	boolean isCancelled();
+    boolean isCancelled();
 
-	void setCancelled(boolean cancelled);
+    void setCancelled(boolean cancelled);
 
-	Date getDateClosed();
+    Date getDateClosed();
 
-	void setDateClosed(Date dateClosed);
+    void setDateClosed(Date dateClosed);
 
 }

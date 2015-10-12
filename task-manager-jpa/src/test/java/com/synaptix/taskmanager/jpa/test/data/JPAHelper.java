@@ -4,23 +4,23 @@ import com.synaptix.taskmanager.jpa.DefaultJPAAccess;
 
 public class JPAHelper {
 
-	private static JPAHelper instance;
+    private static JPAHelper instance;
 
-	private DefaultJPAAccess jpaAccess;
+    private DefaultJPAAccess jpaAccess;
 
-	private JPAHelper() {
-		jpaAccess = new DefaultJPAAccess("tests");
-	}
+    private JPAHelper() {
+        jpaAccess = new DefaultJPAAccess("tests");
+    }
 
-	public static synchronized JPAHelper getInstance() {
-		if (instance == null) {
-			instance = new JPAHelper();
-		}
+    public static synchronized JPAHelper getInstance() {
+        if (instance == null) {
+            instance = new JPAHelper();
+        }
 
-		return instance;
-	}
+        return instance;
+    }
 
-	public DefaultJPAAccess getJpaAccess() {
-		return jpaAccess;
-	}
+    public DefaultJPAAccess getJpaAccess() {
+        return jpaAccess;
+    }
 }

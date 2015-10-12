@@ -9,13 +9,13 @@ import com.synaptix.taskmanager.example.component.business.ICustomerOrder;
 
 public class TCOTaskService extends AbstractTaskService {
 
-	public TCOTaskService() {
-		super();
-	}
+    public TCOTaskService() {
+        super();
+    }
 
-	@Override
-	public IExecutionResult execute(IEngineContext context,ICommonTask task) {
-		((SimpleStatusTask) task).<ICustomerOrder> getTaskObject().setStatus(CustomerOrderStatus.TCO);
-		return ExecutionResultBuilder.newBuilder().finished();
-	}
+    @Override
+    public IExecutionResult execute(IEngineContext context, ICommonTask task) {
+        ((SimpleStatusTask) task).<ICustomerOrder>getTaskObject().setStatus(CustomerOrderStatus.TCO);
+        return ExecutionResultBuilder.newBuilder().finished();
+    }
 }

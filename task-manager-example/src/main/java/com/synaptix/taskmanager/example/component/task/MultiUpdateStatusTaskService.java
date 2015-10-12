@@ -9,17 +9,17 @@ import com.synaptix.taskmanager.example.component.business.ICustomerOrder;
 
 public class MultiUpdateStatusTaskService extends AbstractTaskService {
 
-	private final CustomerOrderStatus status;
+    private final CustomerOrderStatus status;
 
-	public MultiUpdateStatusTaskService(CustomerOrderStatus status) {
-		super();
+    public MultiUpdateStatusTaskService(CustomerOrderStatus status) {
+        super();
 
-		this.status = status;
-	}
+        this.status = status;
+    }
 
-	@Override
-	public IExecutionResult execute(IEngineContext context,ICommonTask task) {
-		((SimpleStatusTask) task).<ICustomerOrder> getTaskObject().setStatus(status);
-		return ExecutionResultBuilder.newBuilder().finished();
-	}
+    @Override
+    public IExecutionResult execute(IEngineContext context, ICommonTask task) {
+        ((SimpleStatusTask) task).<ICustomerOrder>getTaskObject().setStatus(status);
+        return ExecutionResultBuilder.newBuilder().finished();
+    }
 }

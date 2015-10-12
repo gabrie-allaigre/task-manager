@@ -442,7 +442,7 @@ public class TaskManagerEngine {
 	private void setTaskNothing(ITaskCluster taskCluster, ICommonTask task, Object taskServiceResult, Throwable throwable) {
 		getTaskManagerConfiguration().getTaskManagerWriter().saveNothingTask(taskCluster, task, taskServiceResult, throwable);
 
-		onNothingTasks(Collections.singletonList(task));
+		onNothingTasks(taskCluster, Collections.singletonList(task));
 	}
 
 	/*
@@ -536,10 +536,10 @@ public class TaskManagerEngine {
 			getTaskManagerConfiguration().getTaskManagerWriter().saveNextTasksInTaskCluster(taskCluster, toDoneTask, taskServiceResult, nextCurrentTasks);
 		}
 
-		onDoneTasks(Collections.singletonList(toDoneTask));
-		onTodoTasks(nextTodoTasks);
-		onCurrentTasks(nextCurrentTasks);
-		onDeleteTasks(toDeleteTasks);
+		onDoneTasks(taskCluster, Collections.singletonList(toDoneTask));
+		onTodoTasks(taskCluster, nextTodoTasks);
+		onCurrentTasks(taskCluster, nextCurrentTasks);
+		onDeleteTasks(taskCluster, toDeleteTasks);
 
 		tasksLists.newCurrentTasks = nextCurrentTasks;
 		tasksLists.tasksToRemoves = toDeleteTasks;
@@ -608,8 +608,8 @@ public class TaskManagerEngine {
 
 		taskCluster = getTaskManagerConfiguration().getTaskManagerWriter().saveNewGraphFromTaskCluster(taskCluster, taskObjectNodes);
 
-		onTodoTasks(statusTasks);
-		onCurrentTasks(statusTasks);
+		onTodoTasks(taskCluster, statusTasks);
+		onCurrentTasks(taskCluster, statusTasks);
 
 		return taskCluster;
 	}
@@ -630,8 +630,8 @@ public class TaskManagerEngine {
 
 		taskCluster = getTaskManagerConfiguration().getTaskManagerWriter().saveNewGraphFromTaskCluster(taskCluster, taskObjectNodes);
 
-		onTodoTasks(statusTasks);
-		onCurrentTasks(statusTasks);
+		onTodoTasks(taskCluster, statusTasks);
+		onCurrentTasks(taskCluster, statusTasks);
 
 		return taskCluster;
 	}
@@ -648,16 +648,17 @@ public class TaskManagerEngine {
 
 	// Listener
 
-	private void onTasks(List<? extends ICommonTask> tasks, ExecuteTaskListener executeTaskListener) {
+	private void onTasks(ITaskCluster taskCluster, List<? extends ICommonTask> tasks, ExecuteTaskListener executeTaskListener) {
 		if (tasks != null && !tasks.isEmpty()) {
 			ITaskCycleListener[] ls = eventListenerList.getListeners(ITaskCycleListener.class);
 			for (ICommonTask task : tasks) {
+				ITaskDefinition taskDefinition = getTaskManagerConfiguration().getTaskDefinitionRegistry().getTaskDefinition(task.getCodeTaskDefinition());
 				for (ITaskCycleListener l : ls) {
-					executeTaskListener.execute(l, task);
+					executeTaskListener.execute(l, taskCluster, taskDefinition, task);
 				}
 				ITaskService taskService = getTaskService(task);
 				if (taskService != null) {
-					executeTaskListener.execute(taskService, task);
+					executeTaskListener.execute(taskService, taskCluster, taskDefinition, task);
 				}
 			}
 		}
@@ -665,32 +666,32 @@ public class TaskManagerEngine {
 
 	private static final ExecuteTaskListener TODO_EXECUTE_TASK_LISTENER = ITaskCycleListener::onTodo;
 
-	private void onTodoTasks(List<? extends ICommonTask> tasks) {
-		onTasks(tasks, TODO_EXECUTE_TASK_LISTENER);
+	private void onTodoTasks(ITaskCluster taskCluster, List<? extends ICommonTask> tasks) {
+		onTasks(taskCluster, tasks, TODO_EXECUTE_TASK_LISTENER);
 	}
 
 	private static final ExecuteTaskListener CURRENT_EXECUTE_TASK_LISTENER = ITaskCycleListener::onCurrent;
 
-	private void onCurrentTasks(List<? extends ICommonTask> tasks) {
-		onTasks(tasks, CURRENT_EXECUTE_TASK_LISTENER);
+	private void onCurrentTasks(ITaskCluster taskCluster, List<? extends ICommonTask> tasks) {
+		onTasks(taskCluster, tasks, CURRENT_EXECUTE_TASK_LISTENER);
 	}
 
 	private static final ExecuteTaskListener DONE_EXECUTE_TASK_LISTENER = ITaskCycleListener::onDone;
 
-	private void onDoneTasks(List<? extends ICommonTask> tasks) {
-		onTasks(tasks, DONE_EXECUTE_TASK_LISTENER);
+	private void onDoneTasks(ITaskCluster taskCluster, List<? extends ICommonTask> tasks) {
+		onTasks(taskCluster, tasks, DONE_EXECUTE_TASK_LISTENER);
 	}
 
 	private static final ExecuteTaskListener NOTHING_EXECUTE_TASK_LISTENER = ITaskCycleListener::onNothing;
 
-	private void onNothingTasks(List<? extends ICommonTask> tasks) {
-		onTasks(tasks, NOTHING_EXECUTE_TASK_LISTENER);
+	private void onNothingTasks(ITaskCluster taskCluster, List<? extends ICommonTask> tasks) {
+		onTasks(taskCluster, tasks, NOTHING_EXECUTE_TASK_LISTENER);
 	}
 
 	private static final ExecuteTaskListener DELETE_EXECUTE_TASK_LISTENER = ITaskCycleListener::onDelete;
 
-	private void onDeleteTasks(List<ICommonTask> tasks) {
-		onTasks(tasks, DELETE_EXECUTE_TASK_LISTENER);
+	private void onDeleteTasks(ITaskCluster taskCluster, List<ICommonTask> tasks) {
+		onTasks(taskCluster, tasks, DELETE_EXECUTE_TASK_LISTENER);
 	}
 
 	// Inner class
@@ -705,7 +706,7 @@ public class TaskManagerEngine {
 
 	private interface ExecuteTaskListener {
 
-		void execute(ITaskCycleListener taskCycleListener, ICommonTask task);
+		void execute(ITaskCycleListener taskCycleListener, ITaskCluster taskCluster, ITaskDefinition taskDefinition, ICommonTask task);
 
 	}
 

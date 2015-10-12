@@ -17,7 +17,7 @@ public class VerifyCodeTaskService extends AbstractTaskService {
 
 	@Override
 	public IExecutionResult execute(IEngineContext context,ICommonTask task) {
-		if (code != null && code.equals(((SimpleSubTask) task).<BusinessObject> getTaskObject().getCode())) {
+		if (code != null && code.equals(((SimpleSubTask) task).<AbstractCommonObject> getTaskObject().getCode())) {
 			return ExecutionResultBuilder.newBuilder().noChanges().finished();
 		}
 		return ExecutionResultBuilder.newBuilder().notFinished();

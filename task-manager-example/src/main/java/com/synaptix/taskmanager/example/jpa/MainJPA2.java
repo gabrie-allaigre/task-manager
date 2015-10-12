@@ -28,6 +28,8 @@ import java.util.List;
 public class MainJPA2 {
 
     public static void main(String[] args) throws Exception {
+        JPAHelper.getInstance().getJpaAccess().start();
+
         List<IStatusGraph<String>> statusGraphs = StatusGraphsBuilder.<String>newBuilder()
                 .addNextStatusGraph("A", "A_TASK", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "B_TASK").addNextStatusGraph("C", "C_TASK").addNextStatusGraph("D", "D_TASK"))
                 .build();
@@ -67,7 +69,7 @@ public class MainJPA2 {
         showTodos();
         showTasks();
 
-        JPAHelper.getInstance().getJpaAccess().getEntityManager().close();
+        JPAHelper.getInstance().getJpaAccess().stop();
     }
 
     private static void showClusters() {

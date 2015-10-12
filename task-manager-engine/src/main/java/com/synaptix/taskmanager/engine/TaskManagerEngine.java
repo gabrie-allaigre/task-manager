@@ -718,6 +718,18 @@ public class TaskManagerEngine {
 
 		private boolean lock;
 
+		private List<Pair<List<ITaskObject>, TaskClusterCallback>> startEngineTaskObjects = new ArrayList<>();
+
+		private List<ITaskCluster> startEngineTaskClusters = new ArrayList<>();
+
+		private List<Pair<ITaskCluster, List<ITaskObject>>> addToTaskClusters = new ArrayList<>();
+
+		private List<ITaskObject> removeFromTaskClusters = new ArrayList<>();
+
+		private List<Pair<List<ITaskObject>, TaskClusterCallback>> moveToNewTaskClusters = new ArrayList<>();
+
+		private List<Pair<ITaskCluster, List<ITaskObject>>> moveToTaskClusters = new ArrayList<>();
+
 		public MyEngineContext(ITaskCluster currentTaskCluster, ITaskDefinition taskDefinition) {
 			super();
 
@@ -746,11 +758,15 @@ public class TaskManagerEngine {
 		@Override
 		public void startEngine(TaskClusterCallback taskClusterCallback, ITaskObject... taskObjects) {
 			verifyBlock();
+
+			startEngineTaskObjects.add(Pair.of(Arrays.asList(taskObjects), taskClusterCallback));
 		}
 
 		@Override
 		public void startEngine(ITaskCluster... taskClusters) {
 			verifyBlock();
+
+			startEngineTaskClusters.addAll(Arrays.asList(taskClusters));
 		}
 
 		@Override
@@ -761,16 +777,22 @@ public class TaskManagerEngine {
 		@Override
 		public void addTaskObjectsToTaskCluster(ITaskCluster taskCluster, ITaskObject... taskObjects) {
 			verifyBlock();
+
+			addToTaskClusters.add(Pair.of(taskCluster, Arrays.asList(taskObjects)));
 		}
 
 		@Override
 		public void removeTaskObjectsFromTaskCluster(ITaskObject... taskObjects) {
 			verifyBlock();
+
+			removeFromTaskClusters.addAll(Arrays.asList(taskObjects));
 		}
 
 		@Override
 		public void moveTaskObjectsToNewTaskCluster(TaskClusterCallback taskClusterCallback, ITaskObject... taskObjects) {
 			verifyBlock();
+
+			moveToNewTaskClusters.add(Pair.of(Arrays.asList(taskObjects), taskClusterCallback));
 		}
 
 		@Override
@@ -781,6 +803,8 @@ public class TaskManagerEngine {
 		@Override
 		public void moveTaskObjectsToTaskCluster(ITaskCluster dstTaskCluster, ITaskObject... taskObjects) {
 			verifyBlock();
+
+			moveToTaskClusters.add(Pair.of(dstTaskCluster, Arrays.asList(taskObjects)));
 		}
 	}
 }

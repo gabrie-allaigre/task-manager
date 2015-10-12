@@ -132,9 +132,6 @@
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <testFailureIgnore>true</testFailureIgnore>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>

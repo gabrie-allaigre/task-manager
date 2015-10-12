@@ -19,7 +19,7 @@ Gitlab-ci [![build status](https://gitlab.synaptix-labs.com/ci/projects/4/status
 <dependency>
     <groupId>com.synaptix</groupId>
     <artifactId>task-manager-engine</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 

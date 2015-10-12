@@ -170,7 +170,8 @@ public class TaskManagerEngine {
 										restartClusters.add(taskCluster);
 									}
 									if (done) {
-										executeContext(context);
+										executeContext(context, restartClusters);
+										restart = restartClusters.contains(taskCluster);
 									}
 								}
 							} catch (Exception t) {
@@ -432,8 +433,90 @@ public class TaskManagerEngine {
 
 	// Private Methods
 
-	private void executeContext(MyEngineContext context) {
+	private void executeContext(MyEngineContext context, LinkedList<ITaskCluster> restartClusters) {
 		context.lock = true;
+
+		executeContextStartEngine(context, restartClusters);
+		executeContextAddRemove(context, restartClusters);
+	}
+
+	private void executeContextStartEngine(MyEngineContext context, LinkedList<ITaskCluster> restartClusters) {
+		// Start engine from task objects
+		context.startEngineTaskObjects.forEach(pair -> {
+			Set<ITaskCluster> taskClusters = new HashSet<>();
+			Set<ITaskObject> createClusters = new HashSet<>();
+			pair.getLeft().stream().filter(taskObject -> taskObject != null).forEach(taskObject -> {
+				// If cluster not existe, create
+				ITaskCluster taskCluster = getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(taskObject);
+				if (taskCluster == null) {
+					createClusters.add(taskObject);
+				} else {
+					taskClusters.add(taskCluster);
+				}
+			});
+
+			ITaskCluster res = null;
+			if (!createClusters.isEmpty()) {
+				res = createTaskCluster(createClusters.toArray(new ITaskObject[createClusters.size()]));
+				taskClusters.add(res);
+			} else if (taskClusters.size() == 1) {
+				res = taskClusters.iterator().next();
+			}
+
+			restartClusters.addAll(taskClusters);
+
+			if (pair.getRight() != null) {
+				pair.getRight().setTaskCluster(res);
+			}
+		});
+
+		// Start engine from cluster
+		restartClusters.addAll(context.startEngineTaskClusters);
+	}
+
+	private void executeContextAddRemove(MyEngineContext context, LinkedList<ITaskCluster> restartClusters) {
+		// Add
+		context.addToTaskClusters.forEach(pair -> {
+			List<ITaskObject> adds = new ArrayList<>();
+			pair.getRight().stream().filter(taskObject -> taskObject != null).forEach(taskObject -> {
+				ITaskCluster tc = getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(taskObject);
+				if (tc != null) {
+					if (LOG.isDebugEnabled()) {
+						LOG.debug("TM - Nothing, taskObject is other or same in cluster");
+					}
+				} else {
+					adds.add(taskObject);
+				}
+			});
+
+			createTaskGraphForTaskCluster(pair.getLeft(), adds.toArray(new ITaskObject[adds.size()]));
+
+			restartClusters.add(pair.getLeft());
+		});
+
+		// Remove
+		Map<ITaskCluster, List<ITaskObject>> modifyClusterMap = new HashMap<>();
+		context.removeFromTaskClusters.stream().filter(taskObject -> taskObject != null).forEach(taskObject -> {
+			if (taskObject != null) {
+				ITaskCluster tc = getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(taskObject);
+				if (tc != null) {
+					List<ITaskObject> tos = modifyClusterMap.get(tc);
+					if (tos == null) {
+						tos = new ArrayList<>();
+						modifyClusterMap.put(tc, tos);
+					}
+					if (!tos.contains(taskObject)) {
+						tos.add(taskObject);
+					}
+				}
+			}
+		});
+
+		for (Entry<ITaskCluster, List<ITaskObject>> entry : modifyClusterMap.entrySet()) {
+			getTaskManagerConfiguration().getTaskManagerWriter().saveRemoveTaskObjectsFromTaskCluster(entry.getKey(), entry.getValue());
+		}
+
+		restartClusters.addAll(modifyClusterMap.keySet());
 	}
 
 	/*
@@ -756,6 +839,11 @@ public class TaskManagerEngine {
 		}
 
 		@Override
+		public void startEngine(ITaskObject... taskObjects) {
+			startEngine(null, taskObjects);
+		}
+
+		@Override
 		public void startEngine(TaskClusterCallback taskClusterCallback, ITaskObject... taskObjects) {
 			verifyBlock();
 
@@ -786,6 +874,11 @@ public class TaskManagerEngine {
 			verifyBlock();
 
 			removeFromTaskClusters.addAll(Arrays.asList(taskObjects));
+		}
+
+		@Override
+		public void moveTaskObjectsToNewTaskCluster(ITaskObject... taskObjects) {
+			moveTaskObjectsToNewTaskCluster(null, taskObjects);
 		}
 
 		@Override

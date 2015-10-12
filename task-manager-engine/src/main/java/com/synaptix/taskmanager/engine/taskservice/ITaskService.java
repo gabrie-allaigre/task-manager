@@ -23,6 +23,8 @@ public interface ITaskService extends ITaskCycleListener {
 
 		ITaskDefinition getTaskDefinition();
 
+		void startEngine(ITaskObject... taskObjects);
+
 		void startEngine(TaskClusterCallback taskClusterCallback,ITaskObject... taskObjects);
 
 		void startEngine(ITaskCluster... taskClusters);
@@ -32,6 +34,8 @@ public interface ITaskService extends ITaskCycleListener {
 		void addTaskObjectsToTaskCluster(ITaskCluster taskCluster, ITaskObject... taskObjects);
 
 		void removeTaskObjectsFromTaskCluster(ITaskObject... taskObjects);
+
+		void moveTaskObjectsToNewTaskCluster(ITaskObject... taskObjects);
 
 		void moveTaskObjectsToNewTaskCluster(TaskClusterCallback taskClusterCallback,ITaskObject... taskObjects);
 

@@ -32,7 +32,7 @@
         <org.eclipse.persistence.jpa.version>2.6.0</org.eclipse.persistence.jpa.version>
         <derby.version>10.11.1.1</derby.version>
 
-        <jacoco-maven-plugin.version>0.7.4.201502262128</jacoco-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.7.5.201505241946</jacoco-maven-plugin.version>
         <jacoco.it.execution.data.file>${project.build.directory}/coverage-reports/jacoco-it.exec</jacoco.it.execution.data.file>
         <jacoco.ut.execution.data.file>${project.build.directory}/coverage-reports/jacoco-ut.exec</jacoco.ut.execution.data.file>
 
@@ -132,9 +132,6 @@
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <testFailureIgnore>true</testFailureIgnore>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>

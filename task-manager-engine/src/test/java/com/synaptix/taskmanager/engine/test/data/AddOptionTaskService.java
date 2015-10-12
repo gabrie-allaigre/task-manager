@@ -5,19 +5,18 @@ import com.synaptix.taskmanager.engine.task.ICommonTask;
 import com.synaptix.taskmanager.engine.taskservice.AbstractTaskService;
 import com.synaptix.taskmanager.engine.taskservice.ExecutionResultBuilder;
 
-public class ChangeCodeTaskService extends AbstractTaskService {
+public class AddOptionTaskService extends AbstractTaskService {
 
-	private final String newCode;
-
-	public ChangeCodeTaskService(String newCode) {
+	public AddOptionTaskService() {
 		super();
-
-		this.newCode = newCode;
 	}
 
 	@Override
-	public IExecutionResult execute(IEngineContext context,ICommonTask task) {
-		((SimpleSubTask) task).<AbstractCommonObject> getTaskObject().setCode(newCode);
+	public IExecutionResult execute(IEngineContext context, ICommonTask task) {
+		OptionObject oo = new OptionObject();
+		context.addTaskObjectsToTaskCluster(oo);
+
+		((SimpleSubTask) task).<BusinessObject>getTaskObject().setOptionObject(oo);
 		return ExecutionResultBuilder.newBuilder().finished();
 	}
 }

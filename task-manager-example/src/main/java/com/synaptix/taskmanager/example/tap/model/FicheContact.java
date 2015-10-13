@@ -21,6 +21,9 @@ public class FicheContact implements IBusinessTaskObject {
     private Long clusterId;
     @OneToMany(mappedBy = "ficheContact")
     private List<Operation> operations;
+    private String accompagnement;
+    private String reseau;
+    private String rus;
 
     @Override
     public final Long getId() {
@@ -53,6 +56,30 @@ public class FicheContact implements IBusinessTaskObject {
         this.operations = operations;
     }
 
+    public String getAccompagnement() {
+        return accompagnement;
+    }
+
+    public void setAccompagnement(String accompagnement) {
+        this.accompagnement = accompagnement;
+    }
+
+    public String getReseau() {
+        return reseau;
+    }
+
+    public void setReseau(String reseau) {
+        this.reseau = reseau;
+    }
+
+    public String getRus() {
+        return rus;
+    }
+
+    public void setRus(String rus) {
+        this.rus = rus;
+    }
+
     @Override
     public int hashCode() {
         return id != null ? id.hashCode() : super.hashCode();
@@ -66,6 +93,6 @@ public class FicheContact implements IBusinessTaskObject {
     @Override
     public String toString() {
         return new ToStringBuilder(this).append("id", id).append("version", version).append("clusterId", clusterId).append("ficheContactStatus", ficheContactStatus)
-                .append("operations", operations != null ? operations.size() : 0).build();
+                .append("operations", operations != null ? operations.size() : 0).append("accompagnement", accompagnement).append("reseau", reseau).append("rus", rus).build();
     }
 }

@@ -1,4 +1,4 @@
-package com.synaptix.taskmanager.example.tap.task;
+package com.synaptix.taskmanager.example.tap.task.fiche;
 
 import com.synaptix.taskmanager.engine.task.ICommonTask;
 import com.synaptix.taskmanager.engine.taskservice.AbstractTaskService;
@@ -6,13 +6,16 @@ import com.synaptix.taskmanager.engine.taskservice.ExecutionResultBuilder;
 import com.synaptix.taskmanager.example.tap.TapHelper;
 import com.synaptix.taskmanager.example.tap.model.FicheContact;
 import com.synaptix.taskmanager.example.tap.model.FicheContactStatus;
+import com.synaptix.taskmanager.example.tap.model.Operation;
+import com.synaptix.taskmanager.example.tap.model.OperationStatus;
 import com.synaptix.taskmanager.jpa.model.Task;
 
 import javax.persistence.EntityManager;
+import java.util.List;
 
-public class TermineStatusTaskService extends AbstractTaskService {
+public class ValideStatusTaskService extends AbstractTaskService {
 
-    public TermineStatusTaskService() {
+    public ValideStatusTaskService() {
         super();
     }
 
@@ -24,9 +27,18 @@ public class TermineStatusTaskService extends AbstractTaskService {
 
         FicheContact ficheContact = em.find(FicheContact.class, task.getBusinessTaskObjectId());
 
+        List<Operation> operations = ficheContact.getOperations();
+        if (operations != null && !operations.isEmpty()) {
+            long nb = operations.stream().filter(operation -> FicheContactStatus.VALIDE.equals(operation.getEndFicheContactStatus()) && !OperationStatus.DONE.equals(operation.getOperationStatus()))
+                    .count();
+            if (nb > 0) {
+                return ExecutionResultBuilder.newBuilder().notFinished();
+            }
+        }
+
         em.getTransaction().begin();
 
-        ficheContact.setFicheContactStatus(FicheContactStatus.TERMINE);
+        ficheContact.setFicheContactStatus(FicheContactStatus.VALIDE);
         em.persist(ficheContact);
 
         em.getTransaction().commit();

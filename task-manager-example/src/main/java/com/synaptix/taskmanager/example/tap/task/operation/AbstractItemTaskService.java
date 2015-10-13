@@ -1,11 +1,11 @@
-package com.synaptix.taskmanager.example.tap.task;
+package com.synaptix.taskmanager.example.tap.task.operation;
 
 import com.synaptix.taskmanager.engine.task.ICommonTask;
 import com.synaptix.taskmanager.engine.taskdefinition.ITaskDefinition;
 import com.synaptix.taskmanager.engine.taskservice.AbstractTaskService;
 import com.synaptix.taskmanager.example.tap.TapHelper;
-import com.synaptix.taskmanager.example.tap.model.FicheContact;
 import com.synaptix.taskmanager.example.tap.model.Item;
+import com.synaptix.taskmanager.example.tap.model.Operation;
 import com.synaptix.taskmanager.jpa.model.Task;
 import com.synaptix.taskmanager.model.ITaskCluster;
 
@@ -17,28 +17,20 @@ import javax.persistence.criteria.Root;
 
 public abstract class AbstractItemTaskService extends AbstractTaskService {
 
-    private final String type;
-
-    protected AbstractItemTaskService(String type) {
-        super();
-
-        this.type = type;
-    }
-
     @Override
     public void onTodo(ITaskCluster taskCluster, ITaskDefinition taskDefinition, ICommonTask commonTask) {
         Task task = (Task) commonTask;
 
         EntityManager em = TapHelper.getInstance().getJpaAccess().getEntityManager();
 
-        FicheContact ficheContact = em.find(FicheContact.class, task.getBusinessTaskObjectId());
+        Operation operation = em.find(Operation.class, task.getBusinessTaskObjectId());
 
         em.getTransaction().begin();
 
         Item item = new Item();
-        item.setType(type);
+        item.setType(operation.getType());
         item.setDone(false);
-        item.setFicheContact(ficheContact);
+        item.setFicheContact(operation.getFicheContact());
         item.setTask(task);
 
         em.persist(item);
@@ -52,7 +44,7 @@ public abstract class AbstractItemTaskService extends AbstractTaskService {
 
         EntityManager em = TapHelper.getInstance().getJpaAccess().getEntityManager();
 
-        FicheContact ficheContact = em.find(FicheContact.class, task.getBusinessTaskObjectId());
+        Operation operation = em.find(Operation.class, task.getBusinessTaskObjectId());
 
         em.getTransaction().begin();
 
@@ -64,7 +56,7 @@ public abstract class AbstractItemTaskService extends AbstractTaskService {
         TypedQuery<Item> q = em.createQuery(cq);
         q.getResultList().forEach(item -> {
             item.setDone(true);
-            item.setDoneFicheContactStatus(ficheContact.getFicheContactStatus());
+            item.setDoneFicheContactStatus(operation.getFicheContact().getFicheContactStatus());
             em.persist(item);
         });
 

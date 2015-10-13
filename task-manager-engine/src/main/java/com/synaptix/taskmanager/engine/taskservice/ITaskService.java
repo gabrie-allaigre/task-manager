@@ -12,10 +12,10 @@ public interface ITaskService extends ITaskCycleListener {
      * Execute service
      *
      * @param context give access task manager engine
-     * @param task    task link with service
+     * @param commonTask    task link with service
      * @return result of execution, <use>ExecutionResultBuilder</use>
      */
-    IExecutionResult execute(IEngineContext context, ICommonTask task);
+    IExecutionResult execute(IEngineContext context, ICommonTask commonTask);
 
     interface IEngineContext {
 

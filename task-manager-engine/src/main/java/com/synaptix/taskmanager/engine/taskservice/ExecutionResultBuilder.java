@@ -2,80 +2,80 @@ package com.synaptix.taskmanager.engine.taskservice;
 
 public class ExecutionResultBuilder {
 
-	private final ExecutionResultImpl executionResultImpl;
+    private final ExecutionResultImpl executionResultImpl;
 
-	protected ExecutionResultBuilder() {
-		super();
+    protected ExecutionResultBuilder() {
+        super();
 
-		this.executionResultImpl = new ExecutionResultImpl();
-	}
+        this.executionResultImpl = new ExecutionResultImpl();
+    }
 
-	public ITaskService.IExecutionResult finished() {
-		executionResultImpl.finished = true;
-		return executionResultImpl;
-	}
+    public static ExecutionResultBuilder newBuilder() {
+        return new ExecutionResultBuilder();
+    }
 
-	public ITaskService.IExecutionResult notFinished() {
-		executionResultImpl.finished = false;
-		return executionResultImpl;
-	}
+    public ITaskService.IExecutionResult finished() {
+        executionResultImpl.finished = true;
+        return executionResultImpl;
+    }
 
-	public ExecutionResultBuilder noChanges() {
-		executionResultImpl.noChanges = true;
-		return this;
-	}
+    public ITaskService.IExecutionResult notFinished() {
+        executionResultImpl.finished = false;
+        return executionResultImpl;
+    }
 
-	public ExecutionResultBuilder result(Object result) {
-		executionResultImpl.result = result;
-		return this;
-	}
+    public ExecutionResultBuilder noChanges() {
+        executionResultImpl.noChanges = true;
+        return this;
+    }
 
-	/**
-	 * Set to true if object cluster has changed. Task manager will stop at end of task, and restart on new object cluster.
-	 */
-	public ExecutionResultBuilder mustStopAndRestartTaskManager(boolean b) {
-		executionResultImpl.mustStopAndRestartTaskManager = b;
-		return this;
-	}
+    public ExecutionResultBuilder result(Object result) {
+        executionResultImpl.result = result;
+        return this;
+    }
 
-	public static ExecutionResultBuilder newBuilder() {
-		return new ExecutionResultBuilder();
-	}
+    /**
+     * Set to true if object cluster has changed. Task manager will stop at end of task, and restart on new object cluster.
+     */
+    public ExecutionResultBuilder mustStopAndRestartTaskManager(boolean b) {
+        executionResultImpl.mustStopAndRestartTaskManager = b;
+        return this;
+    }
 
-	private static final class ExecutionResultImpl implements ITaskService.IExecutionResult {
+    private static final class ExecutionResultImpl implements ITaskService.IExecutionResult {
 
-		private boolean finished;
+        private boolean finished;
 
-		private Object result;
+        private Object result;
 
-		private boolean mustStopAndRestartTaskManager;
+        private boolean mustStopAndRestartTaskManager;
 
-		private boolean noChanges;
+        private boolean noChanges;
 
-		public ExecutionResultImpl() {
-			super();
+        public ExecutionResultImpl() {
+            super();
 
-			this.noChanges = false;
-		}
+            this.noChanges = false;
+        }
 
-		@Override
-		public boolean isFinished() {
-			return finished;
-		}
+        @Override
+        public boolean isFinished() {
+            return finished;
+        }
 
-		@Override
-		public boolean isNoChanges() {
-			return noChanges;
-		}
+        @Override
+        public boolean isNoChanges() {
+            return noChanges;
+        }
 
-		@Override
-		public Object getResult() {
-			return result;
-		}
+        @Override
+        public Object getResult() {
+            return result;
+        }
 
-		@Override
-		public boolean mustStopAndRestartTaskManager() {
-			return mustStopAndRestartTaskManager;
-		}
-	}
+        @Override
+        public boolean mustStopAndRestartTaskManager() {
+            return mustStopAndRestartTaskManager;
+        }
+    }
 }

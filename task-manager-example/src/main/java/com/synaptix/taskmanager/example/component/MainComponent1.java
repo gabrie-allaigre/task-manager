@@ -22,20 +22,22 @@ import java.util.UUID;
 
 public class MainComponent1 {
 
-	public static void main(String[] args) {
-		List<IStatusGraph<CustomerOrderStatus>> statusGraphs = StatusGraphsBuilder.<CustomerOrderStatus>newBuilder().addNextStatusGraph(CustomerOrderStatus.TCO, "TCO_TASK").build();
+    public static void main(String[] args) {
+        List<IStatusGraph<CustomerOrderStatus>> statusGraphs = StatusGraphsBuilder.<CustomerOrderStatus>newBuilder().addNextStatusGraph(CustomerOrderStatus.TCO, "TCO_TASK").build();
 
-		ITaskObjectManager<CustomerOrderStatus,ICustomerOrder> customerOrderTaskObjectManager = TaskObjectManagerBuilder.<CustomerOrderStatus,ICustomerOrder>newBuilder(ICustomerOrder.class).statusGraphs(statusGraphs).build();
+        ITaskObjectManager<CustomerOrderStatus, ICustomerOrder> customerOrderTaskObjectManager = TaskObjectManagerBuilder.<CustomerOrderStatus, ICustomerOrder>newBuilder(ICustomerOrder.class)
+                .statusGraphs(statusGraphs).build();
 
-		ITaskObjectManagerRegistry taskObjectManagerRegistry = TaskObjectManagerRegistryBuilder.newBuilder().instanceToClass(ComponentInstanceToClass.INSTANCE).addTaskObjectManager(customerOrderTaskObjectManager).build();
+        ITaskObjectManagerRegistry taskObjectManagerRegistry = TaskObjectManagerRegistryBuilder.newBuilder().instanceToClass(ComponentInstanceToClass.INSTANCE)
+                .addTaskObjectManager(customerOrderTaskObjectManager).build();
 
-		ITaskDefinitionRegistry taskDefinitionRegistry = TaskDefinitionRegistryBuilder.newBuilder()
-				.addTaskDefinition(TaskDefinitionBuilder.newBuilder("TCO_TASK", new MultiUpdateStatusTaskService(CustomerOrderStatus.TCO)).build()).build();
+        ITaskDefinitionRegistry taskDefinitionRegistry = TaskDefinitionRegistryBuilder.newBuilder()
+                .addTaskDefinition(TaskDefinitionBuilder.newBuilder("TCO_TASK", new MultiUpdateStatusTaskService(CustomerOrderStatus.TCO)).build()).build();
 
-		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(taskObjectManagerRegistry)
-				.taskDefinitionRegistry(taskDefinitionRegistry).build());
+        TaskManagerEngine engine = new TaskManagerEngine(
+                TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(taskObjectManagerRegistry).taskDefinitionRegistry(taskDefinitionRegistry).build());
 
-		ICustomerOrder customerOrder = new CustomerOrderBuilder().id(UUID.randomUUID()).version(0).customerOrderNo("123456").confirmed(false).build();
-		engine.startEngine(customerOrder);
-	}
+        ICustomerOrder customerOrder = new CustomerOrderBuilder().id(UUID.randomUUID()).version(0).customerOrderNo("123456").confirmed(false).build();
+        engine.startEngine(customerOrder);
+    }
 }

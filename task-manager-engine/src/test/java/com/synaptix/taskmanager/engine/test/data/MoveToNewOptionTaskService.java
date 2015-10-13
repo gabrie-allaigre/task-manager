@@ -7,13 +7,13 @@ import com.synaptix.taskmanager.engine.taskservice.ExecutionResultBuilder;
 
 public class MoveToNewOptionTaskService extends AbstractTaskService {
 
-	public MoveToNewOptionTaskService() {
-		super();
-	}
+    public MoveToNewOptionTaskService() {
+        super();
+    }
 
-	@Override
-	public IExecutionResult execute(IEngineContext context, ICommonTask task) {
-		context.moveTaskObjectsToNewTaskCluster(((SimpleSubTask) task).<BusinessObject>getTaskObject().getOptionObject());
-		return ExecutionResultBuilder.newBuilder().finished();
-	}
+    @Override
+    public IExecutionResult execute(IEngineContext context, ICommonTask task) {
+        context.moveTaskObjectsToNewTaskCluster(((SimpleSubTask) task).<BusinessObject>getTaskObject().getOptionObject());
+        return ExecutionResultBuilder.newBuilder().finished();
+    }
 }

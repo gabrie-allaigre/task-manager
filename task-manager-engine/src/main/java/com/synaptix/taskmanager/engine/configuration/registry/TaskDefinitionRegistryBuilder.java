@@ -7,41 +7,41 @@ import java.util.Map;
 
 public class TaskDefinitionRegistryBuilder {
 
-	private final MyTaskDefinitionRegistry taskDefinitionRegistry;
+    private final MyTaskDefinitionRegistry taskDefinitionRegistry;
 
-	private TaskDefinitionRegistryBuilder() {
-		super();
+    private TaskDefinitionRegistryBuilder() {
+        super();
 
-		this.taskDefinitionRegistry = new MyTaskDefinitionRegistry();
-	}
+        this.taskDefinitionRegistry = new MyTaskDefinitionRegistry();
+    }
 
-	public TaskDefinitionRegistryBuilder addTaskDefinition(ITaskDefinition taskDefinition) {
-		taskDefinitionRegistry.taskDefinitionMap.put(taskDefinition.getCode(), taskDefinition);
-		return this;
-	}
+    public static TaskDefinitionRegistryBuilder newBuilder() {
+        return new TaskDefinitionRegistryBuilder();
+    }
 
-	public ITaskDefinitionRegistry build() {
-		return taskDefinitionRegistry;
-	}
+    public TaskDefinitionRegistryBuilder addTaskDefinition(ITaskDefinition taskDefinition) {
+        taskDefinitionRegistry.taskDefinitionMap.put(taskDefinition.getCode(), taskDefinition);
+        return this;
+    }
 
-	public static TaskDefinitionRegistryBuilder newBuilder() {
-		return new TaskDefinitionRegistryBuilder();
-	}
+    public ITaskDefinitionRegistry build() {
+        return taskDefinitionRegistry;
+    }
 
-	private static class MyTaskDefinitionRegistry extends AbstractTaskDefinitionRegistry {
+    private static class MyTaskDefinitionRegistry extends AbstractTaskDefinitionRegistry {
 
-		private Map<String, ITaskDefinition> taskDefinitionMap;
+        private Map<String, ITaskDefinition> taskDefinitionMap;
 
-		public MyTaskDefinitionRegistry() {
-			super();
+        public MyTaskDefinitionRegistry() {
+            super();
 
-			this.taskDefinitionMap = new HashMap<>();
-		}
+            this.taskDefinitionMap = new HashMap<>();
+        }
 
-		@Override
-		public ITaskDefinition getTaskDefinition(String code) {
-			return taskDefinitionMap.get(code);
-		}
+        @Override
+        public ITaskDefinition getTaskDefinition(String code) {
+            return taskDefinitionMap.get(code);
+        }
 
-	}
+    }
 }

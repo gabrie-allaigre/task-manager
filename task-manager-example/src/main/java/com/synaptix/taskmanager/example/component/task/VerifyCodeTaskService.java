@@ -8,20 +8,20 @@ import com.synaptix.taskmanager.example.component.business.ICustomerOrder;
 
 public class VerifyCodeTaskService extends AbstractTaskService {
 
-	private final String code;
+    private final String code;
 
-	public VerifyCodeTaskService(String code) {
-		super();
+    public VerifyCodeTaskService(String code) {
+        super();
 
-		this.code = code;
-	}
+        this.code = code;
+    }
 
-	@Override
-	public IExecutionResult execute(IEngineContext context,ICommonTask task) {
-		if (code != null && code.equals(((SimpleSubTask) task).<ICustomerOrder> getTaskObject().getCustomerOrderNo())) {
-			return ExecutionResultBuilder.newBuilder().noChanges().finished();
-		}
-		return ExecutionResultBuilder.newBuilder().notFinished();
-	}
+    @Override
+    public IExecutionResult execute(IEngineContext context, ICommonTask task) {
+        if (code != null && code.equals(((SimpleSubTask) task).<ICustomerOrder>getTaskObject().getCustomerOrderNo())) {
+            return ExecutionResultBuilder.newBuilder().noChanges().finished();
+        }
+        return ExecutionResultBuilder.newBuilder().notFinished();
+    }
 
 }

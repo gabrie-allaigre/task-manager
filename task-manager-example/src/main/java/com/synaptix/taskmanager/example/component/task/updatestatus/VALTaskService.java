@@ -9,18 +9,18 @@ import com.synaptix.taskmanager.example.component.business.ICustomerOrder;
 
 public class VALTaskService extends AbstractTaskService {
 
-	public VALTaskService() {
-		super();
-	}
+    public VALTaskService() {
+        super();
+    }
 
-	@Override
-	public IExecutionResult execute(IEngineContext context, ICommonTask task) {
-		ICustomerOrder customerOrder = ((SimpleStatusTask) task).<ICustomerOrder>getTaskObject();
-		if (customerOrder.isConfirmed()) {
-			((SimpleStatusTask) task).<ICustomerOrder>getTaskObject().setStatus(CustomerOrderStatus.VAL);
-			return ExecutionResultBuilder.newBuilder().finished();
-		} else {
-			return ExecutionResultBuilder.newBuilder().notFinished();
-		}
-	}
+    @Override
+    public IExecutionResult execute(IEngineContext context, ICommonTask task) {
+        ICustomerOrder customerOrder = ((SimpleStatusTask) task).<ICustomerOrder>getTaskObject();
+        if (customerOrder.isConfirmed()) {
+            ((SimpleStatusTask) task).<ICustomerOrder>getTaskObject().setStatus(CustomerOrderStatus.VAL);
+            return ExecutionResultBuilder.newBuilder().finished();
+        } else {
+            return ExecutionResultBuilder.newBuilder().notFinished();
+        }
+    }
 }

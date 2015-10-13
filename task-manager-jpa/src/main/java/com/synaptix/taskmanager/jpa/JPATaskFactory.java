@@ -12,36 +12,36 @@ import com.synaptix.taskmanager.model.ITaskObject;
 
 public class JPATaskFactory extends AbstractTaskFactory {
 
-	@Override
-	public ITaskCluster newTaskCluster() {
-		return new Cluster();
-	}
+    @Override
+    public ITaskCluster newTaskCluster() {
+        return new Cluster();
+    }
 
-	@Override
-	public ISubTask newSubTask(String codeSubTaskDefinition) {
-		Task task = new Task();
-		task.setType(Task.Type.subTask);
-		task.setCodeTaskDefinition(codeSubTaskDefinition);
-		return task;
-	}
+    @Override
+    public ISubTask newSubTask(String codeSubTaskDefinition) {
+        Task task = new Task();
+        task.setType(Task.Type.subTask);
+        task.setCodeTaskDefinition(codeSubTaskDefinition);
+        return task;
+    }
 
-	@Override
-	public boolean isSubTask(ICommonTask task) {
-		return Task.Type.subTask.equals(((Task) task).getType());
-	}
+    @Override
+    public boolean isSubTask(ICommonTask task) {
+        return Task.Type.subTask.equals(((Task) task).getType());
+    }
 
-	@Override
-	public IStatusTask newStatusTask(String codeStatusTaskDefinition, Class<? extends ITaskObject> taskObjectClass, Object currentStatus) {
-		Task task = new Task();
-		task.setType(Task.Type.statusTask);
-		task.setCodeTaskDefinition(codeStatusTaskDefinition);
-		task.setBusinessTaskObjectClass((Class<? extends IBusinessTaskObject>) taskObjectClass);
-		task.setCurrentStatus(currentStatus);
-		return task;
-	}
+    @Override
+    public IStatusTask newStatusTask(String codeStatusTaskDefinition, Class<? extends ITaskObject> taskObjectClass, Object currentStatus) {
+        Task task = new Task();
+        task.setType(Task.Type.statusTask);
+        task.setCodeTaskDefinition(codeStatusTaskDefinition);
+        task.setBusinessTaskObjectClass((Class<? extends IBusinessTaskObject>) taskObjectClass);
+        task.setCurrentStatus(currentStatus);
+        return task;
+    }
 
-	@Override
-	public boolean isStatusTask(ICommonTask task) {
-		return Task.Type.statusTask.equals(((Task) task).getType());
-	}
+    @Override
+    public boolean isStatusTask(ICommonTask task) {
+        return Task.Type.statusTask.equals(((Task) task).getType());
+    }
 }

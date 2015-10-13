@@ -48,6 +48,7 @@ public interface ITaskManagerWriter {
      * When taskCluster is finish (no task current)
      *
      * @param taskCluster
+     * @return cluster
      */
     ITaskCluster archiveTaskCluster(ITaskCluster taskCluster);
 

@@ -189,9 +189,9 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
             for (ICommonTask nextCurrentTask : nextCurrentTasks) {
                 ((AbstractSimpleCommonTask) nextCurrentTask).setStatus(AbstractSimpleCommonTask.Status.CURRENT);
             }
-        }
 
-        currentTasksMap.get(taskCluster).addAll(nextCurrentTasks);
+            currentTasksMap.get(taskCluster).addAll(nextCurrentTasks);
+        }
     }
 
     @Override
@@ -207,9 +207,9 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
                 AbstractSimpleCommonTask nct = (AbstractSimpleCommonTask) nextCurrentTask;
                 nct.setStatus(AbstractSimpleCommonTask.Status.CURRENT);
             }
-        }
 
-        currentTasksMap.get(taskCluster).addAll(nextCurrentTasks);
+            currentTasksMap.get(taskCluster).addAll(nextCurrentTasks);
+        }
     }
 
     @Override

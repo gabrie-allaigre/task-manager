@@ -77,7 +77,7 @@ public abstract class AbstractItemTaskService extends AbstractTaskService {
         cq.where(cb.equal(itemRoot.get("task"), task));
 
         TypedQuery<Item> q = em.createQuery(cq);
-        q.getResultList().forEach(item -> em.remove(item));
+        q.getResultList().forEach(em::remove);
 
         em.getTransaction().commit();
     }

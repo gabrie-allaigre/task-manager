@@ -47,11 +47,8 @@ public class ClusterDependency implements IEntity {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj == null || this.getClass() != obj.getClass()) {
-			return false;
-		}
-		return id != null && ((ClusterDependency) obj).id != null ? id.equals(((ClusterDependency) obj).id) : super.equals(obj);
-	}
+        return !(obj == null || this.getClass() != obj.getClass()) && (id != null && ((ClusterDependency) obj).id != null ? id.equals(((ClusterDependency) obj).id) : super.equals(obj));
+    }
 
     @Override
     public String toString() {

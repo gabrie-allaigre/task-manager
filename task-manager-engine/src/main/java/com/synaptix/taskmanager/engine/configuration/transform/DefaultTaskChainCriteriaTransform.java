@@ -78,7 +78,7 @@ public class DefaultTaskChainCriteriaTransform extends AbstractTaskChainCriteria
 
             return result;
         }
-        return null;
+        throw new RuntimeException();
     }
 
     private class MyResult implements IResult {

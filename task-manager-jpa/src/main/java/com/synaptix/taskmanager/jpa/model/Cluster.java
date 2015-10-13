@@ -60,11 +60,8 @@ public class Cluster implements IEntity, ITaskCluster {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj == null || this.getClass() != obj.getClass()) {
-			return false;
-		}
-		return id != null && ((Cluster)obj).id != null ? id.equals(((Cluster)obj).id) : super.equals(obj);
-	}
+        return !(obj == null || this.getClass() != obj.getClass()) && (id != null && ((Cluster) obj).id != null ? id.equals(((Cluster) obj).id) : super.equals(obj));
+    }
 
     @Override
     public String toString() {

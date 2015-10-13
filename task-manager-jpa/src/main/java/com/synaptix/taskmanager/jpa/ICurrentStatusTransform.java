@@ -4,6 +4,7 @@ public interface ICurrentStatusTransform<E> {
 
     /**
      * Convert status object to String
+     *
      * @param currentStatus status
      * @return string
      */
@@ -11,6 +12,7 @@ public interface ICurrentStatusTransform<E> {
 
     /**
      * Convert status string to Object
+     *
      * @param currentStatusString status
      * @return object
      */

@@ -14,18 +14,13 @@ public class Item implements IEntity {
     private Long id;
     @Version
     private int version;
-
     private String type;
-
     private boolean done;
-
-    @Column(name = "FICHE_CONTACT_STATUS_DONE")
+    @Column(name = "DONE_FICHE_CONTACT_STATUS")
     @Enumerated(EnumType.STRING)
-    private FicheContactStatus ficheContactStatusDone;
-
+    private FicheContactStatus doneFicheContactStatus;
     @ManyToOne
     private FicheContact ficheContact;
-
     @ManyToOne
     private Task task;
 
@@ -50,12 +45,12 @@ public class Item implements IEntity {
         this.done = done;
     }
 
-    public FicheContactStatus getFicheContactStatusDone() {
-        return ficheContactStatusDone;
+    public FicheContactStatus getDoneFicheContactStatus() {
+        return doneFicheContactStatus;
     }
 
-    public void setFicheContactStatusDone(FicheContactStatus ficheContactStatusDone) {
-        this.ficheContactStatusDone = ficheContactStatusDone;
+    public void setDoneFicheContactStatus(FicheContactStatus doneFicheContactStatus) {
+        this.doneFicheContactStatus = doneFicheContactStatus;
     }
 
     public FicheContact getFicheContact() {
@@ -86,6 +81,7 @@ public class Item implements IEntity {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this).append("id", id).append("version", version).append("type", type).append("done", done).append("ficheContactStatusDone", ficheContactStatusDone).build();
+        return new ToStringBuilder(this).append("id", id).append("version", version).append("type", type).append("done", done).append("doneFicheContactStatus", doneFicheContactStatus)
+                .append("ficheContact", ficheContact != null ? ficheContact.getId() : null).append("task", task != null ? task.getId() : null).build();
     }
 }

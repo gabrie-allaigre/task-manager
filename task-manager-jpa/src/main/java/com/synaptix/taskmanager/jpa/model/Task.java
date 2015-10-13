@@ -129,11 +129,11 @@ public class Task implements IStatusTask, ISubTask {
 
     @Override
     public <E> E getCurrentStatus() {
-        return (E)currentStatus;
+        return (E) currentStatus;
     }
 
     public void setCurrentStatus(Object currentStatus) {
-        this.currentStatus = (Serializable)currentStatus;
+        this.currentStatus = (Serializable) currentStatus;
     }
 
     // StatusTask
@@ -179,6 +179,5 @@ public class Task implements IStatusTask, ISubTask {
     public enum Status {
         TODO, CURRENT, DONE, CANCEL
     }
-
 
 }

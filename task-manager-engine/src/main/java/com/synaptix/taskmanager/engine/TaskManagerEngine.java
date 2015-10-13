@@ -27,9 +27,8 @@ public class TaskManagerEngine {
     private static final ExecuteTaskListener CURRENT_EXECUTE_TASK_LISTENER = ITaskCycleListener::onCurrent;
     private static final ExecuteTaskListener DONE_EXECUTE_TASK_LISTENER = ITaskCycleListener::onDone;
     private static final ExecuteTaskListener NOTHING_EXECUTE_TASK_LISTENER = ITaskCycleListener::onNothing;
-
-    // Listener
     private static final ExecuteTaskListener DELETE_EXECUTE_TASK_LISTENER = ITaskCycleListener::onDelete;
+
     private ITaskManagerConfiguration taskManagerConfiguration;
     private EventListenerList eventListenerList;
 

@@ -4,8 +4,8 @@ import com.synaptix.taskmanager.engine.task.ICommonTask;
 import com.synaptix.taskmanager.engine.taskdefinition.ITaskDefinition;
 import com.synaptix.taskmanager.engine.taskservice.AbstractTaskService;
 import com.synaptix.taskmanager.example.tap.TapHelper;
-import com.synaptix.taskmanager.example.tap.model.Item;
 import com.synaptix.taskmanager.example.tap.model.FicheContact;
+import com.synaptix.taskmanager.example.tap.model.Item;
 import com.synaptix.taskmanager.jpa.model.Task;
 import com.synaptix.taskmanager.model.ITaskCluster;
 
@@ -64,7 +64,7 @@ public abstract class AbstractItemTaskService extends AbstractTaskService {
         TypedQuery<Item> q = em.createQuery(cq);
         q.getResultList().forEach(item -> {
             item.setDone(true);
-            item.setFicheContactStatusDone(ficheContact.getFicheContactStatus());
+            item.setDoneFicheContactStatus(ficheContact.getFicheContactStatus());
             em.persist(item);
         });
 

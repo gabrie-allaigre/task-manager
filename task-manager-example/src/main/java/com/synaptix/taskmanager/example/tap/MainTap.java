@@ -21,7 +21,6 @@ import com.synaptix.taskmanager.example.tap.task.TestItemTaskService;
 import com.synaptix.taskmanager.example.tap.task.ValideStatusTaskService;
 import com.synaptix.taskmanager.jpa.JPATaskFactory;
 import com.synaptix.taskmanager.jpa.JPATaskManagerReaderWriter;
-import com.synaptix.taskmanager.jpa.model.Task;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;

@@ -7,16 +7,16 @@ import com.synaptix.taskmanager.engine.taskservice.ExecutionResultBuilder;
 
 public class AddOptionTaskService extends AbstractTaskService {
 
-	public AddOptionTaskService() {
-		super();
-	}
+    public AddOptionTaskService() {
+        super();
+    }
 
-	@Override
-	public IExecutionResult execute(IEngineContext context, ICommonTask task) {
-		OptionObject oo = new OptionObject();
-		context.addTaskObjectsToTaskCluster(oo);
+    @Override
+    public IExecutionResult execute(IEngineContext context, ICommonTask task) {
+        OptionObject oo = new OptionObject();
+        context.addTaskObjectsToTaskCluster(oo);
 
-		((SimpleSubTask) task).<BusinessObject>getTaskObject().setOptionObject(oo);
-		return ExecutionResultBuilder.newBuilder().finished();
-	}
+        ((SimpleSubTask) task).<BusinessObject>getTaskObject().setOptionObject(oo);
+        return ExecutionResultBuilder.newBuilder().finished();
+    }
 }

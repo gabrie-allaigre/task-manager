@@ -8,13 +8,13 @@ import java.util.EventListener;
 
 public interface ITaskCycleListener extends EventListener {
 
-	void onTodo(ITaskCluster taskCluster, ITaskDefinition taskDefinition, ICommonTask task);
+    void onTodo(ITaskCluster taskCluster, ITaskDefinition taskDefinition, ICommonTask task);
 
-	void onCurrent(ITaskCluster taskCluster, ITaskDefinition taskDefinition, ICommonTask task);
+    void onCurrent(ITaskCluster taskCluster, ITaskDefinition taskDefinition, ICommonTask task);
 
-	void onNothing(ITaskCluster taskCluster, ITaskDefinition taskDefinition, ICommonTask task);
+    void onNothing(ITaskCluster taskCluster, ITaskDefinition taskDefinition, ICommonTask task);
 
-	void onDone(ITaskCluster taskCluster, ITaskDefinition taskDefinition, ICommonTask task);
+    void onDone(ITaskCluster taskCluster, ITaskDefinition taskDefinition, ICommonTask task);
 
-	void onDelete(ITaskCluster taskCluster, ITaskDefinition taskDefinition, ICommonTask task);
+    void onDelete(ITaskCluster taskCluster, ITaskDefinition taskDefinition, ICommonTask task);
 }

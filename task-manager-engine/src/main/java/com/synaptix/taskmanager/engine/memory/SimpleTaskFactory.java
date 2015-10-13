@@ -8,18 +8,18 @@ import com.synaptix.taskmanager.model.ITaskObject;
 
 public class SimpleTaskFactory extends AbstractTaskFactory {
 
-	@Override
-	public ITaskCluster newTaskCluster() {
-		return new SimpleTaskCluster();
-	}
+    @Override
+    public ITaskCluster newTaskCluster() {
+        return new SimpleTaskCluster();
+    }
 
-	@Override
-	public ISubTask newSubTask(String codeSubTaskDefinition) {
-		return new SimpleSubTask(codeSubTaskDefinition);
-	}
+    @Override
+    public ISubTask newSubTask(String codeSubTaskDefinition) {
+        return new SimpleSubTask(codeSubTaskDefinition);
+    }
 
-	@Override
-	public IStatusTask newStatusTask(String codeStatusTaskDefinition, Class<? extends ITaskObject> taskObjectClass, Object currentStatus) {
-		return new SimpleStatusTask(codeStatusTaskDefinition, taskObjectClass, currentStatus);
-	}
+    @Override
+    public IStatusTask newStatusTask(String codeStatusTaskDefinition, Class<? extends ITaskObject> taskObjectClass, Object currentStatus) {
+        return new SimpleStatusTask(codeStatusTaskDefinition, taskObjectClass, currentStatus);
+    }
 }

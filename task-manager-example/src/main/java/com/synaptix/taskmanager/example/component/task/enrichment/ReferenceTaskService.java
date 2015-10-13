@@ -8,17 +8,17 @@ import com.synaptix.taskmanager.example.component.business.ICustomerOrder;
 
 public class ReferenceTaskService extends AbstractTaskService {
 
-	private final String ref;
+    private final String ref;
 
-	public ReferenceTaskService(String ref) {
-		super();
+    public ReferenceTaskService(String ref) {
+        super();
 
-		this.ref = ref;
-	}
+        this.ref = ref;
+    }
 
-	@Override
-	public IExecutionResult execute(IEngineContext context,ICommonTask task) {
-		((SimpleSubTask) task).<ICustomerOrder> getTaskObject().setReference(ref);
-		return ExecutionResultBuilder.newBuilder().finished();
-	}
+    @Override
+    public IExecutionResult execute(IEngineContext context, ICommonTask task) {
+        ((SimpleSubTask) task).<ICustomerOrder>getTaskObject().setReference(ref);
+        return ExecutionResultBuilder.newBuilder().finished();
+    }
 }

@@ -7,13 +7,13 @@ import com.synaptix.taskmanager.engine.taskservice.ExecutionResultBuilder;
 
 public class RemoveOptionTaskService extends AbstractTaskService {
 
-	public RemoveOptionTaskService() {
-		super();
-	}
+    public RemoveOptionTaskService() {
+        super();
+    }
 
-	@Override
-	public IExecutionResult execute(IEngineContext context, ICommonTask task) {
-		context.removeTaskObjectsFromTaskCluster(((SimpleSubTask) task).<BusinessObject>getTaskObject().getOptionObject());
-		return ExecutionResultBuilder.newBuilder().finished();
-	}
+    @Override
+    public IExecutionResult execute(IEngineContext context, ICommonTask task) {
+        context.removeTaskObjectsFromTaskCluster(((SimpleSubTask) task).<BusinessObject>getTaskObject().getOptionObject());
+        return ExecutionResultBuilder.newBuilder().finished();
+    }
 }

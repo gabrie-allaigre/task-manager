@@ -1,6 +1,6 @@
 # TaskManager
 
-[![build status](https://gitlab.synaptix-labs.com/ci/projects/4/status.png?ref=master)](https://gitlab.synaptix-labs.com/ci/projects/4?ref=master) [![Coverage](https://img.shields.io/sonar/https/sonar.synaptix-labs.com/com.synaptix:task-manager/overall_coverage.svg)](https://sonar.synaptix-labs.com/dashboard/index/1) [![Ligne](https://img.shields.io/sonar/https/sonar.synaptix-labs.com/com.synaptix:task-manager/ncloc.svg?label=Lignes)](https://sonar.synaptix-labs.com/dashboard/index/1) [![Issue](https://img.shields.io/sonar/https/sonar.synaptix-labs.com/com.synaptix:task-manager/violations.svg)](https://sonar.synaptix-labs.com/dashboard/index/1)
+[![build status](https://gitlab.synaptix-labs.com/ci/projects/4/status.png?ref=master)](https://gitlab.synaptix-labs.com/ci/projects/4?ref=master) [![Coverage](https://img.shields.io/sonar/https/sonar.synaptix-labs.com/com.synaptix:task-manager/overall_coverage.svg)](https://sonar.synaptix-labs.com/dashboard/index/1) [![lignes](https://img.shields.io/sonar/https/sonar.synaptix-labs.com/com.synaptix:task-manager/ncloc.svg?label=Lignes)](https://sonar.synaptix-labs.com/dashboard/index/1) [![Issue](https://img.shields.io/sonar/https/sonar.synaptix-labs.com/com.synaptix:task-manager/violations.svg)](https://sonar.synaptix-labs.com/dashboard/index/1)
 
 ## Principe
 

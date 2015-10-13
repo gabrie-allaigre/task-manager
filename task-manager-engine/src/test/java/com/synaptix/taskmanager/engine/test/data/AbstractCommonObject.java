@@ -4,24 +4,24 @@ import com.synaptix.taskmanager.model.ITaskObject;
 
 public abstract class AbstractCommonObject implements ITaskObject {
 
-	private String status;
+    private String status;
 
-	private String code;
+    private String code;
 
-	public String getStatus() {
-		return status;
-	}
+    public String getStatus() {
+        return status;
+    }
 
-	public void setStatus(String status) {
-		this.status = status;
-	}
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
-	public String getCode() {
-		return code;
-	}
+    public String getCode() {
+        return code;
+    }
 
-	public void setCode(String code) {
-		this.code = code;
-	}
+    public void setCode(String code) {
+        this.code = code;
+    }
 
 }

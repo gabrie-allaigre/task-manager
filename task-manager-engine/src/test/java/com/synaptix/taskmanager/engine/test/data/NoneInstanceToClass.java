@@ -5,8 +5,8 @@ import com.synaptix.taskmanager.model.ITaskObject;
 
 public class NoneInstanceToClass implements TaskObjectManagerRegistryBuilder.IInstanceToClass {
 
-	@Override
-	public <F extends ITaskObject> Class<F> instanceToClass(F taskObject) {
-		return (Class<F>)BusinessObject.class;
-	}
+    @Override
+    public <F extends ITaskObject> Class<F> instanceToClass(F taskObject) {
+        return (Class<F>) BusinessObject.class;
+    }
 }

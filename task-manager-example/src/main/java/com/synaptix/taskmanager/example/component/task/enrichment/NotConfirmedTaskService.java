@@ -8,16 +8,16 @@ import com.synaptix.taskmanager.example.component.business.ICustomerOrder;
 
 public class NotConfirmedTaskService extends AbstractTaskService {
 
-	public NotConfirmedTaskService() {
-		super();
-	}
+    public NotConfirmedTaskService() {
+        super();
+    }
 
-	@Override
-	public IExecutionResult execute(IEngineContext context,ICommonTask task) {
-		if (!((SimpleSubTask) task).<ICustomerOrder> getTaskObject().isConfirmed()) {
-			return ExecutionResultBuilder.newBuilder().noChanges().finished();
-		} else {
-			return ExecutionResultBuilder.newBuilder().notFinished();
-		}
-	}
+    @Override
+    public IExecutionResult execute(IEngineContext context, ICommonTask task) {
+        if (!((SimpleSubTask) task).<ICustomerOrder>getTaskObject().isConfirmed()) {
+            return ExecutionResultBuilder.newBuilder().noChanges().finished();
+        } else {
+            return ExecutionResultBuilder.newBuilder().notFinished();
+        }
+    }
 }

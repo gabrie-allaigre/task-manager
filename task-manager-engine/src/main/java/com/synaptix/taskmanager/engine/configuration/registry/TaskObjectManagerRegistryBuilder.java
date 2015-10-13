@@ -1,77 +1,76 @@
 package com.synaptix.taskmanager.engine.configuration.registry;
 
+import com.synaptix.taskmanager.engine.manager.ITaskObjectManager;
+import com.synaptix.taskmanager.model.ITaskObject;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
-import com.synaptix.taskmanager.engine.manager.ITaskObjectManager;
-import com.synaptix.taskmanager.model.ITaskObject;
-
 public class TaskObjectManagerRegistryBuilder {
 
-	private MyObjectManagerRegistry objectManagerRegistry;
+    private MyObjectManagerRegistry objectManagerRegistry;
 
-	private TaskObjectManagerRegistryBuilder() {
-		super();
+    private TaskObjectManagerRegistryBuilder() {
+        super();
 
-		this.objectManagerRegistry = new MyObjectManagerRegistry();
-	}
+        this.objectManagerRegistry = new MyObjectManagerRegistry();
+    }
 
-	public TaskObjectManagerRegistryBuilder instanceToClass(IInstanceToClass instanceToClass) {
-		objectManagerRegistry.instanceToClass = instanceToClass;
-		return this;
-	}
+    public static TaskObjectManagerRegistryBuilder newBuilder() {
+        return new TaskObjectManagerRegistryBuilder();
+    }
 
-	public TaskObjectManagerRegistryBuilder addTaskObjectManager(ITaskObjectManager<?,?> taskObjectManager) {
-		objectManagerRegistry.taskObjectManagerMap.put(taskObjectManager.getTaskObjectClass(), taskObjectManager);
-		return this;
-	}
+    public TaskObjectManagerRegistryBuilder instanceToClass(IInstanceToClass instanceToClass) {
+        objectManagerRegistry.instanceToClass = instanceToClass;
+        return this;
+    }
 
-	public ITaskObjectManagerRegistry build() {
-		return objectManagerRegistry;
-	}
+    public TaskObjectManagerRegistryBuilder addTaskObjectManager(ITaskObjectManager<?, ?> taskObjectManager) {
+        objectManagerRegistry.taskObjectManagerMap.put(taskObjectManager.getTaskObjectClass(), taskObjectManager);
+        return this;
+    }
 
-	public static TaskObjectManagerRegistryBuilder newBuilder() {
-		return new TaskObjectManagerRegistryBuilder();
-	}
+    public ITaskObjectManagerRegistry build() {
+        return objectManagerRegistry;
+    }
 
-	public interface IInstanceToClass {
+    public interface IInstanceToClass {
 
-		<F extends ITaskObject> Class<F> instanceToClass(F taskObject);
+        <F extends ITaskObject> Class<F> instanceToClass(F taskObject);
 
-	}
+    }
 
-	private static class MyObjectManagerRegistry extends AbstractTaskObjectManagerRegistry {
+    private static class MyObjectManagerRegistry extends AbstractTaskObjectManagerRegistry {
 
-		private final Map<Class<? extends ITaskObject>, ITaskObjectManager<?,?>> taskObjectManagerMap;
+        private final Map<Class<? extends ITaskObject>, ITaskObjectManager<?, ?>> taskObjectManagerMap;
 
-		private IInstanceToClass instanceToClass;
+        private IInstanceToClass instanceToClass;
 
-		public MyObjectManagerRegistry() {
-			super();
+        public MyObjectManagerRegistry() {
+            super();
 
-			this.taskObjectManagerMap = new HashMap<>();
-		}
+            this.taskObjectManagerMap = new HashMap<>();
+        }
 
-		@SuppressWarnings("unchecked")
-		@Override
-		public <E,F extends ITaskObject> ITaskObjectManager<E,F> getTaskObjectManager(F taskObject) {
-			if (instanceToClass != null) {
-				return getTaskObjectManager(instanceToClass.instanceToClass(taskObject));
-			}
-			return getTaskObjectManager((Class<F>) taskObject.getClass());
-		}
+        @SuppressWarnings("unchecked")
+        @Override
+        public <E, F extends ITaskObject> ITaskObjectManager<E, F> getTaskObjectManager(F taskObject) {
+            if (instanceToClass != null) {
+                return getTaskObjectManager(instanceToClass.instanceToClass(taskObject));
+            }
+            return getTaskObjectManager((Class<F>) taskObject.getClass());
+        }
 
-		@SuppressWarnings("unchecked")
-		@Override
-		public <E,F extends ITaskObject> ITaskObjectManager<E,F> getTaskObjectManager(Class<F> taskObjectClass) {
-			return (ITaskObjectManager<E,F>) taskObjectManagerMap.get(taskObjectClass);
-		}
+        @SuppressWarnings("unchecked")
+        @Override
+        public <E, F extends ITaskObject> ITaskObjectManager<E, F> getTaskObjectManager(Class<F> taskObjectClass) {
+            return (ITaskObjectManager<E, F>) taskObjectManagerMap.get(taskObjectClass);
+        }
 
-		@Override
-		public String toString() {
-			return ToStringBuilder.reflectionToString(this);
-		}
-	}
+        @Override
+        public String toString() {
+            return ToStringBuilder.reflectionToString(this);
+        }
+    }
 }

@@ -5,12 +5,12 @@ import com.synaptix.taskmanager.engine.taskservice.AbstractTaskService;
 
 public class BugTaskService extends AbstractTaskService {
 
-	public BugTaskService() {
-		super();
-	}
+    public BugTaskService() {
+        super();
+    }
 
-	@Override
-	public IExecutionResult execute(IEngineContext context,ICommonTask task) {
-		throw new RuntimeException("BUG");
-	}
+    @Override
+    public IExecutionResult execute(IEngineContext context, ICommonTask task) {
+        throw new RuntimeException("BUG");
+    }
 }

@@ -1,6 +1,6 @@
 package com.synaptix.taskmanager.jpa;
 
-public interface ICurrentStatusTransform<E> {
+public interface ICurrentStatusTransform {
 
     /**
      * Convert status object to String
@@ -8,7 +8,7 @@ public interface ICurrentStatusTransform<E> {
      * @param currentStatus status
      * @return string
      */
-    String toString(E currentStatus);
+    String toString(Object currentStatus);
 
     /**
      * Convert status string to Object
@@ -16,5 +16,6 @@ public interface ICurrentStatusTransform<E> {
      * @param currentStatusString status
      * @return object
      */
-    E toObject(String currentStatusString);
+    Object toObject(String currentStatusString);
+
 }

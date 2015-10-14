@@ -1,16 +1,16 @@
 package com.synaptix.taskmanager.jpa;
 
-public class StringCurrentStatusTransform implements ICurrentStatusTransform<String> {
+public class StringCurrentStatusTransform implements ICurrentStatusTransform {
 
-    public static final ICurrentStatusTransform<String> INSTANCE = new StringCurrentStatusTransform();
+    public static final ICurrentStatusTransform INSTANCE = new StringCurrentStatusTransform();
 
     @Override
-    public String toString(String currentStatus) {
-        return currentStatus;
+    public String toString(Object currentStatus) {
+        return (String) currentStatus;
     }
 
     @Override
-    public String toObject(String currentStatusString) {
+    public Object toObject(String currentStatusString) {
         return currentStatusString;
     }
 }

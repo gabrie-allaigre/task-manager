@@ -1,17 +1,14 @@
 package com.synaptix.taskmanager.jpa.model;
 
-import com.synaptix.taskmanager.engine.task.IStatusTask;
-import com.synaptix.taskmanager.engine.task.ISubTask;
 import com.synaptix.taskmanager.jpa.converter.ClassConverter;
 import com.synaptix.taskmanager.model.ITaskObject;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.List;
 
 @Entity
-public class Task implements IStatusTask, ISubTask {
+public class Task {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -43,7 +40,7 @@ public class Task implements IStatusTask, ISubTask {
     private List<Task> previousTasks;
     //StatusTask
     @Column(name = "CURRENT_STATUS")
-    private Serializable currentStatus;
+    private String currentStatus;
     @ManyToMany
     @JoinTable(
             name = "TASK_OTHER_BRANCH_TASK",
@@ -73,7 +70,6 @@ public class Task implements IStatusTask, ISubTask {
         this.status = status;
     }
 
-    @Override
     public String getCodeTaskDefinition() {
         return codeTaskDefinition;
     }
@@ -114,7 +110,6 @@ public class Task implements IStatusTask, ISubTask {
         this.previousTasks = previousTasks;
     }
 
-    @Override
     public Class<? extends ITaskObject> getTaskObjectClass() {
         return businessTaskObjectClass;
     }
@@ -127,13 +122,12 @@ public class Task implements IStatusTask, ISubTask {
         this.businessTaskObjectClass = businessTaskObjectClass;
     }
 
-    @Override
-    public <E> E getCurrentStatus() {
-        return (E) currentStatus;
+    public String getCurrentStatus() {
+        return currentStatus;
     }
 
-    public void setCurrentStatus(Object currentStatus) {
-        this.currentStatus = (Serializable) currentStatus;
+    public void setCurrentStatus(String currentStatus) {
+        this.currentStatus = currentStatus;
     }
 
     // StatusTask
@@ -173,7 +167,7 @@ public class Task implements IStatusTask, ISubTask {
     }
 
     public enum Type {
-        statusTask, subTask
+        STATUS_TASK, SUB_TASK
     }
 
     public enum Status {

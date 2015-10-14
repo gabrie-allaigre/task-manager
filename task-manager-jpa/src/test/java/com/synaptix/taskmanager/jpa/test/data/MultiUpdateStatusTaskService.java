@@ -3,7 +3,7 @@ package com.synaptix.taskmanager.jpa.test.data;
 import com.synaptix.taskmanager.engine.task.ICommonTask;
 import com.synaptix.taskmanager.engine.taskservice.AbstractTaskService;
 import com.synaptix.taskmanager.engine.taskservice.ExecutionResultBuilder;
-import com.synaptix.taskmanager.jpa.model.Task;
+import com.synaptix.taskmanager.jpa.JPATask;
 
 public class MultiUpdateStatusTaskService extends AbstractTaskService {
 
@@ -17,9 +17,9 @@ public class MultiUpdateStatusTaskService extends AbstractTaskService {
 
     @Override
     public IExecutionResult execute(IEngineContext context, ICommonTask commonTask) {
-        Task task = (Task) commonTask;
+        JPATask task = (JPATask) commonTask;
 
-        BusinessObject businessObject = JPAHelper.getInstance().getJpaAccess().getEntityManager().find(BusinessObject.class, task.getBusinessTaskObjectId());
+        BusinessObject businessObject = JPAHelper.getInstance().getJpaAccess().getEntityManager().find(BusinessObject.class, task.getTask().getBusinessTaskObjectId());
 
         JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
 

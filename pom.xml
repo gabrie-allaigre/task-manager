@@ -29,7 +29,8 @@
         <try.version>1.0.0</try.version>
         <jkeylockmanager.version>1.0.1</jkeylockmanager.version>
         <eclipselink.version>2.6.0</eclipselink.version>
-        <org.eclipse.persistence.jpa.version>2.6.0</org.eclipse.persistence.jpa.version>
+        <hibernate-entitymanager.version>5.0.2.Final</hibernate-entitymanager.version>
+        <hibernate-jpa-2.1-api.version>1.0.0.Final</hibernate-jpa-2.1-api.version>
         <derby.version>10.11.1.1</derby.version>
 
         <jacoco-maven-plugin.version>0.7.5.201505241946</jacoco-maven-plugin.version>
@@ -306,10 +307,16 @@
                 <artifactId>eclipselink</artifactId>
                 <version>${eclipselink.version}</version>
             </dependency>
+
             <dependency>
-                <groupId>org.eclipse.persistence</groupId>
-                <artifactId>org.eclipse.persistence.jpa</artifactId>
-                <version>${org.eclipse.persistence.jpa.version}</version>
+                <groupId>org.hibernate.javax.persistence</groupId>
+                <artifactId>hibernate-jpa-2.1-api</artifactId>
+                <version>${hibernate-jpa-2.1-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-entitymanager</artifactId>
+                <version>${hibernate-entitymanager.version}</version>
             </dependency>
 
             <dependency>

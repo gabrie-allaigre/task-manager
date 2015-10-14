@@ -23,23 +23,31 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskManagerWriter {
 
     private static final Log LOG = LogFactory.getLog(JPATaskManagerReaderWriter.class);
+
+    private final ICurrentStatusTransform currentStatusTransform;
 
     private final IJPAAccess jpaAccess;
 
     private final RemoveMode removeMode;
 
     public JPATaskManagerReaderWriter(IJPAAccess jpaAccess) {
-        this(jpaAccess, RemoveMode.CANCEL);
+        this(jpaAccess, StringCurrentStatusTransform.INSTANCE, RemoveMode.CANCEL);
     }
 
     public JPATaskManagerReaderWriter(IJPAAccess jpaAccess, RemoveMode removeMode) {
+        this(jpaAccess, StringCurrentStatusTransform.INSTANCE, removeMode);
+    }
+
+    public JPATaskManagerReaderWriter(IJPAAccess jpaAccess, ICurrentStatusTransform currentStatusTransform, RemoveMode removeMode) {
         super();
 
         this.jpaAccess = jpaAccess;
+        this.currentStatusTransform = currentStatusTransform;
         this.removeMode = removeMode;
     }
 
@@ -82,7 +90,7 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
                 IBusinessTaskObject bto = (IBusinessTaskObject) taskObjectNode.getLeft();
                 bto.setClusterId(cluster.getId());
 
-                Task statusTask = (Task) taskObjectNode.getRight();
+                Task statusTask = ((JPATask) taskObjectNode.getRight()).getTask();
                 statusTask.setStatus(Task.Status.CURRENT);
                 statusTask.setCluster(cluster);
                 statusTask.setBusinessTaskObjectId(bto.getId());
@@ -255,13 +263,13 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 
         getJpaAccess().getEntityManager().getTransaction().begin();
 
-        Task tdt = (Task) toDoneTask;
+        Task tdt = ((JPATask) toDoneTask).getTask();
         tdt.setStatus(Task.Status.DONE);
         getJpaAccess().getEntityManager().persist(tdt);
 
         if (nextCurrentTasks != null && !nextCurrentTasks.isEmpty()) {
             for (ICommonTask nextCurrentTask : nextCurrentTasks) {
-                Task nct = (Task) nextCurrentTask;
+                Task nct = ((JPATask) nextCurrentTask).getTask();
                 nct.setStatus(Task.Status.CURRENT);
                 getJpaAccess().getEntityManager().persist(nct);
             }
@@ -283,13 +291,13 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
         getJpaAccess().getEntityManager().getTransaction().begin();
 
         Cluster cluster = (Cluster) taskCluster;
-        Task tdt = (Task) toDoneTask;
+        Task tdt = ((JPATask) toDoneTask).getTask();
         tdt.setStatus(Task.Status.DONE);
         getJpaAccess().getEntityManager().persist(tdt);
 
         if (newTasks != null && !newTasks.isEmpty()) {
             for (ICommonTask newTask : newTasks) {
-                Task nct = (Task) newTask;
+                Task nct = ((JPATask) newTask).getTask();
                 nct.setStatus(Task.Status.TODO);
                 nct.setCluster(cluster);
                 nct.setBusinessTaskObjectClass(tdt.getBusinessTaskObjectClass());
@@ -301,13 +309,13 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 
         if (linkNextTasksMap != null && !linkNextTasksMap.isEmpty()) {
             for (Map.Entry<ISubTask, List<ICommonTask>> entry : linkNextTasksMap.entrySet()) {
-                Task nct = (Task) entry.getKey();
+                Task nct = ((JPATask) entry.getKey()).getTask();
 
                 List<Task> nextTasks = new ArrayList<>();
                 List<ICommonTask> ts = entry.getValue();
                 if (ts != null && !ts.isEmpty()) {
                     for (ICommonTask t : ts) {
-                        Task nextTask = (Task) t;
+                        Task nextTask = ((JPATask) t).getTask();
                         nextTasks.add(nextTask);
 
                         List<Task> previousTasks = nextTask.getPreviousTasks();
@@ -328,13 +336,13 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 
         if (otherBranchFirstTasksMap != null && !otherBranchFirstTasksMap.isEmpty()) {
             for (Map.Entry<IStatusTask, List<ICommonTask>> entry : otherBranchFirstTasksMap.entrySet()) {
-                Task nct = (Task) entry.getKey();
+                Task nct = ((JPATask) entry.getKey()).getTask();
 
                 List<Task> childs = new ArrayList<>();
                 List<ICommonTask> ts = entry.getValue();
                 if (ts != null && !ts.isEmpty()) {
                     for (ICommonTask t : ts) {
-                        Task otherTask = (Task) t;
+                        Task otherTask = ((JPATask) t).getTask();
 
                         childs.add(otherTask);
 
@@ -357,7 +365,7 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
         if (nextCurrentTasks != null && !nextCurrentTasks.isEmpty()) {
             List<Task> childs = new ArrayList<>();
             for (ICommonTask nextCurrentTask : nextCurrentTasks) {
-                Task nct = (Task) nextCurrentTask;
+                Task nct = ((JPATask) nextCurrentTask).getTask();
                 nct.setStatus(Task.Status.CURRENT);
 
                 childs.add(nct);
@@ -378,7 +386,7 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 
         if (deleteTasks != null && !deleteTasks.isEmpty()) {
             for (ICommonTask deleteTask : deleteTasks) {
-                Task nct = (Task) deleteTask;
+                Task nct = ((JPATask) deleteTask).getTask();
 
                 switch (removeMode) {
                 case CANCEL:
@@ -433,31 +441,33 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
         Root<Task> root = cq.from(Task.class);
         cq.where(cb.and(cb.equal(root.get("status"), Task.Status.CURRENT), cb.equal(root.get("cluster").get("id"), cluster.getId())));
         TypedQuery<Task> q = getJpaAccess().getEntityManager().createQuery(cq);
-        return q.getResultList();
+        return q.getResultList().stream().map(task -> new JPATask(currentStatusTransform, task)).collect(Collectors.toList());
     }
 
     @Override
     public List<? extends ICommonTask> findNextTasksBySubTask(ISubTask subTask) {
         LOG.info("JPARW - findNextTasksBySubTask");
 
-        List<ICommonTask> res = new ArrayList<>();
+        JPATask jpaTask = (JPATask) subTask;
 
-        List<Task> nextTasks = ((Task) subTask).getNextTasks();
+        List<JPATask> res = new ArrayList<>();
+
+        List<Task> nextTasks = jpaTask.getTask().getNextTasks();
         if (nextTasks != null && !nextTasks.isEmpty()) {
-            for (ICommonTask nextTask : nextTasks) {
-                List<Task> previousTasks = ((Task) nextTask).getPreviousTasks();
+            for (Task nextTask : nextTasks) {
+                List<Task> previousTasks = nextTask.getPreviousTasks();
                 boolean allFinish = true;
                 if (previousTasks != null && !previousTasks.isEmpty()) {
                     Iterator<Task> previousTaskIt = previousTasks.iterator();
                     while (previousTaskIt.hasNext() && allFinish) {
                         Task previousTask = previousTaskIt.next();
-                        if (!previousTask.equals(subTask) && (Task.Status.TODO.equals(previousTask.getStatus()) || Task.Status.CURRENT.equals(previousTask.getStatus()))) {
+                        if (!previousTask.equals(jpaTask.getTask()) && (Task.Status.TODO.equals(previousTask.getStatus()) || Task.Status.CURRENT.equals(previousTask.getStatus()))) {
                             allFinish = false;
                         }
                     }
                 }
                 if (allFinish) {
-                    res.add(nextTask);
+                    res.add(new JPATask(currentStatusTransform, nextTask));
                 }
             }
         }
@@ -467,7 +477,11 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 
     @Override
     public List<? extends ICommonTask> findOtherBranchFirstTasksByStatusTask(IStatusTask statusTask) {
-        return ((Task) statusTask).getOtherBranchFirstTasks();
+        LOG.info("JPARW - findOtherBranchFirstTasksByStatusTask");
+
+        JPATask jpaTask = (JPATask) statusTask;
+        List<Task> others = jpaTask.getTask().getOtherBranchFirstTasks();
+        return others != null ? others.stream().map(task -> new JPATask(currentStatusTransform, task)).collect(Collectors.toList()) : null;
     }
 
     public enum RemoveMode {

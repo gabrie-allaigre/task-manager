@@ -12,6 +12,18 @@ import com.synaptix.taskmanager.model.ITaskObject;
 
 public class JPATaskFactory extends AbstractTaskFactory {
 
+    private final ICurrentStatusTransform currentStatusTransform;
+
+    public JPATaskFactory() {
+        this(StringCurrentStatusTransform.INSTANCE);
+    }
+
+    public JPATaskFactory(ICurrentStatusTransform currentStatusTransform) {
+        super();
+
+        this.currentStatusTransform = currentStatusTransform;
+    }
+
     @Override
     public ITaskCluster newTaskCluster() {
         return new Cluster();
@@ -20,28 +32,28 @@ public class JPATaskFactory extends AbstractTaskFactory {
     @Override
     public ISubTask newSubTask(String codeSubTaskDefinition) {
         Task task = new Task();
-        task.setType(Task.Type.subTask);
+        task.setType(Task.Type.SUB_TASK);
         task.setCodeTaskDefinition(codeSubTaskDefinition);
-        return task;
+        return new JPATask(currentStatusTransform, task);
     }
 
     @Override
     public boolean isSubTask(ICommonTask task) {
-        return Task.Type.subTask.equals(((Task) task).getType());
+        return Task.Type.SUB_TASK.equals(((JPATask) task).getTask().getType());
     }
 
     @Override
     public IStatusTask newStatusTask(String codeStatusTaskDefinition, Class<? extends ITaskObject> taskObjectClass, Object currentStatus) {
         Task task = new Task();
-        task.setType(Task.Type.statusTask);
+        task.setType(Task.Type.STATUS_TASK);
         task.setCodeTaskDefinition(codeStatusTaskDefinition);
         task.setBusinessTaskObjectClass((Class<? extends IBusinessTaskObject>) taskObjectClass);
-        task.setCurrentStatus(currentStatus);
-        return task;
+        task.setCurrentStatus(currentStatusTransform.toString(currentStatus));
+        return new JPATask(currentStatusTransform, task);
     }
 
     @Override
     public boolean isStatusTask(ICommonTask task) {
-        return Task.Type.statusTask.equals(((Task) task).getType());
+        return Task.Type.STATUS_TASK.equals(((JPATask) task).getTask().getType());
     }
 }

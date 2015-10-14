@@ -29,7 +29,6 @@
         <class>com.synaptix.taskmanager.jpa.model.Task</class>
         <class>com.synaptix.taskmanager.example.tap.model.FicheContact</class>
         <class>com.synaptix.taskmanager.example.tap.model.Operation</class>
-        <class>com.synaptix.taskmanager.example.tap.model.Item</class>
         <properties>
             <property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.EmbeddedDriver"/>
             <property name="javax.persistence.jdbc.url"

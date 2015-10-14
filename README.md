@@ -9,9 +9,8 @@
 - Executer automatiquement les traitements ainsi définis
 - Pour l’utilisateur :
  - Visualiser les tâches effectuées pour un objet
- - Visualiser ses actions manuelles (todo)
 
-## Usage
+## Dépendance Maven
 
 ```xml
 <dependency>
@@ -19,6 +18,52 @@
     <artifactId>task-manager-engine</artifactId>
     <version>1.2.0</version>
 </dependency>
+```
+
+## Fonctionnement
+
+### Vocabulaire
+
+**ITaskObject** : Objet métier manipuler par le moteur, c'est le point d'entré du moteur.
+
+**ITaskCluster** : Créer une liaison entre plusieurs objets métiers (ITaskObject), un cluster sera archivé quand il aura plus aucune tâche des objets métier à éxécuter.
+
+**IStatusTask** : Tâche de monté de statut.
+
+**ISubTask** : Sous tâche, elle est entre 2 tâches de monté de statut.
+
+**IStatusGraph** : Graphe des tâches de monté de statut, à partir d'un statut courant, donne les statuts suivant.
+
+## Exemple simple
+
+```java
+TaskManagerEngine engine = new TaskManagerEngine(
+    // Configuration
+    TaskManagerConfigurationBuilder.newBuilder()
+        // Répertoire des "object manager", référence la manipulation des ITaskObject
+        .taskObjectManagerRegistry(
+            TaskObjectManagerRegistryBuilder.newBuilder()
+                // Ajout d'un "object manager" pour l'objet "BusinessObject", le statut sera de type "String"
+                .addTaskObjectManager(
+                    TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class).statusGraphs(
+                        // Ajout d'un status graph, de null -> A
+                        StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask").build()
+                    ).build()
+                ).build())
+        // Répertoire des services de tâches
+        .taskDefinitionRegistry(
+            TaskDefinitionRegistryBuilder.newBuilder()
+                // Ajout d'un service de tâche de code "ATask"
+                .addTaskDefinition(
+                    TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build()
+                ).build())
+    .build()
+);
+
+// Objet métier
+BusinessObject businessObject = new BusinessObject();
+// Execution du moteur
+engine.startEngine(businessObject);
 ```
 
 ## Faire une release

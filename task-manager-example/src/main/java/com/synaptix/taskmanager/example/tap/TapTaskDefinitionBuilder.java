@@ -1,9 +1,9 @@
 package com.synaptix.taskmanager.example.tap;
 
+import com.synaptix.taskmanager.engine.taskdefinition.DefaultTaskDefinition;
 import com.synaptix.taskmanager.engine.taskdefinition.ITaskDefinition;
 import com.synaptix.taskmanager.engine.taskservice.ITaskService;
 import com.synaptix.taskmanager.example.tap.model.FicheContactStatus;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class TapTaskDefinitionBuilder {
 
@@ -33,36 +33,14 @@ public class TapTaskDefinitionBuilder {
         return taskDefinition;
     }
 
-    private static class MyTapTaskDefinition implements ITapTaskDefinition {
-
-        private final String code;
-
-        private final ITaskService taskService;
+    private static class MyTapTaskDefinition extends DefaultTaskDefinition implements ITapTaskDefinition {
 
         private String type;
 
         private FicheContactStatus endFicheContactStatus;
 
         public MyTapTaskDefinition(String code, ITaskService taskService) {
-            super();
-
-            this.code = code;
-            this.taskService = taskService;
-        }
-
-        @Override
-        public String getCode() {
-            return this.code;
-        }
-
-        @Override
-        public ITaskService getTaskService() {
-            return this.taskService;
-        }
-
-        @Override
-        public String toString() {
-            return ToStringBuilder.reflectionToString(this);
+            super(code,taskService);
         }
 
         @Override

@@ -24,9 +24,13 @@ public class WaitItemTaskService extends AbstractItemTaskService {
         try {
             String value = BeanUtils.getProperty(operation.getFicheContact(), operation.getType());
             if (StringUtils.isNotBlank(value)) {
-                return ExecutionResultBuilder.newBuilder().noChanges().finished();
+                em.getTransaction().begin();
+                operation.setDoneFicheContactStatus(operation.getFicheContact().getFicheContactStatus());
+                em.persist(operation);
+                em.getTransaction().commit();
+                return ExecutionResultBuilder.newBuilder().finished();
             }
-        } catch (IllegalAccessException |InvocationTargetException | NoSuchMethodException e) {
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             e.printStackTrace();
         }
         return ExecutionResultBuilder.newBuilder().notFinished();

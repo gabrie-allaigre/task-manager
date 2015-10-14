@@ -24,6 +24,9 @@ public class Operation implements IBusinessTaskObject {
     @Column(name = "END_FICHE_CONTACT_STATUS")
     @Enumerated(EnumType.STRING)
     private FicheContactStatus endFicheContactStatus;
+    @Column(name = "DONE_FICHE_CONTACT_STATUS")
+    @Enumerated(EnumType.STRING)
+    private FicheContactStatus doneFicheContactStatus;
 
     @Override
     public final Long getId() {
@@ -72,6 +75,14 @@ public class Operation implements IBusinessTaskObject {
         this.endFicheContactStatus = endFicheContactStatus;
     }
 
+    public FicheContactStatus getDoneFicheContactStatus() {
+        return doneFicheContactStatus;
+    }
+
+    public void setDoneFicheContactStatus(FicheContactStatus doneFicheContactStatus) {
+        this.doneFicheContactStatus = doneFicheContactStatus;
+    }
+
     @Override
     public int hashCode() {
         return id != null ? id.hashCode() : super.hashCode();
@@ -85,6 +96,7 @@ public class Operation implements IBusinessTaskObject {
     @Override
     public String toString() {
         return new ToStringBuilder(this).append("id", id).append("version", version).append("clusterId", clusterId).append("operationStatus", operationStatus).append("type", type)
-                .append("ficheContact", ficheContact != null ? ficheContact.getId() : null).append("endFicheContactStatus", endFicheContactStatus).build();
+                .append("ficheContact", ficheContact != null ? ficheContact.getId() : null).append("endFicheContactStatus", endFicheContactStatus)
+                .append("doneFicheContactStatus", doneFicheContactStatus).build();
     }
 }

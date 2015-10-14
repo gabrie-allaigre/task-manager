@@ -82,7 +82,7 @@ public class MainTap {
 
         System.out.println("Fiche contact " + ficheContact);
 
-        showItems();
+        showOperations();
 
         Scanner scanner = new Scanner(System.in);
 
@@ -110,17 +110,17 @@ public class MainTap {
 
             System.out.println("Fiche contact " + ficheContact);
 
-            showItems();
+            showOperations();
         }
 
         TapHelper.getInstance().getJpaAccess().stop();
     }
 
-    private static void showItems() {
-        System.out.println("------ Items ------");
-        Query q = TapHelper.getInstance().getJpaAccess().getEntityManager().createQuery("select t from Item t");
-        List<Item> items = q.getResultList();
-        items.forEach(System.out::println);
-        System.out.println("Size: " + items.size());
+    private static void showOperations() {
+        System.out.println("------ Operations ------");
+        Query q = TapHelper.getInstance().getJpaAccess().getEntityManager().createQuery("select t from Operation t");
+        List<Operation> operations = q.getResultList();
+        operations.forEach(System.out::println);
+        System.out.println("Size: " + operations.size());
     }
 }

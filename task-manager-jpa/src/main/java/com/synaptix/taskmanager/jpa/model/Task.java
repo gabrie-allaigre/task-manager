@@ -161,10 +161,7 @@ public class Task implements IStatusTask, ISubTask {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || this.getClass() != obj.getClass()) {
-            return false;
-        }
-        return id != null && ((Task) obj).id != null ? id.equals(((Task) obj).id) : super.equals(obj);
+        return !(obj == null || this.getClass() != obj.getClass()) && (id != null && ((Task) obj).id != null ? id.equals(((Task) obj).id) : super.equals(obj));
     }
 
     @Override

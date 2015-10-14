@@ -1,6 +1,7 @@
 package com.synaptix.taskmanager.example.tap.task.operation;
 
 import com.synaptix.taskmanager.engine.task.ICommonTask;
+import com.synaptix.taskmanager.engine.taskservice.AbstractTaskService;
 import com.synaptix.taskmanager.engine.taskservice.ExecutionResultBuilder;
 import com.synaptix.taskmanager.example.tap.TapHelper;
 import com.synaptix.taskmanager.example.tap.model.Operation;
@@ -11,7 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import javax.persistence.EntityManager;
 import java.lang.reflect.InvocationTargetException;
 
-public class WaitItemTaskService extends AbstractItemTaskService {
+public class WaitItemTaskService extends AbstractTaskService {
 
     @Override
     public IExecutionResult execute(IEngineContext context, ICommonTask commonTask) {

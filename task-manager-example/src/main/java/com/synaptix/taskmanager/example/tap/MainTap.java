@@ -96,9 +96,7 @@ public class MainTap {
 
             try {
                 BeanUtils.setProperty(ficheContact, field, value);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
+            } catch (IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }
 

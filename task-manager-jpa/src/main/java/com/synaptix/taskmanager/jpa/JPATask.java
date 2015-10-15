@@ -29,7 +29,7 @@ public class JPATask implements IStatusTask, ISubTask {
 
     @Override
     public <E> E getCurrentStatus() {
-        return (E)currentStatusTransform.toObject(task.getCurrentStatus());
+        return (E)currentStatusTransform.toObject(task.getTaskObjectClass(),task.getCurrentStatus());
     }
 
     @Override

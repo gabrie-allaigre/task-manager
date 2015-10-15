@@ -48,7 +48,7 @@ public class JPATaskFactory extends AbstractTaskFactory {
         task.setType(Task.Type.STATUS_TASK);
         task.setCodeTaskDefinition(codeStatusTaskDefinition);
         task.setBusinessTaskObjectClass((Class<? extends IBusinessTaskObject>) taskObjectClass);
-        task.setCurrentStatus(currentStatusTransform.toString(currentStatus));
+        task.setCurrentStatus(currentStatusTransform.toString(taskObjectClass,currentStatus));
         return new JPATask(currentStatusTransform, task);
     }
 

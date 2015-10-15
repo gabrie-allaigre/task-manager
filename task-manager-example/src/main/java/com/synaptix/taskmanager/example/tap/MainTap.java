@@ -21,9 +21,15 @@ import com.synaptix.taskmanager.example.tap.task.fiche.*;
 import com.synaptix.taskmanager.example.tap.task.operation.CurrentStatusTaskService;
 import com.synaptix.taskmanager.example.tap.task.operation.DoneStatusTaskService;
 import com.synaptix.taskmanager.example.tap.task.operation.WaitItemTaskService;
+import com.synaptix.taskmanager.jpa.ICurrentStatusTransform;
+import com.synaptix.taskmanager.jpa.JPATaskFactory;
+import com.synaptix.taskmanager.jpa.JPATaskManagerReaderWriter;
 import com.synaptix.taskmanager.model.ITaskCluster;
+import com.synaptix.taskmanager.model.ITaskObject;
 import org.apache.commons.beanutils.BeanUtils;
 
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Scanner;
@@ -31,6 +37,8 @@ import java.util.Scanner;
 public class MainTap {
 
     public static void main(String[] args) {
+        TapHelper.getInstance().getJpaAccess().start();
+
         List<IStatusGraph<FicheContactStatus>> ficheContactStatusGraphs = StatusGraphsBuilder.<FicheContactStatus>newBuilder().addNextStatusGraph(FicheContactStatus.ETUDE, "ETUDE_TASK",
                 StatusGraphsBuilder.<FicheContactStatus>newBuilder().addNextStatusGraph(FicheContactStatus.VALIDE, "VALIDE_TASK", StatusGraphsBuilder.<FicheContactStatus>newBuilder()
                         .addNextStatusGraph(FicheContactStatus.COMMANDE, "COMMANDE_TASK",
@@ -60,17 +68,56 @@ public class MainTap {
                 .addTaskDefinition(TapTaskDefinitionBuilder.newBuilder("CREATE_OP3_TASK", createOperationTaskService).type("rus").endFicheContactStatus(FicheContactStatus.VALIDE).build())
                 .addTaskDefinition(TaskDefinitionBuilder.newBuilder("WAIT_ITEM_TASK", new WaitItemTaskService()).build()).build();
 
+        ICurrentStatusTransform currentStatusTransform = new ICurrentStatusTransform() {
+            @Override
+            public String toString(Class<? extends ITaskObject> taskObjectClass, Object currentStatus) {
+                if (currentStatus == null) {
+                    return null;
+                }
+                if (FicheContact.class.equals(taskObjectClass)) {
+                    return ((FicheContactStatus) currentStatus).name();
+                } else if (Operation.class.equals(taskObjectClass)) {
+                    return ((OperationStatus) currentStatus).name();
+                }
+                throw new RuntimeException();
+            }
+
+            @Override
+            public Object toObject(Class<? extends ITaskObject> taskObjectClass, String currentStatusString) {
+                if (currentStatusString == null) {
+                    return null;
+                }
+                if (FicheContact.class.equals(taskObjectClass)) {
+                    return FicheContactStatus.valueOf(currentStatusString);
+                } else if (Operation.class.equals(taskObjectClass)) {
+                    return OperationStatus.valueOf(currentStatusString);
+                }
+                throw new RuntimeException();
+            }
+        };
+
+        JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(TapHelper.getInstance().getJpaAccess(), currentStatusTransform,
+                JPATaskManagerReaderWriter.RemoveMode.DELETE);
+
         ITaskManagerConfiguration taskManagerConfiguration = TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(taskObjectManagerRegistry)
-                .taskDefinitionRegistry(taskDefinitionRegistry).build();
+                .taskDefinitionRegistry(taskDefinitionRegistry).taskFactory(new JPATaskFactory(currentStatusTransform)).taskManagerReader(jpaTaskManagerReaderWriter)
+                .taskManagerWriter(jpaTaskManagerReaderWriter).build();
         TaskManagerEngine engine = new TaskManagerEngine(taskManagerConfiguration);
 
+        EntityManager em = TapHelper.getInstance().getJpaAccess().getEntityManager();
+
+        em.getTransaction().begin();
+
         FicheContact ficheContact = new FicheContact();
+        em.persist(ficheContact);
+
+        em.getTransaction().commit();
 
         ITaskCluster cluster = engine.startEngine(ficheContact);
 
         System.out.println("Fiche contact " + ficheContact);
 
-        showOperations(ficheContact);
+        showOperations();
 
         Scanner scanner = new Scanner(System.in);
 
@@ -80,28 +127,33 @@ public class MainTap {
             System.out.println("Valeur");
             String value = scanner.nextLine();
 
+            em.getTransaction().begin();
+
             try {
                 BeanUtils.setProperty(ficheContact, field, value);
             } catch (IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }
 
+            em.persist(ficheContact);
+
+            em.getTransaction().commit();
+
             engine.startEngine(ficheContact);
 
             System.out.println("Fiche contact " + ficheContact);
 
-            showOperations(ficheContact);
+            showOperations();
         }
+
+        TapHelper.getInstance().getJpaAccess().stop();
     }
 
-    private static void showOperations(FicheContact ficheContact) {
+    private static void showOperations() {
         System.out.println("------ Operations ------");
-        List<Operation> operations = ficheContact.getOperations();
-        if (operations != null) {
-            operations.forEach(System.out::println);
-            System.out.println("Size: " + operations.size());
-        } else {
-            System.out.println("Size: 0");
-        }
+        Query q = TapHelper.getInstance().getJpaAccess().getEntityManager().createQuery("select t from Operation t");
+        List<Operation> operations = q.getResultList();
+        operations.forEach(System.out::println);
+        System.out.println("Size: " + operations.size());
     }
 }

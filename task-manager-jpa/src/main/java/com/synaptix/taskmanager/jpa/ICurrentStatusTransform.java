@@ -1,21 +1,25 @@
 package com.synaptix.taskmanager.jpa;
 
+import com.synaptix.taskmanager.model.ITaskObject;
+
 public interface ICurrentStatusTransform {
 
     /**
      * Convert status object to String
      *
-     * @param currentStatus status
+     * @param taskObjectClass task object
+     * @param currentStatus   status
      * @return string
      */
-    String toString(Object currentStatus);
+    String toString(Class<? extends ITaskObject> taskObjectClass, Object currentStatus);
 
     /**
      * Convert status string to Object
      *
+     * @param taskObjectClass     task object
      * @param currentStatusString status
      * @return object
      */
-    Object toObject(String currentStatusString);
+    Object toObject(Class<? extends ITaskObject> taskObjectClass, String currentStatusString);
 
 }

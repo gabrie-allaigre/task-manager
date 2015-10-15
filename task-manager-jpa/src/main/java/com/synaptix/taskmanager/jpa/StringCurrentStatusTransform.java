@@ -1,16 +1,18 @@
 package com.synaptix.taskmanager.jpa;
 
+import com.synaptix.taskmanager.model.ITaskObject;
+
 public class StringCurrentStatusTransform implements ICurrentStatusTransform {
 
     public static final ICurrentStatusTransform INSTANCE = new StringCurrentStatusTransform();
 
     @Override
-    public String toString(Object currentStatus) {
+    public String toString(Class<? extends ITaskObject> taskObjectClass, Object currentStatus) {
         return (String) currentStatus;
     }
 
     @Override
-    public Object toObject(String currentStatusString) {
+    public Object toObject(Class<? extends ITaskObject> taskObjectClass, String currentStatusString) {
         return currentStatusString;
     }
 }

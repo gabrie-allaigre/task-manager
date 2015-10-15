@@ -17,16 +17,9 @@
             <property name="javax.persistence.jdbc.user" value="test"/>
             <property name="javax.persistence.jdbc.password" value="test"/>
 
-            <!-- if this is true, hibernate will print (to stdout) the SQL it executes,
-					so you can check it to ensure it's not doing anything crazy -->
             <property name="hibernate.show_sql" value="false"/>
             <property name="hibernate.format_sql" value="false"/>
-            <!-- since most database servers have slightly different versions of the
-                SQL, Hibernate needs you to choose a dialect so it knows the subtleties of
-                talking to that server -->
             <property name="hibernate.dialect" value="org.hibernate.dialect.DerbyTenSevenDialect"/>
-            <!-- this tell Hibernate to update the DDL when it starts, very useful
-                for development, dangerous in production -->
             <property name="hibernate.hbm2ddl.auto" value="create"/>
         </properties>
 

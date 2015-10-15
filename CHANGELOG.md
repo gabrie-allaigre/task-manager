@@ -1,4 +1,6 @@
-Version 1.3.0-SNAPSHOT
+Version 1.3.0
+- Correction JPA
+- Passage à Hibernate
 
 Version 1.2.0
 - Contexte

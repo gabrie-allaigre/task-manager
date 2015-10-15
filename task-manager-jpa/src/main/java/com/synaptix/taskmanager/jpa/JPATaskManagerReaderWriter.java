@@ -268,11 +268,10 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
         getJpaAccess().getEntityManager().persist(tdt);
 
         if (nextCurrentTasks != null && !nextCurrentTasks.isEmpty()) {
-            for (ICommonTask nextCurrentTask : nextCurrentTasks) {
-                Task nct = ((JPATask) nextCurrentTask).getTask();
+            nextCurrentTasks.stream().map(nextCurrentTask -> ((JPATask) nextCurrentTask).getTask()).forEach(nct -> {
                 nct.setStatus(Task.Status.CURRENT);
                 getJpaAccess().getEntityManager().persist(nct);
-            }
+            });
         }
 
         getJpaAccess().getEntityManager().getTransaction().commit();
@@ -296,15 +295,14 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
         getJpaAccess().getEntityManager().persist(tdt);
 
         if (newTasks != null && !newTasks.isEmpty()) {
-            for (ICommonTask newTask : newTasks) {
-                Task nct = ((JPATask) newTask).getTask();
+            newTasks.stream().map(newTask -> ((JPATask) newTask).getTask()).forEach(nct -> {
                 nct.setStatus(Task.Status.TODO);
                 nct.setCluster(cluster);
                 nct.setBusinessTaskObjectClass(tdt.getBusinessTaskObjectClass());
                 nct.setBusinessTaskObjectId(tdt.getBusinessTaskObjectId());
 
                 getJpaAccess().getEntityManager().persist(nct);
-            }
+            });
         }
 
         if (linkNextTasksMap != null && !linkNextTasksMap.isEmpty()) {
@@ -314,8 +312,7 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
                 List<Task> nextTasks = new ArrayList<>();
                 List<ICommonTask> ts = entry.getValue();
                 if (ts != null && !ts.isEmpty()) {
-                    for (ICommonTask t : ts) {
-                        Task nextTask = ((JPATask) t).getTask();
+                    ts.stream().map(t -> ((JPATask) t).getTask()).forEach(nextTask -> {
                         nextTasks.add(nextTask);
 
                         List<Task> previousTasks = nextTask.getPreviousTasks();
@@ -326,7 +323,7 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
                         previousTasks.add(nct);
 
                         getJpaAccess().getEntityManager().persist(nextTask);
-                    }
+                    });
                 }
                 nct.setNextTasks(nextTasks);
 
@@ -341,9 +338,7 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
                 List<Task> childs = new ArrayList<>();
                 List<ICommonTask> ts = entry.getValue();
                 if (ts != null && !ts.isEmpty()) {
-                    for (ICommonTask t : ts) {
-                        Task otherTask = ((JPATask) t).getTask();
-
+                    ts.stream().map(t -> ((JPATask) t).getTask()).forEach(otherTask -> {
                         childs.add(otherTask);
 
                         List<Task> parentTasks = otherTask.getParentOtherBranchFirstTasks();
@@ -351,10 +346,10 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
                             parentTasks = new ArrayList<>();
                             otherTask.setParentOtherBranchFirstTasks(parentTasks);
                         }
-                        parentTasks.add(tdt);
+                        parentTasks.add(nct);
 
                         getJpaAccess().getEntityManager().persist(otherTask);
-                    }
+                    });
                 }
                 nct.setOtherBranchFirstTasks(childs);
 
@@ -364,8 +359,7 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 
         if (nextCurrentTasks != null && !nextCurrentTasks.isEmpty()) {
             List<Task> childs = new ArrayList<>();
-            for (ICommonTask nextCurrentTask : nextCurrentTasks) {
-                Task nct = ((JPATask) nextCurrentTask).getTask();
+            nextCurrentTasks.stream().map(nextCurrentTask -> ((JPATask) nextCurrentTask).getTask()).forEach(nct -> {
                 nct.setStatus(Task.Status.CURRENT);
 
                 childs.add(nct);
@@ -378,25 +372,50 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
                 previousTasks.add(tdt);
 
                 getJpaAccess().getEntityManager().persist(nct);
-            }
+            });
 
             tdt.setNextTasks(childs);
             getJpaAccess().getEntityManager().persist(tdt);
         }
 
         if (deleteTasks != null && !deleteTasks.isEmpty()) {
-            for (ICommonTask deleteTask : deleteTasks) {
-                Task nct = ((JPATask) deleteTask).getTask();
-
-                switch (removeMode) {
-                case CANCEL:
+            switch (removeMode) {
+            case CANCEL:
+                deleteTasks.stream().map(deleteTask -> ((JPATask) deleteTask).getTask()).forEach(nct -> {
                     nct.setStatus(Task.Status.CANCEL);
                     getJpaAccess().getEntityManager().persist(nct);
-                    break;
-                case DELETE:
+                });
+                break;
+            case DELETE:
+                deleteTasks.stream().map(deleteTask -> ((JPATask) deleteTask).getTask()).forEach(nct -> {
+                    if (nct.getPreviousTasks() != null && !nct.getPreviousTasks().isEmpty()) {
+                        nct.getPreviousTasks().stream().forEach(previousTask -> {
+                            previousTask.getNextTasks().remove(nct);
+                            getJpaAccess().getEntityManager().persist(previousTask);
+                        });
+                    }
+                    if (nct.getNextTasks() != null && !nct.getNextTasks().isEmpty()) {
+                        nct.getNextTasks().stream().forEach(nextTask -> {
+                            nextTask.getPreviousTasks().remove(nct);
+                            getJpaAccess().getEntityManager().persist(nextTask);
+                        });
+                    }
+                    if (nct.getOtherBranchFirstTasks() != null && !nct.getOtherBranchFirstTasks().isEmpty()) {
+                        nct.getOtherBranchFirstTasks().stream().forEach(otherTask -> {
+                            otherTask.getParentOtherBranchFirstTasks().remove(nct);
+                            getJpaAccess().getEntityManager().persist(otherTask);
+                        });
+                    }
+                    if (nct.getParentOtherBranchFirstTasks() != null && !nct.getParentOtherBranchFirstTasks().isEmpty()) {
+                        nct.getParentOtherBranchFirstTasks().stream().forEach(parentOtherTask -> {
+                            parentOtherTask.getOtherBranchFirstTasks().remove(nct);
+                            getJpaAccess().getEntityManager().persist(parentOtherTask);
+                        });
+                    }
+
                     getJpaAccess().getEntityManager().remove(nct);
-                    break;
-                }
+                });
+                break;
             }
         }
 
@@ -421,9 +440,7 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
         Cluster cluster = (Cluster) taskCluster;
         List<ClusterDependency> cds = cluster.getClusterDependencies();
         if (cds != null && !cds.isEmpty()) {
-            for (ClusterDependency cd : cds) {
-                res.add(getJpaAccess().find(cd.getBusinessTaskObjectClass(), cd.getBusinessTaskObjectId()));
-            }
+            cds.stream().forEach(cd -> res.add(getJpaAccess().find(cd.getBusinessTaskObjectClass(), cd.getBusinessTaskObjectId())));
         }
 
         return res;
@@ -454,7 +471,7 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 
         List<Task> nextTasks = jpaTask.getTask().getNextTasks();
         if (nextTasks != null && !nextTasks.isEmpty()) {
-            for (Task nextTask : nextTasks) {
+            nextTasks.stream().forEach(nextTask -> {
                 List<Task> previousTasks = nextTask.getPreviousTasks();
                 boolean allFinish = true;
                 if (previousTasks != null && !previousTasks.isEmpty()) {
@@ -469,7 +486,7 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
                 if (allFinish) {
                     res.add(new JPATask(currentStatusTransform, nextTask));
                 }
-            }
+            });
         }
 
         return res;

@@ -5,6 +5,7 @@ import com.synaptix.taskmanager.engine.taskservice.AbstractTaskService;
 import com.synaptix.taskmanager.engine.taskservice.ExecutionResultBuilder;
 import com.synaptix.taskmanager.example.jpa.JPAHelper;
 import com.synaptix.taskmanager.example.jpa.model.Todo;
+import com.synaptix.taskmanager.jpa.JPATask;
 import com.synaptix.taskmanager.jpa.model.Task;
 
 public class MultiUpdateStatusTaskService extends AbstractTaskService {
@@ -19,7 +20,7 @@ public class MultiUpdateStatusTaskService extends AbstractTaskService {
 
     @Override
     public IExecutionResult execute(IEngineContext context, ICommonTask commonTask) {
-        Task task = (Task) commonTask;
+        Task task = ((JPATask) commonTask).getTask();
 
         Todo todo = JPAHelper.getInstance().getJpaAccess().getEntityManager().find(Todo.class, task.getBusinessTaskObjectId());
 

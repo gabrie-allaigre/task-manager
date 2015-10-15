@@ -1,14 +1,17 @@
 package com.synaptix.taskmanager.example.tap.task.fiche;
 
-import com.synaptix.taskmanager.engine.memory.SimpleStatusTask;
 import com.synaptix.taskmanager.engine.task.ICommonTask;
 import com.synaptix.taskmanager.engine.taskservice.AbstractTaskService;
 import com.synaptix.taskmanager.engine.taskservice.ExecutionResultBuilder;
+import com.synaptix.taskmanager.example.tap.TapHelper;
 import com.synaptix.taskmanager.example.tap.model.FicheContact;
 import com.synaptix.taskmanager.example.tap.model.FicheContactStatus;
 import com.synaptix.taskmanager.example.tap.model.Operation;
 import com.synaptix.taskmanager.example.tap.model.OperationStatus;
+import com.synaptix.taskmanager.jpa.JPATask;
+import com.synaptix.taskmanager.jpa.model.Task;
 
+import javax.persistence.EntityManager;
 import java.util.List;
 
 public class AbstractFicheStatusTaskService extends AbstractTaskService {
@@ -23,10 +26,11 @@ public class AbstractFicheStatusTaskService extends AbstractTaskService {
 
     @Override
     public IExecutionResult execute(IEngineContext context, ICommonTask commonTask) {
-        SimpleStatusTask task = (SimpleStatusTask) commonTask;
+        Task task = ((JPATask) commonTask).getTask();
 
+        EntityManager em = TapHelper.getInstance().getJpaAccess().getEntityManager();
 
-        FicheContact ficheContact = task.<FicheContact>getTaskObject();
+        FicheContact ficheContact = em.find(FicheContact.class, task.getBusinessTaskObjectId());
 
         List<Operation> operations = ficheContact.getOperations();
         if (operations != null && !operations.isEmpty()) {
@@ -37,7 +41,12 @@ public class AbstractFicheStatusTaskService extends AbstractTaskService {
             }
         }
 
+        em.getTransaction().begin();
+
         ficheContact.setFicheContactStatus(ficheContactStatus);
+        em.persist(ficheContact);
+
+        em.getTransaction().commit();
 
         return ExecutionResultBuilder.newBuilder().finished();
     }

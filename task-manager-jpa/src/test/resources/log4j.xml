@@ -9,6 +9,10 @@
         </layout>
     </appender>
 
+    <category name="org.hibernate">
+        <priority value="error"/>
+    </category>
+
     <root>
         <priority value="debug"/>
         <appender-ref ref="STDOUT"/>

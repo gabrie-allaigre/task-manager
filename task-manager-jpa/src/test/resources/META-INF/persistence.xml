@@ -13,14 +13,9 @@
         <properties>
             <property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.EmbeddedDriver"/>
             <property name="javax.persistence.jdbc.url"
-                      value="jdbc:derby:memory:./target/test/db;create=true"/>
+                      value="jdbc:derby:memory:;create=true"/>
             <property name="javax.persistence.jdbc.user" value="test"/>
             <property name="javax.persistence.jdbc.password" value="test"/>
-
-            <!-- EclipseLink should create the database schema automatically -->
-            <property name="eclipselink.ddl-generation" value="drop-and-create-tables"/>
-            <property name="eclipselink.ddl-generation.output-mode"
-                      value="database"/>
 
             <!-- if this is true, hibernate will print (to stdout) the SQL it executes,
 					so you can check it to ensure it's not doing anything crazy -->
@@ -32,7 +27,7 @@
             <property name="hibernate.dialect" value="org.hibernate.dialect.DerbyTenSevenDialect"/>
             <!-- this tell Hibernate to update the DDL when it starts, very useful
                 for development, dangerous in production -->
-            <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+            <property name="hibernate.hbm2ddl.auto" value="create"/>
         </properties>
 
     </persistence-unit>

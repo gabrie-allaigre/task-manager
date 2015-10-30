@@ -34,6 +34,22 @@
 
 **IStatusGraph** : Graphe des tâches de monté de statut, à partir d'un statut courant, donne les statuts suivant.
 
+**ITaskObjectManager** : Gestion du TaskObject, création du graphe des status et du sous-graphe entre deux statuts
+
+**ITaskDefinition** : Définition d'une tâche service
+
+**ITaskService** : Implémentation d'une tâche service
+
+**ITaskCycleListener** : Ecouteur sur le cycle de vie d'une tâche
+
+**ITaskManagerConfiguration** : Configuration du moteur, TaskObjectManager, Reader, Writer, etc
+
+**ITaskManagerReader** : Lecture des tâches
+
+**ITaskManagerWriter** : Ecriture des tâches
+
+**TaskManagerEngine** : Moteur de l'ordonnanceur de tâche
+
 ## Exemple simple
 
 ```java

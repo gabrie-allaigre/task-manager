@@ -252,7 +252,7 @@ public class TaskManagerEngine {
                     recycleList.clear();
                 }
             } catch (Exception t) {
-                LOG.error("TM - Error setTaskDone" + task.getCodeTaskDefinition(), t);
+                LOG.error("TM - Error setTaskDone " + task.getCodeTaskDefinition(), t);
                 setTaskNothing(taskCluster, task, taskServiceResult, t);
             }
         } else {

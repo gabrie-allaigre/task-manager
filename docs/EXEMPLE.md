@@ -4,33 +4,69 @@ Projet TAP
 
 # Objets métiers
 
-- Fiche Contact (FC)
-Statuts : Init -> Validé -> Clos
+## Fiche Contact (FC)
 
-- Dossier Transport (DT)
-Statuts : Init -> En concertation -> A l'étude -> A assembler -> A annoncer -> Conformité à saisir -> Clos
+La fiche contact est la commande d'un client pour un transport
 
-- Opération (Op)
-Statuts : Init -> Fin
+| FicheContactStatut |
+| Statut |
+| :------------: |
+| Init |
+| Validé |
+| Clos |
+
+| FicheContact |
+| Colonne | Type |
+| ------- | ---- |
+| id | Long |
+| ficheContactStatut | FicheContactStatut |
+| origine | ... |
+| destination | ... |
+| ... | ... |
+
+## Dossier Transport (DT)
+
+| DossierTransportStatut |
+| Statut |
+| :------------: |
+| Init |
+| En concertation |
+| A l'étude |
+| A assembler |
+| A annoncer |
+| Conformité à saisir |
+| Clos |
+
+| DossierTransport |
+| Colonne | Type |
+| ------- | ---- |
+| id | Long |
+| dossierTransportStatut | DossierTransportStatut |
+| ficheContact | FicheContact |
+
+## Opération (Op)
+
+| OperationStatut |
+| Statut |
+| :------------: |
+| Init |
+| Fin |
 
 # Tables de critères
 
-- FicheContactStatusTasksCriteria
-
+| FicheContactStatusTasksCriteria |
 | Statut Courant | Statut Suivant | Statut Task Suivant |
 | :------------: | :------------: | ------------------- |
 | Init | Validé | ValideFCStatusTask |
 | Validé | Clos | ClosFCStatusTask |
 
-- FicheContactSubTasksCriteria
-
+| FicheContactSubTasksCriteria |
 | Statut Courant | Statut Suivant | SubTasks |
 | :------------: | :------------: | -------- |
 | Init | Validé |  |
 | Validé | Clos | CreateDossierTransportFCSubTask |
 
-- DossierTransportStatusTaskCriteria
-
+| DossierTransportStatusTaskCriteria |
 | ATE | Statut Courant | Statut Suivant | Statut Task Suivant |
 | :-: | :------------: | :------------: | ------------------- |
 | Oui | Init | En concertation | EnConcertationDTStatusTask |
@@ -41,8 +77,7 @@ Statuts : Init -> Fin
 | * | A annoncer | Conformité à saisir | ConformiteASaisirDTStatusTask |
 | * | Conformité à saisir | Clos | ClosDTStatusTask |
 
-- DossierTransportSubTasksCriteria
-
+| DossierTransportSubTasksCriteria |
 | Statut Courant | Statut Suivant | SubTasks |
 | :------------: | :------------: | -------- |
 | Init | En concertation | CreationOp1SubTask , CreationOp2SubTask , CreationOp3SubTask , CreationOp4SubTask |
@@ -52,14 +87,12 @@ Statuts : Init -> Fin
 | A annoncer | Conformité à saisir |  |
 | Conformité à saisir | Clos |  |
 
-- OperationStatusTasksCriteria
-
+| OperationStatusTasksCriteria |
 | Statut Courant | Statut Suivant | Statut Task Suivant |
 | :------------: | :------------: | ------------------- |
 | Init | Fin | FinOpStatusTask |
 
-- OperationSubTasksCriteria
-
+| OperationSubTasksCriteria |
 | Type | Statut Courant | Statut Suivant | SubTasks |
 | :--: | :------------: | :------------: | -------- |
 | * | Init | Fin | VerifierSelonTypeOpSubTask |

@@ -8,14 +8,16 @@ Projet TAP
 
 La fiche contact est la commande d'un client pour un transport
 
-| FicheContactStatut |
+### FicheContactStatut
+
 | Statut |
 | :------------: |
 | Init |
 | Validé |
 | Clos |
 
-| FicheContact |
+### FicheContact
+
 | Colonne | Type |
 | ------- | ---- |
 | id | Long |
@@ -26,7 +28,8 @@ La fiche contact est la commande d'un client pour un transport
 
 ## Dossier Transport (DT)
 
-| DossierTransportStatut |
+### DossierTransportStatut
+
 | Statut |
 | :------------: |
 | Init |
@@ -37,7 +40,8 @@ La fiche contact est la commande d'un client pour un transport
 | Conformité à saisir |
 | Clos |
 
-| DossierTransport |
+### DossierTransport
+
 | Colonne | Type |
 | ------- | ---- |
 | id | Long |
@@ -46,7 +50,8 @@ La fiche contact est la commande d'un client pour un transport
 
 ## Opération (Op)
 
-| OperationStatut |
+### OperationStatut
+
 | Statut |
 | :------------: |
 | Init |
@@ -54,19 +59,22 @@ La fiche contact est la commande d'un client pour un transport
 
 # Tables de critères
 
-| FicheContactStatusTasksCriteria |
+## FicheContactStatusTasksCriteria
+
 | Statut Courant | Statut Suivant | Statut Task Suivant |
 | :------------: | :------------: | ------------------- |
 | Init | Validé | ValideFCStatusTask |
 | Validé | Clos | ClosFCStatusTask |
 
-| FicheContactSubTasksCriteria |
+## FicheContactSubTasksCriteria
+
 | Statut Courant | Statut Suivant | SubTasks |
 | :------------: | :------------: | -------- |
 | Init | Validé |  |
 | Validé | Clos | CreateDossierTransportFCSubTask |
 
-| DossierTransportStatusTaskCriteria |
+## DossierTransportStatusTaskCriteria
+
 | ATE | Statut Courant | Statut Suivant | Statut Task Suivant |
 | :-: | :------------: | :------------: | ------------------- |
 | Oui | Init | En concertation | EnConcertationDTStatusTask |
@@ -77,7 +85,8 @@ La fiche contact est la commande d'un client pour un transport
 | * | A annoncer | Conformité à saisir | ConformiteASaisirDTStatusTask |
 | * | Conformité à saisir | Clos | ClosDTStatusTask |
 
-| DossierTransportSubTasksCriteria |
+## DossierTransportSubTasksCriteria
+
 | Statut Courant | Statut Suivant | SubTasks |
 | :------------: | :------------: | -------- |
 | Init | En concertation | CreationOp1SubTask , CreationOp2SubTask , CreationOp3SubTask , CreationOp4SubTask |
@@ -87,12 +96,14 @@ La fiche contact est la commande d'un client pour un transport
 | A annoncer | Conformité à saisir |  |
 | Conformité à saisir | Clos |  |
 
-| OperationStatusTasksCriteria |
+## OperationStatusTasksCriteria
+
 | Statut Courant | Statut Suivant | Statut Task Suivant |
 | :------------: | :------------: | ------------------- |
 | Init | Fin | FinOpStatusTask |
 
-| OperationSubTasksCriteria |
+## OperationSubTasksCriteria
+
 | Type | Statut Courant | Statut Suivant | SubTasks |
 | :--: | :------------: | :------------: | -------- |
 | * | Init | Fin | VerifierSelonTypeOpSubTask |

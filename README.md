@@ -344,6 +344,10 @@ Le resultat renvoie différents informations :
 
 Une implémentation du resultat est `ExecutionResultBuilder`.
 
+# Exemple TAP
+
+[Un exemple pour le projet TAP](docs/EXEMPLE.md)
+
 # Faire une release
 
 ```bash

@@ -342,7 +342,7 @@ Le resultat renvoie différents informations :
 | `Object getResult();` | Le resultat de la tâche | 
 | `boolean mustStopAndRestartTaskManager();` | Le moteur devra être relancé après l'éxécution de la tâche | 
 
-Une implémentation du resultat est `ExecutionResultBuilder`.
+L'implémentation par défaut est le constucteur `ExecutionResultBuilder`.
 
 # Exemple TAP
 

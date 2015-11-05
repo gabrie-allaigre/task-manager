@@ -11,7 +11,7 @@ La fiche contact est la commande d'un client pour un transport
 ### FicheContactStatut
 
 | Statut |
-| :------------: |
+| ------------ |
 | Init |
 | Validé |
 | Clos |
@@ -31,7 +31,7 @@ La fiche contact est la commande d'un client pour un transport
 ### DossierTransportStatut
 
 | Statut |
-| :------------: |
+| ------------ |
 | Init |
 | En concertation |
 | A l'étude |
@@ -53,7 +53,7 @@ La fiche contact est la commande d'un client pour un transport
 ### OperationStatut
 
 | Statut |
-| :------------: |
+| ------------ |
 | Init |
 | Fin |
 

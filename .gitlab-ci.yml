@@ -5,13 +5,25 @@ stages:
   - deploy
 build_job:
   stage: build
+  only:
+    - master
   script:
+    - mvn --batch-mode compile -Dmaven.test.skip=true -Djacoco.skip=true
+build_merge_job:
+  stage: build
+  except:
+    - master
+    - tags
+  script:
+    - git merge origin master
     - mvn --batch-mode compile -Dmaven.test.skip=true -Djacoco.skip=true
 test_sonar_preview_job:
   stage: test
   except:
     - master
+    - tags
   script:
+    - git merge origin master
     - mvn --batch-mode verify sonar:sonar -Dsonar.host.url=$SONAR_URL -Dsonar.analysis.mode=incremental
 test_sonar_job:
   stage: test

@@ -42,4 +42,5 @@ deploy_tags_job:
   only:
     - tags
   script:
+    - mvn org.codehaus.mojo:versions-maven-plugin:2.1:set -DnewVersion=${env.CI_BUILD_REF_NAME} -DgenerateBackupPoms=false
     - mvn --batch-mode deploy -Dmaven.test.skip=true -Djacoco.skip=true

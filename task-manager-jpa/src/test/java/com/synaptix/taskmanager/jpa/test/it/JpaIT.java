@@ -24,799 +24,799 @@ import java.util.List;
 
 public class JpaIT {
 
-	/**
-	 * null -> A
-	 */
-	@Test
-	public void test1() {
-		JPAHelper.getInstance().getJpaAccess().start();
+    private static List<BusinessObject> getBusinessObjects() {
+        Query q = JPAHelper.getInstance().getJpaAccess().getEntityManager().createQuery("select t from BusinessObject t");
+        return q.getResultList();
+    }
 
-		JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.DELETE);
+    /**
+     * null -> A
+     */
+    @Test
+    public void test1() {
+        JPAHelper.getInstance().getJpaAccess().start();
 
-		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
-				TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask").build())
-						.build()).build())
-				.taskDefinitionRegistry(TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build()).build())
-				.taskFactory(new JPATaskFactory()).taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
+        JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.DELETE);
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
+        TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
+                TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask").build())
+                        .build()).build())
+                .taskDefinitionRegistry(TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build()).build())
+                .taskFactory(new JPATaskFactory()).taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
 
-		BusinessObject businessObject = new BusinessObject();
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
+        BusinessObject businessObject = new BusinessObject();
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
 
-		Assert.assertNull(businessObject.getStatus());
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
 
-		ITaskCluster taskCluster = engine.startEngine(businessObject);
+        Assert.assertNull(businessObject.getStatus());
 
-		Assert.assertEquals(businessObject.getStatus(), "A");
-		Assert.assertTrue(taskCluster.isCheckArchived());
+        ITaskCluster taskCluster = engine.startEngine(businessObject);
 
-		Assert.assertEquals(getClusters().size(), 1);
-		Assert.assertEquals(getTasks().size(), 2);
-		Assert.assertEquals(getBusinessObjects().size(), 1);
+        Assert.assertEquals(businessObject.getStatus(), "A");
+        Assert.assertTrue(taskCluster.isCheckArchived());
 
-		JPAHelper.getInstance().getJpaAccess().stop();
-	}
+        Assert.assertEquals(getClusters().size(), 1);
+        Assert.assertEquals(getTasks().size(), 2);
+        Assert.assertEquals(getBusinessObjects().size(), 1);
+
+        JPAHelper.getInstance().getJpaAccess().stop();
+    }
 
-	/**
-	 * null -> A -> B
-	 */
-	@Test
-	public void test2() {
-		JPAHelper.getInstance().getJpaAccess().start();
+    /**
+     * null -> A -> B
+     */
+    @Test
+    public void test2() {
+        JPAHelper.getInstance().getJpaAccess().start();
 
-		JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.DELETE);
+        JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.DELETE);
 
-		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
-				TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class)
-						.statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
-						.build()).build()).taskDefinitionRegistry(
-				TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build()).build()).taskFactory(new JPATaskFactory())
-				.taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
+        TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
+                TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class)
+                        .statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
+                        .build()).build()).taskDefinitionRegistry(
+                TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build()).build()).taskFactory(new JPATaskFactory())
+                .taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
 
-		BusinessObject businessObject = new BusinessObject();
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
+        BusinessObject businessObject = new BusinessObject();
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
 
-		ITaskCluster taskCluster = engine.startEngine(businessObject);
+        ITaskCluster taskCluster = engine.startEngine(businessObject);
 
-		Assert.assertEquals(businessObject.getStatus(), "B");
-		Assert.assertTrue(taskCluster.isCheckArchived());
+        Assert.assertEquals(businessObject.getStatus(), "B");
+        Assert.assertTrue(taskCluster.isCheckArchived());
 
-		Assert.assertEquals(getClusters().size(), 1);
-		Assert.assertEquals(getTasks().size(), 3);
-		Assert.assertEquals(getBusinessObjects().size(), 1);
+        Assert.assertEquals(getClusters().size(), 1);
+        Assert.assertEquals(getTasks().size(), 3);
+        Assert.assertEquals(getBusinessObjects().size(), 1);
 
-		JPAHelper.getInstance().getJpaAccess().stop();
-	}
+        JPAHelper.getInstance().getJpaAccess().stop();
+    }
 
-	/**
-	 * Test a stop task with DELETE
-	 * <p>
-	 * null -> A -> (STOP -> B, C)
-	 */
-	@Test
-	public void test3() {
-		JPAHelper.getInstance().getJpaAccess().start();
+    /**
+     * Test a stop task with DELETE
+     * <p>
+     * null -> A -> (STOP -> B, C)
+     */
+    @Test
+    public void test3() {
+        JPAHelper.getInstance().getJpaAccess().start();
 
-		JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.DELETE);
+        JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.DELETE);
 
-		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
-				TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder()
-						.addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask").addNextStatusGraph("C", "CTask")).build())
-						.addTaskChainCriteria("A", "B", "STOP").build()).build()).taskDefinitionRegistry(
-				TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("CTask", new MultiUpdateStatusTaskService("C")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("STOP", new StopTaskService()).build()).build()).taskFactory(new JPATaskFactory())
-				.taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
+        TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
+                TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder()
+                        .addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask").addNextStatusGraph("C", "CTask")).build())
+                        .addTaskChainCriteria("A", "B", "STOP").build()).build()).taskDefinitionRegistry(
+                TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("CTask", new MultiUpdateStatusTaskService("C")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("STOP", new StopTaskService()).build()).build()).taskFactory(new JPATaskFactory())
+                .taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
 
-		BusinessObject businessObject = new BusinessObject();
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
+        BusinessObject businessObject = new BusinessObject();
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
 
-		ITaskCluster taskCluster = engine.startEngine(businessObject);
+        ITaskCluster taskCluster = engine.startEngine(businessObject);
 
-		Assert.assertEquals(businessObject.getStatus(), "C");
-		Assert.assertTrue(taskCluster.isCheckArchived());
+        Assert.assertEquals(businessObject.getStatus(), "C");
+        Assert.assertTrue(taskCluster.isCheckArchived());
 
-		Assert.assertEquals(getClusters().size(), 1);
-		Assert.assertEquals(getTasks().size(), 3);
-		Assert.assertEquals(getBusinessObjects().size(), 1);
+        Assert.assertEquals(getClusters().size(), 1);
+        Assert.assertEquals(getTasks().size(), 3);
+        Assert.assertEquals(getBusinessObjects().size(), 1);
 
-		JPAHelper.getInstance().getJpaAccess().stop();
-	}
+        JPAHelper.getInstance().getJpaAccess().stop();
+    }
 
-	/**
-	 * Test a stop task with CANCEL
-	 * <p>
-	 * null -> A -> (STOP -> B, C)
-	 */
-	@Test
-	public void test4() {
-		JPAHelper.getInstance().getJpaAccess().start();
+    /**
+     * Test a stop task with CANCEL
+     * <p>
+     * null -> A -> (STOP -> B, C)
+     */
+    @Test
+    public void test4() {
+        JPAHelper.getInstance().getJpaAccess().start();
 
-		JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.CANCEL);
-
-		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
-				TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder()
-						.addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask").addNextStatusGraph("C", "CTask")).build())
-						.addTaskChainCriteria("A", "B", "STOP").build()).build()).taskDefinitionRegistry(
-				TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("CTask", new MultiUpdateStatusTaskService("C")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("STOP", new StopTaskService()).build()).build()).taskFactory(new JPATaskFactory())
-				.taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
+        JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.CANCEL);
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
+        TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
+                TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder()
+                        .addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask").addNextStatusGraph("C", "CTask")).build())
+                        .addTaskChainCriteria("A", "B", "STOP").build()).build()).taskDefinitionRegistry(
+                TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("CTask", new MultiUpdateStatusTaskService("C")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("STOP", new StopTaskService()).build()).build()).taskFactory(new JPATaskFactory())
+                .taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
 
-		BusinessObject businessObject = new BusinessObject();
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
+        BusinessObject businessObject = new BusinessObject();
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
 
-		ITaskCluster taskCluster = engine.startEngine(businessObject);
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
 
-		Assert.assertEquals(businessObject.getStatus(), "C");
-		Assert.assertTrue(taskCluster.isCheckArchived());
+        ITaskCluster taskCluster = engine.startEngine(businessObject);
 
-		Assert.assertEquals(getClusters().size(), 1);
-		Assert.assertEquals(getTasks().size(), 5);
-		Assert.assertEquals(getBusinessObjects().size(), 1);
+        Assert.assertEquals(businessObject.getStatus(), "C");
+        Assert.assertTrue(taskCluster.isCheckArchived());
 
-		JPAHelper.getInstance().getJpaAccess().stop();
-	}
+        Assert.assertEquals(getClusters().size(), 1);
+        Assert.assertEquals(getTasks().size(), 5);
+        Assert.assertEquals(getBusinessObjects().size(), 1);
 
-	/**
-	 * null -> A -> VERSB -> B
-	 */
-	@Test
-	public void test5() {
-		JPAHelper.getInstance().getJpaAccess().start();
+        JPAHelper.getInstance().getJpaAccess().stop();
+    }
 
-		JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.DELETE);
+    /**
+     * null -> A -> VERSB -> B
+     */
+    @Test
+    public void test5() {
+        JPAHelper.getInstance().getJpaAccess().start();
 
-		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
-				TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class)
-						.statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
-						.addTaskChainCriteria("A", "B", "VERSB").build()).build()).taskDefinitionRegistry(
-				TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build()).taskFactory(new JPATaskFactory())
-				.taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
+        JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.DELETE);
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
+        TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
+                TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class)
+                        .statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
+                        .addTaskChainCriteria("A", "B", "VERSB").build()).build()).taskDefinitionRegistry(
+                TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build()).taskFactory(new JPATaskFactory())
+                .taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
 
-		BusinessObject businessObject = new BusinessObject();
-		businessObject.setCode("VersA");
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
-
-		ITaskCluster taskCluster = engine.startEngine(businessObject);
-
-		Assert.assertEquals(businessObject.getCode(), "VersA");
-		Assert.assertEquals(businessObject.getStatus(), "A");
+        BusinessObject businessObject = new BusinessObject();
+        businessObject.setCode("VersA");
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
 
-		Assert.assertEquals(getClusters().size(), 1);
-		Assert.assertEquals(getTasks().size(), 4);
-		Assert.assertEquals(getBusinessObjects().size(), 1);
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
 
-		businessObject.setCode("VersB");
+        ITaskCluster taskCluster = engine.startEngine(businessObject);
 
-		engine.startEngine(taskCluster);
+        Assert.assertEquals(businessObject.getCode(), "VersA");
+        Assert.assertEquals(businessObject.getStatus(), "A");
 
-		Assert.assertEquals(businessObject.getCode(), "VersB");
-		Assert.assertEquals(businessObject.getStatus(), "B");
-		Assert.assertTrue(taskCluster.isCheckArchived());
+        Assert.assertEquals(getClusters().size(), 1);
+        Assert.assertEquals(getTasks().size(), 4);
+        Assert.assertEquals(getBusinessObjects().size(), 1);
 
-		Assert.assertEquals(getClusters().size(), 1);
-		Assert.assertEquals(getTasks().size(), 4);
-		Assert.assertEquals(getBusinessObjects().size(), 1);
+        businessObject.setCode("VersB");
 
-		JPAHelper.getInstance().getJpaAccess().stop();
-	}
+        engine.startEngine(taskCluster);
 
-	/**
-	 * Test two objects separeted
-	 * <p>
-	 * null -> A -> (VERSB->B,VERSC -> C)
-	 */
-	@Test
-	public void test6() {
-		JPAHelper.getInstance().getJpaAccess().start();
+        Assert.assertEquals(businessObject.getCode(), "VersB");
+        Assert.assertEquals(businessObject.getStatus(), "B");
+        Assert.assertTrue(taskCluster.isCheckArchived());
 
-		JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.DELETE);
+        Assert.assertEquals(getClusters().size(), 1);
+        Assert.assertEquals(getTasks().size(), 4);
+        Assert.assertEquals(getBusinessObjects().size(), 1);
 
-		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
-				TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder()
-						.addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask").addNextStatusGraph("C", "CTask")).build())
-						.addTaskChainCriteria("A", "B", "VERSB").addTaskChainCriteria("A", "C", "VERSC").build()).build()).taskDefinitionRegistry(
-				TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("CTask", new MultiUpdateStatusTaskService("C")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSC", new VerifyCodeTaskService("VersC")).build()).build()).taskFactory(new JPATaskFactory())
-				.taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
+        JPAHelper.getInstance().getJpaAccess().stop();
+    }
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
+    /**
+     * Test two objects separeted
+     * <p>
+     * null -> A -> (VERSB->B,VERSC -> C)
+     */
+    @Test
+    public void test6() {
+        JPAHelper.getInstance().getJpaAccess().start();
 
-		BusinessObject firstBusinessObject = new BusinessObject();
-		firstBusinessObject.setCode("VersB");
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(firstBusinessObject);
-
-		BusinessObject secondBusinessObject = new BusinessObject();
-		secondBusinessObject.setCode("VersC");
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(secondBusinessObject);
-
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
+        JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.DELETE);
 
-		ITaskCluster firstTaskCluster = engine.startEngine(firstBusinessObject);
-		Assert.assertEquals(firstBusinessObject.getStatus(), "B");
-
-		Assert.assertEquals(getClusters().size(), 1);
-		Assert.assertEquals(getTasks().size(), 4);
-		Assert.assertEquals(getBusinessObjects().size(), 2);
+        TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
+                TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder()
+                        .addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask").addNextStatusGraph("C", "CTask")).build())
+                        .addTaskChainCriteria("A", "B", "VERSB").addTaskChainCriteria("A", "C", "VERSC").build()).build()).taskDefinitionRegistry(
+                TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("CTask", new MultiUpdateStatusTaskService("C")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSC", new VerifyCodeTaskService("VersC")).build()).build()).taskFactory(new JPATaskFactory())
+                .taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
 
-		ITaskCluster secondTaskCluster = engine.startEngine(secondBusinessObject);
-		Assert.assertEquals(secondBusinessObject.getStatus(), "C");
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
 
-		Assert.assertNotSame(firstTaskCluster, secondTaskCluster);
+        BusinessObject firstBusinessObject = new BusinessObject();
+        firstBusinessObject.setCode("VersB");
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(firstBusinessObject);
 
-		Assert.assertTrue(firstTaskCluster.isCheckArchived());
-		Assert.assertTrue(secondTaskCluster.isCheckArchived());
+        BusinessObject secondBusinessObject = new BusinessObject();
+        secondBusinessObject.setCode("VersC");
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(secondBusinessObject);
 
-		Assert.assertEquals(getClusters().size(), 2);
-		Assert.assertEquals(getTasks().size(), 8);
-		Assert.assertEquals(getBusinessObjects().size(), 2);
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
 
-		JPAHelper.getInstance().getJpaAccess().stop();
-	}
+        ITaskCluster firstTaskCluster = engine.startEngine(firstBusinessObject);
+        Assert.assertEquals(firstBusinessObject.getStatus(), "B");
 
-	/**
-	 * Test
-	 * <p>
-	 * null -> A -> (VERSB->B,VERSC -> C)
-	 */
-	@Test
-	public void test7() {
-		JPAHelper.getInstance().getJpaAccess().start();
+        Assert.assertEquals(getClusters().size(), 1);
+        Assert.assertEquals(getTasks().size(), 4);
+        Assert.assertEquals(getBusinessObjects().size(), 2);
 
-		JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.DELETE);
+        ITaskCluster secondTaskCluster = engine.startEngine(secondBusinessObject);
+        Assert.assertEquals(secondBusinessObject.getStatus(), "C");
 
-		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
-				TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder()
-						.addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask").addNextStatusGraph("C", "CTask")).build())
-						.addTaskChainCriteria("A", "B", "VERSB").addTaskChainCriteria("A", "C", "VERSC").build()).build()).taskDefinitionRegistry(
-				TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("CTask", new MultiUpdateStatusTaskService("C")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSC", new VerifyCodeTaskService("VersC")).build()).build()).taskFactory(new JPATaskFactory())
-				.taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
+        Assert.assertNotSame(firstTaskCluster, secondTaskCluster);
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
+        Assert.assertTrue(firstTaskCluster.isCheckArchived());
+        Assert.assertTrue(secondTaskCluster.isCheckArchived());
 
-		BusinessObject businessObject = new BusinessObject();
+        Assert.assertEquals(getClusters().size(), 2);
+        Assert.assertEquals(getTasks().size(), 8);
+        Assert.assertEquals(getBusinessObjects().size(), 2);
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
+        JPAHelper.getInstance().getJpaAccess().stop();
+    }
 
-		ITaskCluster taskCluster = engine.startEngine(businessObject);
+    /**
+     * Test
+     * <p>
+     * null -> A -> (VERSB->B,VERSC -> C)
+     */
+    @Test
+    public void test7() {
+        JPAHelper.getInstance().getJpaAccess().start();
 
-		Assert.assertEquals(businessObject.getStatus(), "A");
+        JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.DELETE);
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
-		businessObject.setCode("VersB");
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
+        TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
+                TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder()
+                        .addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask").addNextStatusGraph("C", "CTask")).build())
+                        .addTaskChainCriteria("A", "B", "VERSB").addTaskChainCriteria("A", "C", "VERSC").build()).build()).taskDefinitionRegistry(
+                TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("CTask", new MultiUpdateStatusTaskService("C")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSC", new VerifyCodeTaskService("VersC")).build()).build()).taskFactory(new JPATaskFactory())
+                .taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
 
-		Assert.assertEquals(getClusters().size(), 1);
-		Assert.assertEquals(getTasks().size(), 6);
-		Assert.assertEquals(getBusinessObjects().size(), 1);
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
 
-		engine.startEngine(businessObject);
-		Assert.assertEquals(businessObject.getStatus(), "B");
-		Assert.assertTrue(taskCluster.isCheckArchived());
+        BusinessObject businessObject = new BusinessObject();
 
-		Assert.assertEquals(getClusters().size(), 1);
-		Assert.assertEquals(getTasks().size(), 4);
-		Assert.assertEquals(getBusinessObjects().size(), 1);
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
 
-		JPAHelper.getInstance().getJpaAccess().stop();
-	}
+        ITaskCluster taskCluster = engine.startEngine(businessObject);
 
-	/**
-	 * Test cycle with A
-	 * <p>
-	 * null -> A -> (VERSA->CHANGE->A,VERSB->B)
-	 */
-	@Test
-	public void test8() {
-		JPAHelper.getInstance().getJpaAccess().start();
+        Assert.assertEquals(businessObject.getStatus(), "A");
 
-		JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.DELETE);
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
+        businessObject.setCode("VersB");
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
 
-		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
-				TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder()
-						.addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask").addNextStatusGraph("A", "ATask")).build())
-						.addTaskChainCriteria("A", "B", "VERSB").addTaskChainCriteria("A", "A", "VERSA=>CHANGE").build()).build()).taskDefinitionRegistry(
-				TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("CHANGE", new ChangeCodeTaskService("VersC")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSA", new VerifyCodeTaskService("VersA")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build()).taskFactory(new JPATaskFactory())
-				.taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
+        Assert.assertEquals(getClusters().size(), 1);
+        Assert.assertEquals(getTasks().size(), 6);
+        Assert.assertEquals(getBusinessObjects().size(), 1);
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
+        engine.startEngine(businessObject);
+        Assert.assertEquals(businessObject.getStatus(), "B");
+        Assert.assertTrue(taskCluster.isCheckArchived());
 
-		BusinessObject businessObject = new BusinessObject();
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
+        Assert.assertEquals(getClusters().size(), 1);
+        Assert.assertEquals(getTasks().size(), 4);
+        Assert.assertEquals(getBusinessObjects().size(), 1);
 
-		ITaskCluster taskCluster = engine.startEngine(businessObject);
+        JPAHelper.getInstance().getJpaAccess().stop();
+    }
 
-		Assert.assertEquals(businessObject.getStatus(), "A");
+    /**
+     * Test cycle with A
+     * <p>
+     * null -> A -> (VERSA->CHANGE->A,VERSB->B)
+     */
+    @Test
+    public void test8() {
+        JPAHelper.getInstance().getJpaAccess().start();
 
-		Assert.assertEquals(getClusters().size(), 1);
-		Assert.assertEquals(getTasks().size(), 7);
-		Assert.assertEquals(getBusinessObjects().size(), 1);
+        JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.DELETE);
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
-		businessObject.setCode("VersA");
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
+        TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
+                TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder()
+                        .addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask").addNextStatusGraph("A", "ATask")).build())
+                        .addTaskChainCriteria("A", "B", "VERSB").addTaskChainCriteria("A", "A", "VERSA=>CHANGE").build()).build()).taskDefinitionRegistry(
+                TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("CHANGE", new ChangeCodeTaskService("VersC")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSA", new VerifyCodeTaskService("VersA")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build()).taskFactory(new JPATaskFactory())
+                .taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
 
-		engine.startEngine(taskCluster);
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
 
-		Assert.assertEquals(businessObject.getStatus(), "A");
-		Assert.assertEquals(businessObject.getCode(), "VersC");
+        BusinessObject businessObject = new BusinessObject();
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
 
-		Assert.assertEquals(getClusters().size(), 1);
-		Assert.assertEquals(getTasks().size(), 10);
-		Assert.assertEquals(getBusinessObjects().size(), 1);
+        ITaskCluster taskCluster = engine.startEngine(businessObject);
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
-		businessObject.setCode("VersB");
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
+        Assert.assertEquals(businessObject.getStatus(), "A");
 
-		engine.startEngine(taskCluster);
+        Assert.assertEquals(getClusters().size(), 1);
+        Assert.assertEquals(getTasks().size(), 7);
+        Assert.assertEquals(getBusinessObjects().size(), 1);
 
-		Assert.assertEquals(businessObject.getCode(), "VersB");
-		Assert.assertEquals(businessObject.getStatus(), "B");
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
+        businessObject.setCode("VersA");
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
 
-		Assert.assertTrue(taskCluster.isCheckArchived());
+        engine.startEngine(taskCluster);
 
-		Assert.assertEquals(getClusters().size(), 1);
-		Assert.assertEquals(getTasks().size(), 7);
-		Assert.assertEquals(getBusinessObjects().size(), 1);
+        Assert.assertEquals(businessObject.getStatus(), "A");
+        Assert.assertEquals(businessObject.getCode(), "VersC");
 
-		JPAHelper.getInstance().getJpaAccess().stop();
-	}
+        Assert.assertEquals(getClusters().size(), 1);
+        Assert.assertEquals(getTasks().size(), 10);
+        Assert.assertEquals(getBusinessObjects().size(), 1);
 
-	/**
-	 * Remove task object to task cluster
-	 * <p>
-	 * null -> A -> B
-	 * null -> A -> VERSB -> B
-	 */
-	@Test
-	public void test9() {
-		JPAHelper.getInstance().getJpaAccess().start();
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
+        businessObject.setCode("VersB");
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
 
-		JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.DELETE);
+        engine.startEngine(taskCluster);
 
-		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
-				TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class)
-						.statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
-						.build()).addTaskObjectManager(TaskObjectManagerBuilder.<String, OtherBusinessObject>newBuilder(OtherBusinessObject.class)
-				.statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
-				.addTaskChainCriteria("A", "B", "VERSB").build()).build()).taskDefinitionRegistry(
-				TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build()).taskFactory(new JPATaskFactory())
-				.taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
+        Assert.assertEquals(businessObject.getCode(), "VersB");
+        Assert.assertEquals(businessObject.getStatus(), "B");
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
+        Assert.assertTrue(taskCluster.isCheckArchived());
 
-		BusinessObject businessObject = new BusinessObject();
-		businessObject.setCode("VersA");
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
+        Assert.assertEquals(getClusters().size(), 1);
+        Assert.assertEquals(getTasks().size(), 7);
+        Assert.assertEquals(getBusinessObjects().size(), 1);
 
-		OtherBusinessObject otherBusinessObject = new OtherBusinessObject();
-		otherBusinessObject.setCode("VersA");
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(otherBusinessObject);
+        JPAHelper.getInstance().getJpaAccess().stop();
+    }
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
+    /**
+     * Remove task object to task cluster
+     * <p>
+     * null -> A -> B
+     * null -> A -> VERSB -> B
+     */
+    @Test
+    public void test9() {
+        JPAHelper.getInstance().getJpaAccess().start();
 
-		ITaskCluster taskCluster = engine.startEngine(businessObject, otherBusinessObject);
+        JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.DELETE);
 
-		Assert.assertEquals(getClusters().size(), 1);
-		Assert.assertEquals(getTasks().size(), 7);
-		Assert.assertEquals(getBusinessObjects().size(), 2);
+        TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
+                TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class)
+                        .statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
+                        .build()).addTaskObjectManager(TaskObjectManagerBuilder.<String, OtherBusinessObject>newBuilder(OtherBusinessObject.class)
+                .statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
+                .addTaskChainCriteria("A", "B", "VERSB").build()).build()).taskDefinitionRegistry(
+                TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build()).taskFactory(new JPATaskFactory())
+                .taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
 
-		Assert.assertEquals(businessObject.getCode(), "VersA");
-		Assert.assertEquals(otherBusinessObject.getCode(), "VersA");
-		Assert.assertEquals(businessObject.getStatus(), "B");
-		Assert.assertEquals(otherBusinessObject.getStatus(), "A");
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
-		otherBusinessObject.setCode("VersB");
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(otherBusinessObject);
+        BusinessObject businessObject = new BusinessObject();
+        businessObject.setCode("VersA");
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
+        OtherBusinessObject otherBusinessObject = new OtherBusinessObject();
+        otherBusinessObject.setCode("VersA");
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(otherBusinessObject);
 
-		engine.removeTaskObjectsFromTaskCluster(otherBusinessObject);
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
 
-		engine.startEngine(taskCluster);
+        ITaskCluster taskCluster = engine.startEngine(businessObject, otherBusinessObject);
 
-		Assert.assertEquals(otherBusinessObject.getStatus(), "A");
-		Assert.assertTrue(taskCluster.isCheckArchived());
+        Assert.assertEquals(getClusters().size(), 1);
+        Assert.assertEquals(getTasks().size(), 7);
+        Assert.assertEquals(getBusinessObjects().size(), 2);
 
-		Assert.assertEquals(getClusters().size(), 1);
-		Assert.assertEquals(getTasks().size(), 3);
-		Assert.assertEquals(getBusinessObjects().size(), 2);
+        Assert.assertEquals(businessObject.getCode(), "VersA");
+        Assert.assertEquals(otherBusinessObject.getCode(), "VersA");
+        Assert.assertEquals(businessObject.getStatus(), "B");
+        Assert.assertEquals(otherBusinessObject.getStatus(), "A");
 
-		JPAHelper.getInstance().getJpaAccess().stop();
-	}
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
+        otherBusinessObject.setCode("VersB");
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(otherBusinessObject);
 
-	/**
-	 * Add taskObject to existing cluster
-	 * <p>
-	 * null -> A -> (VERSB -> B -> STOP,VERSC -> C -> STOP) -> D
-	 */
-	@Test
-	public void test10() {
-		JPAHelper.getInstance().getJpaAccess().start();
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
 
-		JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.DELETE);
+        engine.removeTaskObjectsFromTaskCluster(otherBusinessObject);
 
-		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
-				TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask",
-						StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("D", "DTask"))
-								.addNextStatusGraph("C", "CTask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("D", "DTask"))).build()).addTaskChainCriteria("A", "B", "VERSB")
-						.addTaskChainCriteria("A", "C", "VERSC").addTaskChainCriteria("B", "D", "STOP").addTaskChainCriteria("C", "D", "STOP").build()).build()).taskDefinitionRegistry(
-				TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("CTask", new MultiUpdateStatusTaskService("C")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSC", new VerifyCodeTaskService("VersC")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("STOP", new StopTaskService()).build()).build()).taskFactory(new JPATaskFactory())
-				.taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
+        engine.startEngine(taskCluster);
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
+        Assert.assertEquals(otherBusinessObject.getStatus(), "A");
+        Assert.assertTrue(taskCluster.isCheckArchived());
 
-		BusinessObject firstBusinessObject = new BusinessObject();
-		firstBusinessObject.setCode("VersB");
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(firstBusinessObject);
+        Assert.assertEquals(getClusters().size(), 1);
+        Assert.assertEquals(getTasks().size(), 3);
+        Assert.assertEquals(getBusinessObjects().size(), 2);
 
-		BusinessObject secondBusinessObject = new BusinessObject();
-		secondBusinessObject.setCode("VersC");
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(secondBusinessObject);
+        JPAHelper.getInstance().getJpaAccess().stop();
+    }
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
+    /**
+     * Add taskObject to existing cluster
+     * <p>
+     * null -> A -> (VERSB -> B -> STOP,VERSC -> C -> STOP) -> D
+     */
+    @Test
+    public void test10() {
+        JPAHelper.getInstance().getJpaAccess().start();
 
-		Assert.assertNull(firstBusinessObject.getStatus());
+        JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.DELETE);
 
-		Assert.assertEquals(getClusters().size(), 0);
-		Assert.assertEquals(getTasks().size(), 0);
-		Assert.assertEquals(getBusinessObjects().size(), 2);
+        TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
+                TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask",
+                        StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("D", "DTask"))
+                                .addNextStatusGraph("C", "CTask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("D", "DTask"))).build()).addTaskChainCriteria("A", "B", "VERSB")
+                        .addTaskChainCriteria("A", "C", "VERSC").addTaskChainCriteria("B", "D", "STOP").addTaskChainCriteria("C", "D", "STOP").build()).build()).taskDefinitionRegistry(
+                TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("CTask", new MultiUpdateStatusTaskService("C")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSC", new VerifyCodeTaskService("VersC")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("STOP", new StopTaskService()).build()).build()).taskFactory(new JPATaskFactory())
+                .taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
 
-		ITaskCluster taskCluster = engine.startEngine(firstBusinessObject);
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
 
-		Assert.assertEquals(getClusters().size(), 1);
-		Assert.assertEquals(getTasks().size(), 6);
+        BusinessObject firstBusinessObject = new BusinessObject();
+        firstBusinessObject.setCode("VersB");
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(firstBusinessObject);
 
-		engine.addTaskObjectsToTaskCluster(taskCluster, secondBusinessObject);
+        BusinessObject secondBusinessObject = new BusinessObject();
+        secondBusinessObject.setCode("VersC");
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(secondBusinessObject);
 
-		Assert.assertEquals(firstBusinessObject.getStatus(), "B");
-		Assert.assertEquals(secondBusinessObject.getStatus(), "C");
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
 
-		Assert.assertFalse(taskCluster.isCheckArchived());
+        Assert.assertNull(firstBusinessObject.getStatus());
 
-		ITaskCluster secondTaskCluster = engine.getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(secondBusinessObject);
+        Assert.assertEquals(getClusters().size(), 0);
+        Assert.assertEquals(getTasks().size(), 0);
+        Assert.assertEquals(getBusinessObjects().size(), 2);
 
-		Assert.assertSame(taskCluster, secondTaskCluster);
+        ITaskCluster taskCluster = engine.startEngine(firstBusinessObject);
 
-		Assert.assertEquals(getClusters().size(), 1);
-		Assert.assertEquals(getTasks().size(), 12);
+        Assert.assertEquals(getClusters().size(), 1);
+        Assert.assertEquals(getTasks().size(), 6);
 
-		JPAHelper.getInstance().getJpaAccess().stop();
-	}
+        engine.addTaskObjectsToTaskCluster(taskCluster, secondBusinessObject);
 
-	/**
-	 * Move task object to new task cluster
-	 * <p>
-	 * null -> A -> B
-	 * null -> A -> VERSB -> B
-	 */
-	@Test
-	public void test11() {
-		JPAHelper.getInstance().getJpaAccess().start();
+        Assert.assertEquals(firstBusinessObject.getStatus(), "B");
+        Assert.assertEquals(secondBusinessObject.getStatus(), "C");
 
-		JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.DELETE);
+        Assert.assertFalse(taskCluster.isCheckArchived());
 
-		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
-				TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class)
-						.statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
-						.build()).addTaskObjectManager(TaskObjectManagerBuilder.<String, OtherBusinessObject>newBuilder(OtherBusinessObject.class)
-				.statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
-				.addTaskChainCriteria("A", "B", "VERSB").build()).build()).taskDefinitionRegistry(
-				TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build()).taskFactory(new JPATaskFactory())
-				.taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
+        ITaskCluster secondTaskCluster = engine.getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(secondBusinessObject);
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
+        Assert.assertSame(taskCluster, secondTaskCluster);
 
-		BusinessObject businessObject = new BusinessObject();
-		businessObject.setCode("VersA");
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
+        Assert.assertEquals(getClusters().size(), 1);
+        Assert.assertEquals(getTasks().size(), 12);
 
-		OtherBusinessObject otherBusinessObject = new OtherBusinessObject();
-		otherBusinessObject.setCode("VersA");
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(otherBusinessObject);
+        JPAHelper.getInstance().getJpaAccess().stop();
+    }
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
+    /**
+     * Move task object to new task cluster
+     * <p>
+     * null -> A -> B
+     * null -> A -> VERSB -> B
+     */
+    @Test
+    public void test11() {
+        JPAHelper.getInstance().getJpaAccess().start();
 
-		ITaskCluster taskCluster = engine.startEngine(businessObject, otherBusinessObject);
+        JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.DELETE);
 
-		Assert.assertEquals(businessObject.getCode(), "VersA");
-		Assert.assertEquals(otherBusinessObject.getCode(), "VersA");
-		Assert.assertEquals(businessObject.getStatus(), "B");
-		Assert.assertEquals(otherBusinessObject.getStatus(), "A");
+        TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
+                TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class)
+                        .statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
+                        .build()).addTaskObjectManager(TaskObjectManagerBuilder.<String, OtherBusinessObject>newBuilder(OtherBusinessObject.class)
+                .statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
+                .addTaskChainCriteria("A", "B", "VERSB").build()).build()).taskDefinitionRegistry(
+                TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build()).taskFactory(new JPATaskFactory())
+                .taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
 
-		Assert.assertEquals(getClusters().size(), 1);
-		Assert.assertEquals(getTasks().size(), 7);
-		Assert.assertEquals(getBusinessObjects().size(), 2);
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
-		otherBusinessObject.setCode("VersB");
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(otherBusinessObject);
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
+        BusinessObject businessObject = new BusinessObject();
+        businessObject.setCode("VersA");
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
 
-		ITaskCluster newTaskCluster = engine.moveTaskObjectsToNewTaskCluster(otherBusinessObject);
+        OtherBusinessObject otherBusinessObject = new OtherBusinessObject();
+        otherBusinessObject.setCode("VersA");
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(otherBusinessObject);
 
-		Assert.assertNotSame(taskCluster, newTaskCluster);
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
 
-		Assert.assertEquals(engine.getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(otherBusinessObject), newTaskCluster);
-		Assert.assertEquals(otherBusinessObject.getStatus(), "B");
-		Assert.assertTrue(taskCluster.isCheckArchived());
-		Assert.assertTrue(newTaskCluster.isCheckArchived());
+        ITaskCluster taskCluster = engine.startEngine(businessObject, otherBusinessObject);
 
-		Assert.assertEquals(getClusters().size(), 2);
-		Assert.assertEquals(getTasks().size(), 7);
-		Assert.assertEquals(getBusinessObjects().size(), 2);
+        Assert.assertEquals(businessObject.getCode(), "VersA");
+        Assert.assertEquals(otherBusinessObject.getCode(), "VersA");
+        Assert.assertEquals(businessObject.getStatus(), "B");
+        Assert.assertEquals(otherBusinessObject.getStatus(), "A");
 
-		JPAHelper.getInstance().getJpaAccess().stop();
-	}
+        Assert.assertEquals(getClusters().size(), 1);
+        Assert.assertEquals(getTasks().size(), 7);
+        Assert.assertEquals(getBusinessObjects().size(), 2);
 
-	/**
-	 * Move task object to other task cluster
-	 */
-	@Test
-	public void test12() {
-		JPAHelper.getInstance().getJpaAccess().start();
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
+        otherBusinessObject.setCode("VersB");
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(otherBusinessObject);
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
 
-		JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.DELETE);
+        ITaskCluster newTaskCluster = engine.moveTaskObjectsToNewTaskCluster(otherBusinessObject);
 
-		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
-				TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class)
-						.statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
-						.addTaskChainCriteria("A", "B", "VERSB").build()).addTaskObjectManager(TaskObjectManagerBuilder.<String, OtherBusinessObject>newBuilder(OtherBusinessObject.class)
-				.statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
-				.addTaskChainCriteria("A", "B", "VERSB").build()).build()).taskDefinitionRegistry(
-				TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build()).taskFactory(new JPATaskFactory())
-				.taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
+        Assert.assertNotSame(taskCluster, newTaskCluster);
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
-		BusinessObject businessObject = new BusinessObject();
-		businessObject.setCode("VersA");
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
+        Assert.assertEquals(engine.getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(otherBusinessObject), newTaskCluster);
+        Assert.assertEquals(otherBusinessObject.getStatus(), "B");
+        Assert.assertTrue(taskCluster.isCheckArchived());
+        Assert.assertTrue(newTaskCluster.isCheckArchived());
 
-		ITaskCluster taskCluster = engine.startEngine(businessObject);
+        Assert.assertEquals(getClusters().size(), 2);
+        Assert.assertEquals(getTasks().size(), 7);
+        Assert.assertEquals(getBusinessObjects().size(), 2);
 
-		Assert.assertEquals(businessObject.getCode(), "VersA");
-		Assert.assertEquals(businessObject.getStatus(), "A");
+        JPAHelper.getInstance().getJpaAccess().stop();
+    }
 
-		Assert.assertEquals(getClusters().size(), 1);
-		Assert.assertEquals(getTasks().size(), 4);
-		Assert.assertEquals(getBusinessObjects().size(), 1);
+    /**
+     * Move task object to other task cluster
+     */
+    @Test
+    public void test12() {
+        JPAHelper.getInstance().getJpaAccess().start();
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
-		OtherBusinessObject otherBusinessObject = new OtherBusinessObject();
-		otherBusinessObject.setCode("VersA");
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(otherBusinessObject);
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
+        JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.DELETE);
 
-		ITaskCluster otherTaskCluster = engine.startEngine(otherBusinessObject);
+        TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
+                TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class)
+                        .statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
+                        .addTaskChainCriteria("A", "B", "VERSB").build()).addTaskObjectManager(TaskObjectManagerBuilder.<String, OtherBusinessObject>newBuilder(OtherBusinessObject.class)
+                .statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
+                .addTaskChainCriteria("A", "B", "VERSB").build()).build()).taskDefinitionRegistry(
+                TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build()).build()).taskFactory(new JPATaskFactory())
+                .taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
 
-		Assert.assertEquals(otherBusinessObject.getCode(), "VersA");
-		Assert.assertEquals(otherBusinessObject.getStatus(), "A");
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
+        BusinessObject businessObject = new BusinessObject();
+        businessObject.setCode("VersA");
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
 
-		Assert.assertEquals(getClusters().size(), 2);
-		Assert.assertEquals(getTasks().size(), 8);
-		Assert.assertEquals(getBusinessObjects().size(), 2);
+        ITaskCluster taskCluster = engine.startEngine(businessObject);
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
-		businessObject.setCode("VersB");
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
+        Assert.assertEquals(businessObject.getCode(), "VersA");
+        Assert.assertEquals(businessObject.getStatus(), "A");
 
-		otherBusinessObject.setCode("VersB");
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(otherBusinessObject);
+        Assert.assertEquals(getClusters().size(), 1);
+        Assert.assertEquals(getTasks().size(), 4);
+        Assert.assertEquals(getBusinessObjects().size(), 1);
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
+        OtherBusinessObject otherBusinessObject = new OtherBusinessObject();
+        otherBusinessObject.setCode("VersA");
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(otherBusinessObject);
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
 
-		engine.moveTaskObjectsToTaskCluster(taskCluster, otherBusinessObject);
+        ITaskCluster otherTaskCluster = engine.startEngine(otherBusinessObject);
 
-		Assert.assertEquals(engine.getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(otherBusinessObject), taskCluster);
-		Assert.assertEquals(businessObject.getStatus(), "B");
-		Assert.assertEquals(otherBusinessObject.getStatus(), "B");
-		Assert.assertTrue(taskCluster.isCheckArchived());
-		Assert.assertTrue(otherTaskCluster.isCheckArchived());
+        Assert.assertEquals(otherBusinessObject.getCode(), "VersA");
+        Assert.assertEquals(otherBusinessObject.getStatus(), "A");
 
-		Assert.assertEquals(getClusters().size(), 2);
-		Assert.assertEquals(getTasks().size(), 8);
-		Assert.assertEquals(getBusinessObjects().size(), 2);
+        Assert.assertEquals(getClusters().size(), 2);
+        Assert.assertEquals(getTasks().size(), 8);
+        Assert.assertEquals(getBusinessObjects().size(), 2);
 
-		JPAHelper.getInstance().getJpaAccess().stop();
-	}
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
+        businessObject.setCode("VersB");
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
 
-	/**
-	 * Test checkGraphCreated
-	 * <p>
-	 * null -> A
-	 */
-	@Test
-	public void test13() {
-		JPAHelper.getInstance().getJpaAccess().start();
+        otherBusinessObject.setCode("VersB");
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(otherBusinessObject);
 
-		JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.DELETE);
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
 
-		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
-				TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask").build())
-						.build()).build())
-				.taskDefinitionRegistry(TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build()).build())
-				.taskFactory(new JPATaskFactory()).taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
+        engine.moveTaskObjectsToTaskCluster(taskCluster, otherBusinessObject);
 
-		Cluster taskCluster = new Cluster();
-		taskCluster.setCheckGraphCreated(false);
+        Assert.assertEquals(engine.getTaskManagerConfiguration().getTaskManagerReader().findTaskClusterByTaskObject(otherBusinessObject), taskCluster);
+        Assert.assertEquals(businessObject.getStatus(), "B");
+        Assert.assertEquals(otherBusinessObject.getStatus(), "B");
+        Assert.assertTrue(taskCluster.isCheckArchived());
+        Assert.assertTrue(otherTaskCluster.isCheckArchived());
 
-		jpaTaskManagerReaderWriter.saveNewTaskCluster(taskCluster);
+        Assert.assertEquals(getClusters().size(), 2);
+        Assert.assertEquals(getTasks().size(), 8);
+        Assert.assertEquals(getBusinessObjects().size(), 2);
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
-		BusinessObject businessObject = new BusinessObject();
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
+        JPAHelper.getInstance().getJpaAccess().stop();
+    }
 
-		ClusterDependency cd = new ClusterDependency();
-		cd.setBusinessTaskObjectId(businessObject.getId());
-		cd.setBusinessTaskObjectClass(BusinessObject.class);
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(cd);
+    /**
+     * Test checkGraphCreated
+     * <p>
+     * null -> A
+     */
+    @Test
+    public void test13() {
+        JPAHelper.getInstance().getJpaAccess().start();
 
-		taskCluster.setClusterDependencies(new ArrayList<>(Collections.singletonList(cd)));
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(taskCluster);
+        JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.DELETE);
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
+        TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
+                TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask").build())
+                        .build()).build())
+                .taskDefinitionRegistry(TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build()).build())
+                .taskFactory(new JPATaskFactory()).taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
 
-		Assert.assertEquals(getClusters().size(), 1);
-		Assert.assertEquals(getTasks().size(), 0);
-		Assert.assertEquals(getBusinessObjects().size(), 1);
+        Cluster taskCluster = new Cluster();
+        taskCluster.setCheckGraphCreated(false);
 
-		engine.startEngine(taskCluster);
+        jpaTaskManagerReaderWriter.saveNewTaskCluster(taskCluster);
 
-		Assert.assertEquals(businessObject.getStatus(), "A");
-		Assert.assertTrue(taskCluster.isCheckGraphCreated());
-		Assert.assertTrue(taskCluster.isCheckArchived());
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
+        BusinessObject businessObject = new BusinessObject();
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
 
-		Assert.assertEquals(getClusters().size(), 1);
-		Assert.assertEquals(getTasks().size(), 2);
-		Assert.assertEquals(getBusinessObjects().size(), 1);
+        ClusterDependency cd = new ClusterDependency();
+        cd.setBusinessTaskObjectId(businessObject.getId());
+        cd.setBusinessTaskObjectClass(BusinessObject.class);
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(cd);
 
-		JPAHelper.getInstance().getJpaAccess().stop();
-	}
+        taskCluster.setClusterDependencies(new ArrayList<>(Collections.singletonList(cd)));
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(taskCluster);
 
-	/**
-	 * Test two parallel task service
-	 * <p>
-	 * null -> (CHANGE,STOP) -> A
-	 */
-	@Test
-	public void test16() {
-		JPAHelper.getInstance().getJpaAccess().start();
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
 
-		JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.DELETE);
+        Assert.assertEquals(getClusters().size(), 1);
+        Assert.assertEquals(getTasks().size(), 0);
+        Assert.assertEquals(getBusinessObjects().size(), 1);
 
-		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
-				TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask").build())
-						.addTaskChainCriteria(null, "A", "CHANGE,STOP").build()).build()).taskDefinitionRegistry(
-				TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("CHANGE", new ChangeCodeTaskService("VersA")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("STOP", new StopTaskService()).build()).build())
-				.taskFactory(new JPATaskFactory()).taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
+        engine.startEngine(taskCluster);
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
-		BusinessObject businessObject = new BusinessObject();
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
+        Assert.assertEquals(businessObject.getStatus(), "A");
+        Assert.assertTrue(taskCluster.isCheckGraphCreated());
+        Assert.assertTrue(taskCluster.isCheckArchived());
 
-		ITaskCluster taskCluster = engine.startEngine(businessObject);
+        Assert.assertEquals(getClusters().size(), 1);
+        Assert.assertEquals(getTasks().size(), 2);
+        Assert.assertEquals(getBusinessObjects().size(), 1);
 
-		Assert.assertEquals(businessObject.getStatus(), null);
-		Assert.assertTrue(!taskCluster.isCheckArchived());
+        JPAHelper.getInstance().getJpaAccess().stop();
+    }
 
-		JPAHelper.getInstance().getJpaAccess().stop();
-	}
+    /**
+     * Test two parallel task service
+     * <p>
+     * null -> (CHANGE,STOP) -> A
+     */
+    @Test
+    public void test16() {
+        JPAHelper.getInstance().getJpaAccess().start();
 
-	/**
-	 * null -> A -> (CHANGE,DATE) => VERSB -> B
-	 */
-	@Test
-	public void test17() {
-		JPAHelper.getInstance().getJpaAccess().start();
+        JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.DELETE);
 
-		JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.DELETE);
+        TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
+                TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class).statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask").build())
+                        .addTaskChainCriteria(null, "A", "CHANGE,STOP").build()).build()).taskDefinitionRegistry(
+                TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("CHANGE", new ChangeCodeTaskService("VersA")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("STOP", new StopTaskService()).build()).build()).taskFactory(new JPATaskFactory())
+                .taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
 
-		TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
-				TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class)
-						.statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
-						.addTaskChainCriteria("A", "B", "(CHANGE,DATE)=>VERSB").build()).build()).taskDefinitionRegistry(
-				TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("CHANGE", new ChangeCodeTaskService("VersB")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build())
-						.addTaskDefinition(TaskDefinitionBuilder.newBuilder("DATE", new SetNowDateTaskService()).build()).build())
-				.taskFactory(new JPATaskFactory()).taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
+        BusinessObject businessObject = new BusinessObject();
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
-		BusinessObject businessObject = new BusinessObject();
-		businessObject.setCode("VersA");
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
+        ITaskCluster taskCluster = engine.startEngine(businessObject);
 
-		Assert.assertNull(businessObject.getDate());
+        Assert.assertEquals(businessObject.getStatus(), null);
+        Assert.assertTrue(!taskCluster.isCheckArchived());
 
-		ITaskCluster taskCluster = engine.startEngine(businessObject);
+        JPAHelper.getInstance().getJpaAccess().stop();
+    }
 
-		Assert.assertNotNull(businessObject.getDate());
-		Assert.assertEquals(businessObject.getCode(), "VersB");
-		Assert.assertEquals(businessObject.getStatus(), "B");
-		Assert.assertTrue(taskCluster.isCheckArchived());
+    /**
+     * null -> A -> (CHANGE,DATE) => VERSB -> B
+     */
+    @Test
+    public void test17() {
+        JPAHelper.getInstance().getJpaAccess().start();
 
-		JPAHelper.getInstance().getJpaAccess().stop();
-	}
+        JPATaskManagerReaderWriter jpaTaskManagerReaderWriter = new JPATaskManagerReaderWriter(JPAHelper.getInstance().getJpaAccess(), JPATaskManagerReaderWriter.RemoveMode.DELETE);
 
-	private List<Cluster> getClusters() {
-		Query q = JPAHelper.getInstance().getJpaAccess().getEntityManager().createQuery("select t from Cluster t");
-		return q.getResultList();
-	}
+        TaskManagerEngine engine = new TaskManagerEngine(TaskManagerConfigurationBuilder.newBuilder().taskObjectManagerRegistry(TaskObjectManagerRegistryBuilder.newBuilder().addTaskObjectManager(
+                TaskObjectManagerBuilder.<String, BusinessObject>newBuilder(BusinessObject.class)
+                        .statusGraphs(StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("A", "ATask", StatusGraphsBuilder.<String>newBuilder().addNextStatusGraph("B", "BTask")).build())
+                        .addTaskChainCriteria("A", "B", "(CHANGE,DATE)=>VERSB").build()).build()).taskDefinitionRegistry(
+                TaskDefinitionRegistryBuilder.newBuilder().addTaskDefinition(TaskDefinitionBuilder.newBuilder("ATask", new MultiUpdateStatusTaskService("A")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("BTask", new MultiUpdateStatusTaskService("B")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("CHANGE", new ChangeCodeTaskService("VersB")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("VERSB", new VerifyCodeTaskService("VersB")).build())
+                        .addTaskDefinition(TaskDefinitionBuilder.newBuilder("DATE", new SetNowDateTaskService()).build()).build()).taskFactory(new JPATaskFactory())
+                .taskManagerReader(jpaTaskManagerReaderWriter).taskManagerWriter(jpaTaskManagerReaderWriter).build());
 
-	private static List<BusinessObject> getBusinessObjects() {
-		Query q = JPAHelper.getInstance().getJpaAccess().getEntityManager().createQuery("select t from BusinessObject t");
-		return q.getResultList();
-	}
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
+        BusinessObject businessObject = new BusinessObject();
+        businessObject.setCode("VersA");
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
 
-	private List<Task> getTasks() {
-		Query q = JPAHelper.getInstance().getJpaAccess().getEntityManager().createQuery("select t from Task t");
-		return q.getResultList();
-	}
+        Assert.assertNull(businessObject.getDate());
 
-	private void showTasks() {
-		System.out.println("------ Task ------");
-		List<Task> tasks = getTasks();
-		tasks.forEach(System.out::println);
-		System.out.println("Size: " + tasks.size());
-	}
+        ITaskCluster taskCluster = engine.startEngine(businessObject);
+
+        Assert.assertNotNull(businessObject.getDate());
+        Assert.assertEquals(businessObject.getCode(), "VersB");
+        Assert.assertEquals(businessObject.getStatus(), "B");
+        Assert.assertTrue(taskCluster.isCheckArchived());
+
+        JPAHelper.getInstance().getJpaAccess().stop();
+    }
+
+    private List<Cluster> getClusters() {
+        Query q = JPAHelper.getInstance().getJpaAccess().getEntityManager().createQuery("select t from Cluster t");
+        return q.getResultList();
+    }
+
+    private List<Task> getTasks() {
+        Query q = JPAHelper.getInstance().getJpaAccess().getEntityManager().createQuery("select t from Task t");
+        return q.getResultList();
+    }
+
+    private void showTasks() {
+        System.out.println("------ Task ------");
+        List<Task> tasks = getTasks();
+        tasks.forEach(System.out::println);
+        System.out.println("Size: " + tasks.size());
+    }
 }

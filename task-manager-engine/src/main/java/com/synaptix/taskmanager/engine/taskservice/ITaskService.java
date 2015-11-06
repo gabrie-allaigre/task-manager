@@ -8,73 +8,77 @@ import com.synaptix.taskmanager.model.ITaskObject;
 
 public interface ITaskService extends ITaskCycleListener {
 
-	/**
-	 * Execute service
-	 *
-	 * @param context give access task manager engine
-	 * @param task task link with service
-	 * @return result of execution, <use>ExecutionResultBuilder</use>
-	 */
-	IExecutionResult execute(IEngineContext context,ICommonTask task);
+    /**
+     * Execute service
+     *
+     * @param context give access task manager engine
+     * @param commonTask    task link with service
+     * @return result of execution, <use>ExecutionResultBuilder</use>
+     */
+    IExecutionResult execute(IEngineContext context, ICommonTask commonTask);
 
-	interface IEngineContext {
+    interface IEngineContext {
 
-		ITaskCluster getCurrentTaskCluster();
+        ITaskCluster getCurrentTaskCluster();
 
-		ITaskDefinition getTaskDefinition();
+        ITaskDefinition getTaskDefinition();
 
-		void startEngine(TaskClusterCallback taskClusterCallback,ITaskObject... taskObjects);
+        void startEngine(ITaskObject... taskObjects);
 
-		void startEngine(ITaskCluster... taskClusters);
+        void startEngine(TaskClusterCallback taskClusterCallback, ITaskObject... taskObjects);
 
-		void addTaskObjectsToTaskCluster(ITaskObject... taskObjects);
+        void startEngine(ITaskCluster... taskClusters);
 
-		void addTaskObjectsToTaskCluster(ITaskCluster taskCluster, ITaskObject... taskObjects);
+        void addTaskObjectsToTaskCluster(ITaskObject... taskObjects);
 
-		void removeTaskObjectsFromTaskCluster(ITaskObject... taskObjects);
+        void addTaskObjectsToTaskCluster(ITaskCluster taskCluster, ITaskObject... taskObjects);
 
-		void moveTaskObjectsToNewTaskCluster(TaskClusterCallback taskClusterCallback,ITaskObject... taskObjects);
+        void removeTaskObjectsFromTaskCluster(ITaskObject... taskObjects);
 
-		void moveTaskObjectsToTaskCluster(ITaskObject... taskObjects);
+        void moveTaskObjectsToNewTaskCluster(ITaskObject... taskObjects);
 
-		void moveTaskObjectsToTaskCluster(ITaskCluster dstTaskCluster, ITaskObject... taskObjects);
+        void moveTaskObjectsToNewTaskCluster(TaskClusterCallback taskClusterCallback, ITaskObject... taskObjects);
 
-		interface TaskClusterCallback {
+        void moveTaskObjectsToTaskCluster(ITaskObject... taskObjects);
 
-			void setTaskCluster(ITaskCluster taskCluster);
+        void moveTaskObjectsToTaskCluster(ITaskCluster dstTaskCluster, ITaskObject... taskObjects);
 
-		}
+        interface TaskClusterCallback {
 
-	}
+            void setTaskCluster(ITaskCluster taskCluster);
 
-	interface IExecutionResult {
+        }
 
-		/**
-		 * Task is finish
-		 *
-		 * @return true is finish
-		 */
-		boolean isFinished();
+    }
 
-		/**
-		 * Task no changes business object
-		 *
-		 * @return true is no changes
-		 */
-		boolean isNoChanges();
+    interface IExecutionResult {
 
-		/**
-		 * Get result of task, finish or not
-		 *
-		 * @return the result
-		 */
-		Object getResult();
+        /**
+         * Task is finish
+         *
+         * @return true is finish
+         */
+        boolean isFinished();
 
-		/**
-		 * Must stop and restart task manager
-		 *
-		 * @return true if must stop and restart
-		 */
-		boolean mustStopAndRestartTaskManager();
-	}
+        /**
+         * Task no changes business object
+         *
+         * @return true is no changes
+         */
+        boolean isNoChanges();
+
+        /**
+         * Get result of task, finish or not
+         *
+         * @return the result
+         */
+        Object getResult();
+
+        /**
+         * Must stop and restart task manager
+         *
+         * @return true if must stop and restart
+         */
+        boolean mustStopAndRestartTaskManager();
+    }
 }

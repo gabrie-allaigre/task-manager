@@ -12,36 +12,48 @@ import com.synaptix.taskmanager.model.ITaskObject;
 
 public class JPATaskFactory extends AbstractTaskFactory {
 
-	@Override
-	public ITaskCluster newTaskCluster() {
-		return new Cluster();
-	}
+    private final ICurrentStatusTransform currentStatusTransform;
 
-	@Override
-	public ISubTask newSubTask(String codeSubTaskDefinition) {
-		Task task = new Task();
-		task.setType(Task.Type.subTask);
-		task.setCodeTaskDefinition(codeSubTaskDefinition);
-		return task;
-	}
+    public JPATaskFactory() {
+        this(StringCurrentStatusTransform.INSTANCE);
+    }
 
-	@Override
-	public boolean isSubTask(ICommonTask task) {
-		return Task.Type.subTask.equals(((Task) task).getType());
-	}
+    public JPATaskFactory(ICurrentStatusTransform currentStatusTransform) {
+        super();
 
-	@Override
-	public IStatusTask newStatusTask(String codeStatusTaskDefinition, Class<? extends ITaskObject> taskObjectClass, Object currentStatus) {
-		Task task = new Task();
-		task.setType(Task.Type.statusTask);
-		task.setCodeTaskDefinition(codeStatusTaskDefinition);
-		task.setBusinessTaskObjectClass((Class<? extends IBusinessTaskObject>) taskObjectClass);
-		task.setCurrentStatus(currentStatus);
-		return task;
-	}
+        this.currentStatusTransform = currentStatusTransform;
+    }
 
-	@Override
-	public boolean isStatusTask(ICommonTask task) {
-		return Task.Type.statusTask.equals(((Task) task).getType());
-	}
+    @Override
+    public ITaskCluster newTaskCluster() {
+        return new Cluster();
+    }
+
+    @Override
+    public ISubTask newSubTask(String codeSubTaskDefinition) {
+        Task task = new Task();
+        task.setType(Task.Type.SUB_TASK);
+        task.setCodeTaskDefinition(codeSubTaskDefinition);
+        return new JPATask(currentStatusTransform, task);
+    }
+
+    @Override
+    public boolean isSubTask(ICommonTask task) {
+        return Task.Type.SUB_TASK.equals(((JPATask) task).getTask().getType());
+    }
+
+    @Override
+    public IStatusTask newStatusTask(String codeStatusTaskDefinition, Class<? extends ITaskObject> taskObjectClass, Object currentStatus) {
+        Task task = new Task();
+        task.setType(Task.Type.STATUS_TASK);
+        task.setCodeTaskDefinition(codeStatusTaskDefinition);
+        task.setBusinessTaskObjectClass((Class<? extends IBusinessTaskObject>) taskObjectClass);
+        task.setCurrentStatus(currentStatusTransform.toString(taskObjectClass,currentStatus));
+        return new JPATask(currentStatusTransform, task);
+    }
+
+    @Override
+    public boolean isStatusTask(ICommonTask task) {
+        return Task.Type.STATUS_TASK.equals(((JPATask) task).getTask().getType());
+    }
 }

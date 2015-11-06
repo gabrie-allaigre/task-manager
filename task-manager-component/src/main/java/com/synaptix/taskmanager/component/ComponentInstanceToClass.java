@@ -7,13 +7,13 @@ import com.synaptix.taskmanager.model.ITaskObject;
 
 public class ComponentInstanceToClass implements TaskObjectManagerRegistryBuilder.IInstanceToClass {
 
-	public static final ComponentInstanceToClass INSTANCE = new ComponentInstanceToClass();
+    public static final ComponentInstanceToClass INSTANCE = new ComponentInstanceToClass();
 
-	@Override
-	public <F extends ITaskObject> Class<F> instanceToClass(F taskObject) {
-		if (taskObject instanceof IComponent) {
-			return (Class<F>) ((Proxy) taskObject).straightGetComponentClass();
-		}
-		return (Class<F>) taskObject.getClass();
-	}
+    @Override
+    public <F extends ITaskObject> Class<F> instanceToClass(F taskObject) {
+        if (taskObject instanceof IComponent) {
+            return (Class<F>) ((Proxy) taskObject).straightGetComponentClass();
+        }
+        return (Class<F>) taskObject.getClass();
+    }
 }

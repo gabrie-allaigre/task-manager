@@ -5,12 +5,12 @@ import com.synaptix.taskmanager.engine.taskservice.AbstractTaskService;
 
 public class NullTaskService extends AbstractTaskService {
 
-	public NullTaskService() {
-		super();
-	}
+    public NullTaskService() {
+        super();
+    }
 
-	@Override
-	public IExecutionResult execute(IEngineContext context,ICommonTask task) {
-		return null;
-	}
+    @Override
+    public IExecutionResult execute(IEngineContext context, ICommonTask task) {
+        return null;
+    }
 }

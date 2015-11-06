@@ -8,45 +8,45 @@ import javax.persistence.Persistence;
 
 public class DefaultJPAAccess implements IJPAAccess {
 
-	private final String persistenceUnitName;
+    private final String persistenceUnitName;
 
-	private EntityManagerFactory emf;
+    private EntityManagerFactory emf;
 
-	private EntityManager em;
+    private EntityManager em;
 
-	public DefaultJPAAccess(String persistenceUnitName) {
-		super();
+    public DefaultJPAAccess(String persistenceUnitName) {
+        super();
 
-		this.persistenceUnitName = persistenceUnitName;
+        this.persistenceUnitName = persistenceUnitName;
 
-	}
+    }
 
-	public void start() {
-		emf = Persistence.createEntityManagerFactory(persistenceUnitName);
-		em = emf.createEntityManager();
-	}
+    public void start() {
+        emf = Persistence.createEntityManagerFactory(persistenceUnitName);
+        em = emf.createEntityManager();
+    }
 
-	public void stop() {
-		em.close();
-		emf.close();
-	}
+    public void stop() {
+        em.close();
+        emf.close();
+    }
 
-	public final EntityManagerFactory getEntityManagerFactory() {
-		return emf;
-	}
+    public final EntityManagerFactory getEntityManagerFactory() {
+        return emf;
+    }
 
-	@Override
-	public final EntityManager getEntityManager() {
-		return em;
-	}
+    @Override
+    public final EntityManager getEntityManager() {
+        return em;
+    }
 
-	@Override
-	public <E extends IBusinessTaskObject> E find(Class<E> businessTaskObject, Long id) {
-		return getEntityManager().find(businessTaskObject,id);
-	}
+    @Override
+    public <E extends IBusinessTaskObject> E find(Class<E> businessTaskObject, Long id) {
+        return getEntityManager().find(businessTaskObject, id);
+    }
 
-	@Override
-	public <E extends IBusinessTaskObject> Class<E> instanceToClass(E businessTask) {
-		return (Class<E>)businessTask.getClass();
-	}
+    @Override
+    public <E extends IBusinessTaskObject> Class<E> instanceToClass(E businessTask) {
+        return (Class<E>) businessTask.getClass();
+    }
 }

@@ -9,16 +9,16 @@ import com.synaptix.taskmanager.engine.configuration.transform.ITaskChainCriteri
 
 public interface ITaskManagerConfiguration {
 
-	ITaskObjectManagerRegistry getTaskObjectManagerRegistry();
+    ITaskObjectManagerRegistry getTaskObjectManagerRegistry();
 
-	ITaskDefinitionRegistry getTaskDefinitionRegistry();
+    ITaskDefinitionRegistry getTaskDefinitionRegistry();
 
-	ITaskFactory getTaskFactory();
+    ITaskFactory getTaskFactory();
 
-	ITaskChainCriteriaTransform getTaskChainCriteriaBuilder();
+    ITaskChainCriteriaTransform getTaskChainCriteriaBuilder();
 
-	ITaskManagerReader getTaskManagerReader();
+    ITaskManagerReader getTaskManagerReader();
 
-	ITaskManagerWriter getTaskManagerWriter();
+    ITaskManagerWriter getTaskManagerWriter();
 
 }

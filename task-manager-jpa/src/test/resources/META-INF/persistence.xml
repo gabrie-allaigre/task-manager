@@ -11,16 +11,16 @@
         <class>com.synaptix.taskmanager.jpa.test.data.OtherBusinessObject</class>
 
         <properties>
-            <property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.EmbeddedDriver" />
+            <property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.EmbeddedDriver"/>
             <property name="javax.persistence.jdbc.url"
-                      value="jdbc:derby:./target/test;create=true" />
-            <property name="javax.persistence.jdbc.user" value="test" />
-            <property name="javax.persistence.jdbc.password" value="test" />
+                      value="jdbc:derby:memory:;create=true"/>
+            <property name="javax.persistence.jdbc.user" value="test"/>
+            <property name="javax.persistence.jdbc.password" value="test"/>
 
-            <!-- EclipseLink should create the database schema automatically -->
-            <property name="eclipselink.ddl-generation" value="drop-and-create-tables" />
-            <property name="eclipselink.ddl-generation.output-mode"
-                      value="database" />
+            <property name="hibernate.show_sql" value="false"/>
+            <property name="hibernate.format_sql" value="false"/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.DerbyTenSevenDialect"/>
+            <property name="hibernate.hbm2ddl.auto" value="create"/>
         </properties>
 
     </persistence-unit>

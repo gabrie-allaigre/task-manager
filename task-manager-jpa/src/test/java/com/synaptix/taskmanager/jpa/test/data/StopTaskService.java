@@ -6,13 +6,13 @@ import com.synaptix.taskmanager.engine.taskservice.ExecutionResultBuilder;
 
 public class StopTaskService extends AbstractTaskService {
 
-	public StopTaskService() {
-		super();
-	}
+    public StopTaskService() {
+        super();
+    }
 
-	@Override
-	public IExecutionResult execute(IEngineContext context,ICommonTask commonTask) {
-		return ExecutionResultBuilder.newBuilder().notFinished();
-	}
+    @Override
+    public IExecutionResult execute(IEngineContext context, ICommonTask commonTask) {
+        return ExecutionResultBuilder.newBuilder().notFinished();
+    }
 
 }

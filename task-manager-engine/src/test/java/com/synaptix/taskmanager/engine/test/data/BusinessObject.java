@@ -2,37 +2,25 @@ package com.synaptix.taskmanager.engine.test.data;
 
 import java.util.Date;
 
-import com.synaptix.taskmanager.model.ITaskObject;
+public class BusinessObject extends AbstractCommonObject {
 
-public class BusinessObject implements ITaskObject {
+    private Date date;
 
-	private String status;
+    private OptionObject optionObject;
 
-	private String code;
+    public Date getDate() {
+        return date;
+    }
 
-	private Date date;
+    public void setDate(Date date) {
+        this.date = date;
+    }
 
-	public String getStatus() {
-		return status;
-	}
+    public OptionObject getOptionObject() {
+        return optionObject;
+    }
 
-	public void setStatus(String status) {
-		this.status = status;
-	}
-
-	public String getCode() {
-		return code;
-	}
-
-	public void setCode(String code) {
-		this.code = code;
-	}
-
-	public Date getDate() {
-		return date;
-	}
-
-	public void setDate(Date date) {
-		this.date = date;
-	}
+    public void setOptionObject(OptionObject optionObject) {
+        this.optionObject = optionObject;
+    }
 }

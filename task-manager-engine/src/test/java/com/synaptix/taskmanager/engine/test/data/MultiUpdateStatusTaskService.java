@@ -7,21 +7,21 @@ import com.synaptix.taskmanager.engine.taskservice.ExecutionResultBuilder;
 
 public class MultiUpdateStatusTaskService extends AbstractTaskService {
 
-	private final String status;
+    private final String status;
 
-	public MultiUpdateStatusTaskService(String status) {
-		super();
+    public MultiUpdateStatusTaskService(String status) {
+        super();
 
-		this.status = status;
-	}
+        this.status = status;
+    }
 
-	public String getStatus() {
-		return status;
-	}
+    public String getStatus() {
+        return status;
+    }
 
-	@Override
-	public IExecutionResult execute(IEngineContext context,ICommonTask task) {
-		((SimpleStatusTask) task).<BusinessObject> getTaskObject().setStatus(status);
-		return ExecutionResultBuilder.newBuilder().finished();
-	}
+    @Override
+    public IExecutionResult execute(IEngineContext context, ICommonTask task) {
+        ((SimpleStatusTask) task).<AbstractCommonObject>getTaskObject().setStatus(status);
+        return ExecutionResultBuilder.newBuilder().finished();
+    }
 }

@@ -3,31 +3,31 @@ package com.synaptix.taskmanager.jpa.test.data;
 import com.synaptix.taskmanager.engine.task.ICommonTask;
 import com.synaptix.taskmanager.engine.taskservice.AbstractTaskService;
 import com.synaptix.taskmanager.engine.taskservice.ExecutionResultBuilder;
-import com.synaptix.taskmanager.jpa.model.Task;
+import com.synaptix.taskmanager.jpa.JPATask;
 
 public class ChangeCodeTaskService extends AbstractTaskService {
 
-	private final String newCode;
+    private final String newCode;
 
-	public ChangeCodeTaskService(String newCode) {
-		super();
+    public ChangeCodeTaskService(String newCode) {
+        super();
 
-		this.newCode = newCode;
-	}
+        this.newCode = newCode;
+    }
 
-	@Override
-	public IExecutionResult execute(IEngineContext context,ICommonTask commonTask) {
-		Task task = (Task)commonTask;
+    @Override
+    public IExecutionResult execute(IEngineContext context, ICommonTask commonTask) {
+        JPATask task = (JPATask) commonTask;
 
-		BusinessObject businessObject = JPAHelper.getInstance().getJpaAccess().getEntityManager().find(BusinessObject.class,task.getBusinessTaskObjectId());
+        BusinessObject businessObject = JPAHelper.getInstance().getJpaAccess().getEntityManager().find(BusinessObject.class, task.getTask().getBusinessTaskObjectId());
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().begin();
 
-		businessObject.setCode(newCode);
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
+        businessObject.setCode(newCode);
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().persist(businessObject);
 
-		JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
+        JPAHelper.getInstance().getJpaAccess().getEntityManager().getTransaction().commit();
 
-		return ExecutionResultBuilder.newBuilder().finished();
-	}
+        return ExecutionResultBuilder.newBuilder().finished();
+    }
 }

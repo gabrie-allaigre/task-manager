@@ -1,7 +1,5 @@
 package com.synaptix.taskmanager.engine.configuration;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
 import com.synaptix.taskmanager.engine.configuration.factory.ITaskFactory;
 import com.synaptix.taskmanager.engine.configuration.persistance.ITaskManagerReader;
 import com.synaptix.taskmanager.engine.configuration.persistance.ITaskManagerWriter;
@@ -11,114 +9,115 @@ import com.synaptix.taskmanager.engine.configuration.transform.DefaultTaskChainC
 import com.synaptix.taskmanager.engine.configuration.transform.ITaskChainCriteriaTransform;
 import com.synaptix.taskmanager.engine.memory.MemoryTaskManagerReaderWriter;
 import com.synaptix.taskmanager.engine.memory.SimpleTaskFactory;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class TaskManagerConfigurationBuilder {
 
-	private TaskManagerConfigurationImpl taskManagerConfiguration;
+    private TaskManagerConfigurationImpl taskManagerConfiguration;
 
-	private TaskManagerConfigurationBuilder() {
-		super();
+    private TaskManagerConfigurationBuilder() {
+        super();
 
-		this.taskManagerConfiguration = new TaskManagerConfigurationImpl();
-	}
+        this.taskManagerConfiguration = new TaskManagerConfigurationImpl();
+    }
 
-	public TaskManagerConfigurationBuilder taskObjectManagerRegistry(ITaskObjectManagerRegistry taskObjectManagerRegistry) {
-		taskManagerConfiguration.taskObjectManagerRegistry = taskObjectManagerRegistry;
-		return this;
-	}
+    public static TaskManagerConfigurationBuilder newBuilder() {
+        return new TaskManagerConfigurationBuilder();
+    }
 
-	public TaskManagerConfigurationBuilder taskDefinitionRegistry(ITaskDefinitionRegistry taskDefinitionRegistry) {
-		taskManagerConfiguration.taskDefinitionRegistry = taskDefinitionRegistry;
-		return this;
-	}
+    public TaskManagerConfigurationBuilder taskObjectManagerRegistry(ITaskObjectManagerRegistry taskObjectManagerRegistry) {
+        taskManagerConfiguration.taskObjectManagerRegistry = taskObjectManagerRegistry;
+        return this;
+    }
 
-	public TaskManagerConfigurationBuilder taskFactory(ITaskFactory taskFactory) {
-		taskManagerConfiguration.taskFactory = taskFactory;
-		return this;
-	}
+    public TaskManagerConfigurationBuilder taskDefinitionRegistry(ITaskDefinitionRegistry taskDefinitionRegistry) {
+        taskManagerConfiguration.taskDefinitionRegistry = taskDefinitionRegistry;
+        return this;
+    }
 
-	public TaskManagerConfigurationBuilder taskChainCriteriaBuilder(ITaskChainCriteriaTransform taskChainCriteriaBuilder) {
-		taskManagerConfiguration.taskChainCriteriaBuilder = taskChainCriteriaBuilder;
-		return this;
-	}
+    public TaskManagerConfigurationBuilder taskFactory(ITaskFactory taskFactory) {
+        taskManagerConfiguration.taskFactory = taskFactory;
+        return this;
+    }
 
-	public TaskManagerConfigurationBuilder taskManagerReader(ITaskManagerReader taskManagerReader) {
-		taskManagerConfiguration.taskManagerReader = taskManagerReader;
-		return this;
-	}
+    public TaskManagerConfigurationBuilder taskChainCriteriaBuilder(ITaskChainCriteriaTransform taskChainCriteriaBuilder) {
+        taskManagerConfiguration.taskChainCriteriaBuilder = taskChainCriteriaBuilder;
+        return this;
+    }
 
-	public TaskManagerConfigurationBuilder taskManagerWriter(ITaskManagerWriter taskManagerWriter) {
-		taskManagerConfiguration.taskManagerWriter = taskManagerWriter;
-		return this;
-	}
+    public TaskManagerConfigurationBuilder taskManagerReader(ITaskManagerReader taskManagerReader) {
+        taskManagerConfiguration.taskManagerReader = taskManagerReader;
+        return this;
+    }
 
-	public ITaskManagerConfiguration build() {
-		return taskManagerConfiguration;
-	}
+    public TaskManagerConfigurationBuilder taskManagerWriter(ITaskManagerWriter taskManagerWriter) {
+        taskManagerConfiguration.taskManagerWriter = taskManagerWriter;
+        return this;
+    }
 
-	public static TaskManagerConfigurationBuilder newBuilder() {
-		return new TaskManagerConfigurationBuilder();
-	}
+    public ITaskManagerConfiguration build() {
+        return taskManagerConfiguration;
+    }
 
-	private static class TaskManagerConfigurationImpl implements ITaskManagerConfiguration {
+    private static class TaskManagerConfigurationImpl implements ITaskManagerConfiguration {
 
-		private ITaskObjectManagerRegistry taskObjectManagerRegistry;
+        private ITaskObjectManagerRegistry taskObjectManagerRegistry;
 
-		private ITaskDefinitionRegistry taskDefinitionRegistry;
+        private ITaskDefinitionRegistry taskDefinitionRegistry;
 
-		private ITaskFactory taskFactory;
+        private ITaskFactory taskFactory;
 
-		private ITaskChainCriteriaTransform taskChainCriteriaBuilder;
+        private ITaskChainCriteriaTransform taskChainCriteriaBuilder;
 
-		private ITaskManagerReader taskManagerReader;
+        private ITaskManagerReader taskManagerReader;
 
-		private ITaskManagerWriter taskManagerWriter;
+        private ITaskManagerWriter taskManagerWriter;
 
-		public TaskManagerConfigurationImpl() {
-			super();
+        public TaskManagerConfigurationImpl() {
+            super();
 
-			this.taskFactory = new SimpleTaskFactory();
-			this.taskChainCriteriaBuilder = new DefaultTaskChainCriteriaTransform();
+            this.taskFactory = new SimpleTaskFactory();
+            this.taskChainCriteriaBuilder = new DefaultTaskChainCriteriaTransform();
 
-			MemoryTaskManagerReaderWriter memoryTaskReaderWriter = new MemoryTaskManagerReaderWriter();
-			this.taskManagerReader = memoryTaskReaderWriter;
-			this.taskManagerWriter = memoryTaskReaderWriter;
+            MemoryTaskManagerReaderWriter memoryTaskReaderWriter = new MemoryTaskManagerReaderWriter();
+            this.taskManagerReader = memoryTaskReaderWriter;
+            this.taskManagerWriter = memoryTaskReaderWriter;
 
-		}
+        }
 
-		@Override
-		public ITaskObjectManagerRegistry getTaskObjectManagerRegistry() {
-			return taskObjectManagerRegistry;
-		}
+        @Override
+        public ITaskObjectManagerRegistry getTaskObjectManagerRegistry() {
+            return taskObjectManagerRegistry;
+        }
 
-		@Override
-		public ITaskDefinitionRegistry getTaskDefinitionRegistry() {
-			return taskDefinitionRegistry;
-		}
+        @Override
+        public ITaskDefinitionRegistry getTaskDefinitionRegistry() {
+            return taskDefinitionRegistry;
+        }
 
-		@Override
-		public ITaskFactory getTaskFactory() {
-			return taskFactory;
-		}
+        @Override
+        public ITaskFactory getTaskFactory() {
+            return taskFactory;
+        }
 
-		@Override
-		public ITaskChainCriteriaTransform getTaskChainCriteriaBuilder() {
-			return taskChainCriteriaBuilder;
-		}
+        @Override
+        public ITaskChainCriteriaTransform getTaskChainCriteriaBuilder() {
+            return taskChainCriteriaBuilder;
+        }
 
-		@Override
-		public ITaskManagerReader getTaskManagerReader() {
-			return taskManagerReader;
-		}
+        @Override
+        public ITaskManagerReader getTaskManagerReader() {
+            return taskManagerReader;
+        }
 
-		@Override
-		public ITaskManagerWriter getTaskManagerWriter() {
-			return taskManagerWriter;
-		}
+        @Override
+        public ITaskManagerWriter getTaskManagerWriter() {
+            return taskManagerWriter;
+        }
 
-		@Override
-		public String toString() {
-			return ToStringBuilder.reflectionToString(this);
-		}
-	}
+        @Override
+        public String toString() {
+            return ToStringBuilder.reflectionToString(this);
+        }
+    }
 }

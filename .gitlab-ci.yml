@@ -37,3 +37,9 @@ deploy_job:
     - master
   script:
     - mvn --batch-mode deploy -Dmaven.test.skip=true -Djacoco.skip=true
+deploy_tags_job:
+  stage: deploy
+  only:
+    - tags
+  script:
+    - mvn --batch-mode deploy -Dmaven.test.skip=true -Djacoco.skip=true

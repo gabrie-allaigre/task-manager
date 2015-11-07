@@ -350,21 +350,4 @@ L'implémentation par défaut est le constucteur `ExecutionResultBuilder`.
 
 # Faire une release
 
-```bash
-mvn versions:set -DnewVersion=1.0.1
-
-mvn clean deploy
-
-git add *
-git commit -m "release version 1.0.1"
-git tag 1.0.1
-git push --follow-tags origin 1.0.1
-
-mvn versions:set -DnewVersion=1.1.0-SNAPSHOT
-mvn versions:commit
-
-git add *
-git commit -m "new version 1.1.0-SNAPSHOT"
-git push origin master
-
-```
+Faire simplement un tag, GitLab-CI fera une release automatiqument avec le nom du tag

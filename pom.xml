@@ -46,6 +46,13 @@
         <sonar.sourceEncoding>UTF-8</sonar.sourceEncoding>
         <sonar.exclusions>**/taskmanager/example/**/*</sonar.exclusions>
     </properties>
+    <developers>
+        <developer>
+            <id>gabriel.allaigre@synaptix-labs.com</id>
+            <name>Gabriel Allaigre</name>
+            <email>gabriel.allaigre@synaptix-labs.com</email>
+        </developer>
+    </developers>
     <scm>
         <url>https://gitlab.synaptix-labs.com/synaptix/task-manager</url>
         <connection>scm:git:https://gitlab.synaptix-labs.com/synaptix/task-manager.git</connection>

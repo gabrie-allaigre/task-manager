@@ -47,6 +47,13 @@
         <sonar.sourceEncoding>UTF-8</sonar.sourceEncoding>
         <sonar.exclusions>**/taskmanager/example/**/*</sonar.exclusions>
     </properties>
+    <developers>
+        <developer>
+            <id>gabriel.allaigre@synaptix-labs.com</id>
+            <name>Gabriel Allaigre</name>
+            <email>gabriel.allaigre@synaptix-labs.com</email>
+        </developer>
+    </developers>
     <scm>
         <url>https://gitlab.synaptix-labs.com/synaptix/task-manager</url>
         <connection>scm:git:https://gitlab.synaptix-labs.com/synaptix/task-manager.git</connection>
@@ -68,30 +75,6 @@
         <module>task-manager-guice</module>
     </modules>
     <build>
-        <finalName>${project.artifactId}-${project.version}
-        </finalName>
-        <directory>${basedir}/target</directory>
-        <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
-        <scriptSourceDirectory>${basedir}/src/main/scripts</scriptSourceDirectory>
-        <testSourceDirectory>${basedir}/src/test/java</testSourceDirectory>
-        <outputDirectory>${basedir}/target/classes</outputDirectory>
-        <testOutputDirectory>${basedir}/target/test-classes</testOutputDirectory>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-            </resource>
-        </resources>
-        <testResources>
-            <testResource>
-                <directory>src/test/resources</directory>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-            </testResource>
-        </testResources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -110,3 +110,9 @@ La fiche contact est la commande d'un client pour un transport
 | TAP | Init | Fin | VerifierSelonTypeOpSubTask => ( CreationOp21SubTask , CreationOp22SubTask , CreationOp23SubTask , CreationOp24SubTask ) |
 
 # Code
+
+Utilisation des tables de critères
+
+``` java
+
+```

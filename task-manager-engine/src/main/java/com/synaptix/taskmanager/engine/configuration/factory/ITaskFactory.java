@@ -25,10 +25,10 @@ public interface ITaskFactory {
     /**
      * Task is sub task
      *
-     * @param task
+     * @param commonTask
      * @return true if sub task
      */
-    boolean isSubTask(ICommonTask task);
+    boolean isSubTask(ICommonTask commonTask);
 
     /**
      * Create a update status task
@@ -40,9 +40,9 @@ public interface ITaskFactory {
     /**
      * Task is status task
      *
-     * @param task
+     * @param commonTask
      * @return true if status task
      */
-    boolean isStatusTask(ICommonTask task);
+    boolean isStatusTask(ICommonTask commonTask);
 
 }

@@ -38,8 +38,8 @@ public class JPATaskFactory extends AbstractTaskFactory {
     }
 
     @Override
-    public boolean isSubTask(ICommonTask task) {
-        return Task.Type.SUB_TASK.equals(((JPATask) task).getTask().getType());
+    public boolean isSubTask(ICommonTask commonTask) {
+        return Task.Type.SUB_TASK.equals(((JPATask) commonTask).getTask().getType());
     }
 
     @Override
@@ -53,7 +53,7 @@ public class JPATaskFactory extends AbstractTaskFactory {
     }
 
     @Override
-    public boolean isStatusTask(ICommonTask task) {
-        return Task.Type.STATUS_TASK.equals(((JPATask) task).getTask().getType());
+    public boolean isStatusTask(ICommonTask commonTask) {
+        return Task.Type.STATUS_TASK.equals(((JPATask) commonTask).getTask().getType());
     }
 }

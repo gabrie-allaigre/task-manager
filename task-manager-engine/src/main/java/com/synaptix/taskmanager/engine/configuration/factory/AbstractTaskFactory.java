@@ -7,12 +7,12 @@ import com.synaptix.taskmanager.engine.task.ISubTask;
 public abstract class AbstractTaskFactory implements ITaskFactory {
 
     @Override
-    public boolean isSubTask(ICommonTask task) {
-        return task instanceof ISubTask;
+    public boolean isSubTask(ICommonTask commonTask) {
+        return commonTask instanceof ISubTask;
     }
 
     @Override
-    public boolean isStatusTask(ICommonTask task) {
-        return task instanceof IStatusTask;
+    public boolean isStatusTask(ICommonTask commonTask) {
+        return commonTask instanceof IStatusTask;
     }
 }

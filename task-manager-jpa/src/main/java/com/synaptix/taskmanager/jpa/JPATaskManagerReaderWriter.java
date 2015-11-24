@@ -55,6 +55,8 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
         return jpaAccess;
     }
 
+    // WRITER
+
     @Override
     public ITaskCluster saveNewTaskCluster(ITaskCluster taskCluster) {
         LOG.info("JPARW - saveNewTaskCluster");
@@ -69,8 +71,6 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
 
         return cluster;
     }
-
-    // WRITER
 
     @Override
     public ITaskCluster saveNewGraphFromTaskCluster(ITaskCluster taskCluster, List<Pair<ITaskObject, IStatusTask>> taskObjectTasks) {

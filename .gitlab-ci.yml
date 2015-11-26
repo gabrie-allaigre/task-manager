@@ -3,8 +3,6 @@ stages:
   - build
   - test
   - deploy
-before_script:
-  - ls ~/.m2/. -a
 build_job:
   stage: build
   only:

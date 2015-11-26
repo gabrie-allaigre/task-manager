@@ -1,21 +1,15 @@
-image: maven:latest
+image: maven:3.3.3-jdk-8
 stages:
   - build
   - test
   - deploy
 before_script:
-  - pwd
-  - ls ~/. -a
-  - ls ~/.cache/. -a
   - ls ~/.m2/. -a
 build_job:
   stage: build
   only:
     - master
   script:
-    - ls ~/. -a
-    - ls ~/.cache/. -a
-    - ls ~/.m2/. -a
     - mvn --batch-mode compile -Dmaven.test.skip=true -Djacoco.skip=true
   tags:
     - docker

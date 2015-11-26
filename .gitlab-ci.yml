@@ -1,4 +1,4 @@
-image: maven:3.3-jdk-8
+image: maven:latest
 stages:
   - build
   - test
@@ -16,7 +16,7 @@ build_job:
     - ls ~/. -a
     - ls ~/.cache/. -a
     - ls ~/.m2/. -a
-    - mvn -X --batch-mode compile -Dmaven.test.skip=true -Djacoco.skip=true
+    - mvn --batch-mode compile -Dmaven.test.skip=true -Djacoco.skip=true
   tags:
     - docker
 build_merge_job:

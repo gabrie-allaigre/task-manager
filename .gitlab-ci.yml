@@ -6,13 +6,16 @@ stages:
 before_script:
   - pwd
   - ls ~/. -a
+  - ls ~/.cache/. -a
+  - ls ~/.m2/. -a
 build_job:
   stage: build
   only:
     - master
   script:
     - ls ~/. -a
-    - mvn help:effective-settings
+    - ls ~/.cache/. -a
+    - ls ~/.m2/. -a
     - mvn -X --batch-mode compile -Dmaven.test.skip=true -Djacoco.skip=true
   tags:
     - docker

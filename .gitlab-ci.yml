@@ -11,6 +11,8 @@ build_job:
   only:
     - master
   script:
+    - cat ~/.m2/settings.xml
+    - mvn help:effective-settings
     - mvn -X --batch-mode compile -Dmaven.test.skip=true -Djacoco.skip=true
   tags:
     - docker

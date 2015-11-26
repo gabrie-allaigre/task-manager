@@ -11,9 +11,7 @@ build_job:
   only:
     - master
   script:
-    - ls ~/.m2/ -a
-    - whoami
-    - echo $HOME
+    - ls ~/. -a
     - mvn help:effective-settings
     - mvn -X --batch-mode compile -Dmaven.test.skip=true -Djacoco.skip=true
   tags:

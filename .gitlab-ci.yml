@@ -11,7 +11,7 @@ build_job:
   only:
     - master
   script:
-    - cat ~/.m2/settings.xml
+    - ls ~/.m2/ -a
     - mvn help:effective-settings
     - mvn -X --batch-mode compile -Dmaven.test.skip=true -Djacoco.skip=true
   tags:

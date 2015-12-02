@@ -719,7 +719,7 @@ public class TaskManagerEngine {
     }
 
     private void nextTasksForSubTask(ITaskCluster taskCluster, ICommonTask toDoneTask, Object taskServiceResult, List<ICommonTask> nextCurrentTasks) {
-        List<? extends ICommonTask> nextTasks = getTaskManagerConfiguration().getTaskManagerReader().findNextTasksBySubTask((ISubTask) toDoneTask);
+        List<? extends ICommonTask> nextTasks = getTaskManagerConfiguration().getTaskManagerReader().findNextTasksBySubTask((ISubTask) toDoneTask, true);
 
         if (nextTasks != null && !nextTasks.isEmpty()) {
             nextCurrentTasks.addAll(nextTasks);
@@ -738,7 +738,7 @@ public class TaskManagerEngine {
                 res.add(task);
                 if (task instanceof ISubTask) {
                     ISubTask subTask = (ISubTask) task;
-                    List<? extends ICommonTask> nextTasks = getTaskManagerConfiguration().getTaskManagerReader().findNextTasksBySubTask(subTask);
+                    List<? extends ICommonTask> nextTasks = getTaskManagerConfiguration().getTaskManagerReader().findNextTasksBySubTask(subTask, false);
                     res.addAll(extractAllTasks(nextTasks));
                 }
             }

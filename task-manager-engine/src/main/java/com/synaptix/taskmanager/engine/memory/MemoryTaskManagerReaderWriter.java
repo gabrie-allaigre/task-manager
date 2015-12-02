@@ -244,29 +244,32 @@ public class MemoryTaskManagerReaderWriter implements ITaskManagerReader, ITaskM
     }
 
     @Override
-    public List<? extends ICommonTask> findNextTasksBySubTask(ISubTask subTask) {
+    public List<? extends ICommonTask> findNextTasksBySubTask(ISubTask subTask, boolean uniquePossible) {
         LOG.info("MRW - findNextTasksBySubTask");
 
         List<ICommonTask> res = new ArrayList<>();
 
         List<ICommonTask> nextTasks = ((SimpleSubTask) subTask).getNextTasks();
         if (nextTasks != null && !nextTasks.isEmpty()) {
-            for (ICommonTask nextTask : nextTasks) {
-                List<ICommonTask> previousTasks = ((AbstractSimpleCommonTask) nextTask).getPreviousTasks();
-                boolean allFinish = true;
-                if (previousTasks != null && !previousTasks.isEmpty()) {
-                    Iterator<ICommonTask> previousTaskIt = previousTasks.iterator();
-                    while (previousTaskIt.hasNext() && allFinish) {
-                        AbstractSimpleCommonTask previousTask = (AbstractSimpleCommonTask) previousTaskIt.next();
-                        if (!previousTask.equals(subTask) && (AbstractSimpleCommonTask.Status.TODO.equals(previousTask.getStatus()) || AbstractSimpleCommonTask.Status.CURRENT
-                                .equals(previousTask.getStatus()))) {
-                            allFinish = false;
+            if (uniquePossible) {
+                for (ICommonTask nextTask : nextTasks) {
+                    List<ICommonTask> previousTasks = ((AbstractSimpleCommonTask) nextTask).getPreviousTasks();
+                    boolean allFinish = true;
+                    if (previousTasks != null && !previousTasks.isEmpty()) {
+                        Iterator<ICommonTask> previousTaskIt = previousTasks.iterator();
+                        while (previousTaskIt.hasNext() && allFinish) {
+                            AbstractSimpleCommonTask previousTask = (AbstractSimpleCommonTask) previousTaskIt.next();
+                            if (!previousTask.equals(subTask) && (AbstractSimpleCommonTask.Status.TODO.equals(previousTask.getStatus()) || AbstractSimpleCommonTask.Status.CURRENT.equals(previousTask.getStatus()))) {
+                                allFinish = false;
+                            }
                         }
                     }
+                    if (allFinish) {
+                        res.add(nextTask);
+                    }
                 }
-                if (allFinish) {
-                    res.add(nextTask);
-                }
+            } else {
+                res.addAll(nextTasks);
             }
         }
 

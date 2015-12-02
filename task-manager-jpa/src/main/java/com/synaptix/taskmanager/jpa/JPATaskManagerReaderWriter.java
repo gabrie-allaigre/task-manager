@@ -462,34 +462,38 @@ public class JPATaskManagerReaderWriter implements ITaskManagerReader, ITaskMana
     }
 
     @Override
-    public List<? extends ICommonTask> findNextTasksBySubTask(ISubTask subTask) {
+    public List<? extends ICommonTask> findNextTasksBySubTask(ISubTask subTask, boolean uniquePossible) {
         LOG.info("JPARW - findNextTasksBySubTask");
 
         JPATask jpaTask = (JPATask) subTask;
 
-        List<JPATask> res = new ArrayList<>();
+        List<Task> res = new ArrayList<>();
 
         List<Task> nextTasks = jpaTask.getTask().getNextTasks();
         if (nextTasks != null && !nextTasks.isEmpty()) {
-            nextTasks.stream().forEach(nextTask -> {
-                List<Task> previousTasks = nextTask.getPreviousTasks();
-                boolean allFinish = true;
-                if (previousTasks != null && !previousTasks.isEmpty()) {
-                    Iterator<Task> previousTaskIt = previousTasks.iterator();
-                    while (previousTaskIt.hasNext() && allFinish) {
-                        Task previousTask = previousTaskIt.next();
-                        if (!previousTask.equals(jpaTask.getTask()) && (Task.Status.TODO.equals(previousTask.getStatus()) || Task.Status.CURRENT.equals(previousTask.getStatus()))) {
-                            allFinish = false;
+            if (uniquePossible) {
+                nextTasks.stream().forEach(nextTask -> {
+                    List<Task> previousTasks = nextTask.getPreviousTasks();
+                    boolean allFinish = true;
+                    if (previousTasks != null && !previousTasks.isEmpty()) {
+                        Iterator<Task> previousTaskIt = previousTasks.iterator();
+                        while (previousTaskIt.hasNext() && allFinish) {
+                            Task previousTask = previousTaskIt.next();
+                            if (!previousTask.equals(jpaTask.getTask()) && (Task.Status.TODO.equals(previousTask.getStatus()) || Task.Status.CURRENT.equals(previousTask.getStatus()))) {
+                                allFinish = false;
+                            }
                         }
                     }
-                }
-                if (allFinish) {
-                    res.add(new JPATask(currentStatusTransform, nextTask));
-                }
-            });
+                    if (allFinish) {
+                        res.add(nextTask);
+                    }
+                });
+            } else {
+                res.addAll(nextTasks);
+            }
         }
 
-        return res;
+        return res.stream().map(task -> new JPATask(currentStatusTransform, task)).collect(Collectors.toList());
     }
 
     @Override

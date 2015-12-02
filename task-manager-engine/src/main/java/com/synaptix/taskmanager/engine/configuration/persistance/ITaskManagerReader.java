@@ -40,9 +40,10 @@ public interface ITaskManagerReader {
      * Find next tasks for subTask
      *
      * @param subTask
+     * @param uniquePossible
      * @return
      */
-    List<? extends ICommonTask> findNextTasksBySubTask(ISubTask subTask);
+    List<? extends ICommonTask> findNextTasksBySubTask(ISubTask subTask, boolean uniquePossible);
 
     /**
      * @param statusTask

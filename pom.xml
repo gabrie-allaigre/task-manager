@@ -59,7 +59,7 @@
     </scm>
     <ciManagement>
         <system>gitlab-ci</system>
-        <url>https://gitlab.synaptix-labs.com/ci/projects/4</url>
+        <url>https://gitlab.synaptix-labs.com/synaptix/task-manager</url>
     </ciManagement>
     <issueManagement>
         <system>gitlab</system>

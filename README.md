@@ -22,7 +22,7 @@ Les objets métiers peuvent être regroupé dans un **Cluster**, cela permet de 
 <dependency>
     <groupId>com.synaptix</groupId>
     <artifactId>task-manager-engine</artifactId>
-    <version>1.3.0</version>
+    <version>1.4.0</version>
 </dependency>
 ```
 
